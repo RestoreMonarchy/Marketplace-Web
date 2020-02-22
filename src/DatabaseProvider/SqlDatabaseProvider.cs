@@ -4,13 +4,13 @@ using System.Data.SqlClient;
 using Dapper;
 using System.Linq;
 
-namespace DatabaseManager
+namespace Marketplace.DatabaseProvider
 {
-    public class SqlDatabaseManager : IDatabaseManager
+    public class SqlDatabaseProvider : IDatabaseProvider
     {
         private readonly string _connectionString;
         private SqlConnection connection => new SqlConnection(_connectionString);
-        public SqlDatabaseManager(string connectionString)
+        public SqlDatabaseProvider(string connectionString)
         {
             _connectionString = connectionString;
         }

@@ -1,17 +1,13 @@
-using ApiKeyAuthentication;
-using DatabaseManager;
+using Marketplace.DatabaseProvider;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -46,10 +42,10 @@ namespace Marketplace.Server
 
             if (_configuration["DatabaseProvider"].Equals("MYSQL", StringComparison.OrdinalIgnoreCase))
             {
-                services.AddSingleton<IDatabaseManager>(new MySqlDatabaseManager(_configuration.GetConnectionString("MYSQL")));
+                services.AddSingleton<IDatabaseProvider>(new MySqlDatabaseProvider(_configuration.GetConnectionString("MYSQL")));
             } else
             {
-                services.AddSingleton<IDatabaseManager>(new SqlDatabaseManager(_configuration.GetConnectionString("MSSQL")));
+                services.AddSingleton<IDatabaseProvider>(new SqlDatabaseProvider(_configuration.GetConnectionString("MSSQL")));
             }
 
             Console.ForegroundColor = ConsoleColor.Yellow;

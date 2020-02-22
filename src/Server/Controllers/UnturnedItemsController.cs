@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using ApiKeyAuthentication;
-using DatabaseManager;
+using Marketplace.ApiKeyAuthentication;
+using Marketplace.DatabaseProvider;
 using Marketplace.Server.Models;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +12,12 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UnturnedItemsController : ControllerBase
     {
-        private readonly IDatabaseManager _databaseManager;
+        private readonly IDatabaseProvider _databaseProvider;
         private Dictionary<ushort, IconCache> cacheIcons = new Dictionary<ushort, IconCache>();
 
-        public UnturnedItemsController(IDatabaseManager databaseManager)
+        public UnturnedItemsController(IDatabaseProvider databaseManager)
         {
-            _databaseManager = databaseManager;
+            _databaseProvider = databaseManager;
         }
 
         [HttpGet]
@@ -27,29 +27,29 @@ namespace Marketplace.Server.Controllers
             {
                 if (withNoIcons)
                 {
-                    return _databaseManager.GetUnturnedItemsIdsNoIcon();  
+                    return _databaseProvider.GetUnturnedItemsIdsNoIcon();  
                 } else
                 {
-                    return _databaseManager.GetUnturnedItemsIds();
+                    return _databaseProvider.GetUnturnedItemsIds();
                 }                
             }
             else
             {
-                return _databaseManager.GetUnturnedItems();
+                return _databaseProvider.GetUnturnedItems();
             }
         }
 
         [HttpGet("{itemId}")]
         public UnturnedItem GetUnturnedItem(ushort itemId)
         {
-            return _databaseManager.GetUnturnedItem(itemId);
+            return _databaseProvider.GetUnturnedItem(itemId);
         }
 
         [ApiKeyAuth]
         [HttpPost("{itemId}/icon")]
         public void AddIcon(ushort itemId, [FromBody] UnturnedItem item)
         {
-            _databaseManager.AddItemIcon(itemId, item.Icon);
+            _databaseProvider.AddItemIcon(itemId, item.Icon);
         }
 
         [HttpGet("{itemId}/icon")]
@@ -60,7 +60,7 @@ namespace Marketplace.Server.Controllers
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"Getting icon for {itemId} ");
                 Console.ResetColor();
-                cacheIcons[itemId] = new IconCache(_databaseManager.GetItemIcon(itemId), DateTime.Now);
+                cacheIcons[itemId] = new IconCache(_databaseProvider.GetItemIcon(itemId), DateTime.Now);
             }
 
             if (cacheIcons[itemId].Data != null)
@@ -77,7 +77,7 @@ namespace Marketplace.Server.Controllers
         [HttpPost]        
         public void AddUnturnedItems([FromBody] UnturnedItem item)
         {
-            _databaseManager.AddUnturnedItem(item);
+            _databaseProvider.AddUnturnedItem(item);
         }
     }
 }

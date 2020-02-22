@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace DatabaseManager
+namespace Marketplace.DatabaseProvider
 {
-    public interface IDatabaseManager
+    public interface IDatabaseProvider
     {
         // Market Items
         List<MarketItem> GetMarketItems();

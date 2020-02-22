@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Marketplace.DatabaseProvider</AssemblyName>
+    <RootNamespace>Marketplace.DatabaseProvider</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

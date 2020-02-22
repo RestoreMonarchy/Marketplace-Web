@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiKeyAuthentication
+namespace Marketplace.ApiKeyAuthentication
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
@@ -15,7 +13,6 @@ namespace ApiKeyAuthentication
         private const string ApiKeyHeaderName = "x-api-key";
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            Console.WriteLine("OnAuthenticationAsync has been executed and continue");
             if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialApiKey))
             {
                 context.Result = new UnauthorizedResult();

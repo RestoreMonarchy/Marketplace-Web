@@ -4,14 +4,14 @@ using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DatabaseManager
+namespace Marketplace.DatabaseProvider
 {
-    public class MySqlDatabaseManager : IDatabaseManager
+    public class MySqlDatabaseProvider : IDatabaseProvider
     {
         private readonly string _connectionString;
         private MySqlConnection connection => new MySqlConnection(_connectionString);
 
-        public MySqlDatabaseManager(string connectionString)
+        public MySqlDatabaseProvider(string connectionString)
         {
             _connectionString = connectionString;
             InitializeTables();
