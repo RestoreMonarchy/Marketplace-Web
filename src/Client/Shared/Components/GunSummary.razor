@@ -1,0 +1,56 @@
+﻿<h3>Gun State</h3>
+<ul class="list-unstyled">
+    <li><b>Sight:</b> @(Sight != null ? Sight.ItemName : "none")</li>
+    <li><b>Tactical:</b> @(Tactical != null ? Tactical.ItemName : "none")</li>
+    <li><b>Grip:</b> @(Grip != null ? Grip.ItemName : "none")</li>
+    <li><b>Barrel:</b> @(Barrel != null ? Barrel.ItemName : "none")</li>
+    <li><b>Magazine:</b> @Ammo/@(Magazine != null ? Magazine.Amount : 0)</li>
+</ul>
+
+
+@code {
+    [Parameter]
+    public int GunId { get; set; }
+
+    [Parameter]
+    public byte[] Metadata { get; set; }
+
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+
+    public UnturnedItem Sight { get; set; }
+    public UnturnedItem Tactical { get; set; }
+    public UnturnedItem Grip { get; set; }
+    public UnturnedItem Barrel { get; set; }
+    public UnturnedItem Magazine { get; set; }
+
+    public byte Ammo { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Sight = null;
+        Tactical = null;
+        Grip = null;
+        Barrel = null;
+        Magazine = null;
+        Ammo = 0;
+
+        ushort sightId = BitConverter.ToUInt16(Metadata.Take(2).ToArray(), 0);
+        ushort tacticalId = BitConverter.ToUInt16(Metadata.Take(4).ToArray(), 2);
+        ushort gripId = BitConverter.ToUInt16(Metadata.Take(6).ToArray(), 4);
+        ushort barrelId = BitConverter.ToUInt16(Metadata.Take(8).ToArray(), 6);
+        ushort magazineId = BitConverter.ToUInt16(Metadata.Take(10).ToArray(), 8);
+        Ammo = Metadata[10];
+
+        if (sightId != 0)
+            Sight = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + sightId);
+        if (tacticalId != 0)
+            Tactical = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + tacticalId);
+        if (gripId != 0)
+            Grip = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + gripId);
+        if (barrelId != 0)
+            Barrel = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + barrelId);
+        if (magazineId != 0)
+            Magazine = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + magazineId);
+    }
+}

@@ -1,0 +1,55 @@
+﻿@typeparam TData
+
+@if (PagedData != null && PagedData.Count > 0)
+{
+    @ChildContent
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link" @onclick="() => ChangePage(currentPage - 1)" href="#" tabindex="-1">Previous</a>
+            </li>
+            @if (currentPage > 1)
+            {
+                <li class="page-item"><a class="page-link" @onclick="() => ChangePage(currentPage - 1)" href="#">@(currentPage - 1)</a></li>
+            }
+            <li class="page-item active"><a class="page-link" href="#">@currentPage</a></li>
+            @if (currentPage < allPages)
+            {
+                <li class="page-item"><a class="page-link" @onclick="() => ChangePage(currentPage + 1)" href="#">@(currentPage + 1)</a></li>
+            }
+            <li class="page-item @(currentPage == allPages ? "disabled" : "")">
+                <a class="page-link" @onclick="() => ChangePage(currentPage + 1)" href="#">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+
+@code {
+    [Parameter]
+    public List<TData> Data { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public int DefaultPerPage { get; set; }
+    
+    [CascadingParameter]
+    public List<TData> PagedData { get; set; }
+
+    int currentPage = 1;
+    int allPages => PagedData.Count / DefaultPerPage + (PagedData.Count % DefaultPerPage > 0 ? 1 : 0);
+
+    protected override void OnInitialized()
+    {
+        PagedData = Data.Take(DefaultPerPage).ToList();
+    }
+
+    public void ChangePage(int newCurrentPage)
+    {
+        currentPage = newCurrentPage;
+        PagedData = PagedData.Skip((currentPage - 1) * DefaultPerPage).Take(DefaultPerPage).ToList();
+        StateHasChanged();
+    }
+
+}

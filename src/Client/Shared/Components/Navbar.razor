@@ -1,0 +1,59 @@
+﻿@inject NavigationManager navManager
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Marketplace</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/trunk">Trunk</a>
+            </li>
+        </ul>
+        <AuthorizeView>
+            <Authorized>
+                <span class="navbar-text">
+                    Balance: <b>@Balance</b>
+                </span>
+                <form class="form-inline ml-lg-2" method="get" action="/signout">
+                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Sign Out</button>
+                </form>
+            </Authorized>
+            <NotAuthorized>
+                <form class="form-inline" method="post" action="/signin">
+                    <button class="btn btn-primary my-2 my-sm-0" type="submit">Sign In</button>
+                </form>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</nav>
+
+@code  {
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+    [Inject]
+    public AuthenticationStateProvider authProvider { get; set; }
+    private AuthenticationState authState { get; set; }
+    public decimal Balance { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await authProvider.GetAuthenticationStateAsync();
+        navManager.LocationChanged += async (a, b) => await UpdateBalance();
+        await UpdateBalance();
+    }
+
+
+    public async Task UpdateBalance()
+    {
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            Balance = await HttpClient.GetJsonAsync<decimal>("mybalance");
+            StateHasChanged();
+        }
+    }
+}

@@ -1,2 +1,2 @@
-# Maketplace-Web
+# Marketplace-Web
  Website project for Marketplace
