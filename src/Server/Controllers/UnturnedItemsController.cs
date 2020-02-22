@@ -57,9 +57,6 @@ namespace Marketplace.Server.Controllers
         {
             if (!cacheIcons.TryGetValue(itemId, out IconCache cache) || cache.LastUpdate.AddMinutes(10) > DateTime.Now)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Getting icon for {itemId} ");
-                Console.ResetColor();
                 cacheIcons[itemId] = new IconCache(_databaseProvider.GetItemIcon(itemId), DateTime.Now);
             }
 

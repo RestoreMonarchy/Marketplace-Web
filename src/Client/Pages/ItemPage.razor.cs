@@ -26,13 +26,14 @@ namespace Marketplace.Client.Pages
         public AuthenticationState authenticationState { get; set; }
 
         public UnturnedItem Item { get; set; }
-        public List<MarketItem> DisplayData { get; set; }
+        public List<MarketItem> PagedData { get; set; }
         private MarketItem listing;
 
         protected override async Task OnInitializedAsync()
         {
             authenticationState = await authenticationStateProvider.GetAuthenticationStateAsync();
             Item = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + ItemId);
+            System.Console.WriteLine("I'm called hello");
         }
 
         public void PreviewListing(MarketItem listing)

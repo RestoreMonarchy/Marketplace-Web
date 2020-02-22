@@ -9,30 +9,29 @@
             <p>@Item.ItemDescription</p>
         </div>
         <div class="col-lg-7">
-            <CascadingValue Value="DisplayData" Name="DisplayData">
-                <PaginationList TData="MarketItem" DefaultPerPage="1" Data="Item.MarketItems">
-                    @if (DisplayData != null)
-                    {
-                        <ul class="list-group">
-                            @foreach (var market in DisplayData.OrderBy(x => x.Price))
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    @Item.ItemName <b>$@market.Price</b>
-                                    <button type="button" class="btn btn-primary" @onclick="() => PreviewListing(market)">
-                                        More Info
-                                    </button>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </PaginationList>
-            </CascadingValue>
+            
+            <PaginationList TData="MarketItem" DefaultPerPage="1" Data="Item.MarketItems" @bind-PagedData="PagedData">
+                @if (PagedData != null)
+                {
+                    <ul class="list-group">
+                        @foreach (var market in PagedData.OrderBy(x => x.Price))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @Item.ItemName <b>$@market.Price</b>
+                                <button type="button" class="btn btn-primary" @onclick="() => PreviewListing(market)">
+                                    More Info
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                }
+                @if (Item.MarketItems.Count == 0)
+                {
+                    <h3 class="text-center">No listings</h3>
+                }
+            </PaginationList>
             
             
-            @if (Item.MarketItems.Count == 0)
-            {
-                <h3 class="text-center">No listings</h3>
-            }
         </div>
     </div>
 
