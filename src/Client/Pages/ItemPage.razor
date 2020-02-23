@@ -10,7 +10,7 @@
         </div>
         <div class="col-lg-7">
             
-            <PaginationList TData="MarketItem" DefaultPerPage="1" Data="Item.MarketItems" @bind-PagedData="PagedData">
+            <PaginationList TData="MarketItem" DefaultPerPage="10" Data="Item.MarketItems" @bind-PagedData="PagedData">
                 @if (PagedData != null)
                 {
                     <ul class="list-group">
