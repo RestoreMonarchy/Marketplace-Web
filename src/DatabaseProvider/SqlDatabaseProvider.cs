@@ -20,7 +20,7 @@ namespace Marketplace.DatabaseProvider
             string sql = "UPDATE dbo.UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
             using (connection)
             {
-                connection.Executeas(sql, new { iconData, itemId = (int)itemId });
+                connection.Execute(sql, new { iconData, itemId = (int)itemId });
             }
         }
 
