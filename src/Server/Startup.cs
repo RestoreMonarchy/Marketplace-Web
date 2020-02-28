@@ -48,14 +48,16 @@ namespace Marketplace.Server
                 services.AddSingleton<IDatabaseProvider>(new SqlDatabaseProvider(_configuration.GetConnectionString("MSSQL")));
             }
 
+            services.AddMemoryCache();
+
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded...");
+            Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
         }
 
-        private async Task InitializePlayerAsync(CookieValidatePrincipalContext arg)
+        private async Task InitializePlayerAsync(CookieValidatePrincipalContext arg) //Shoudn't be async?
         {
-            string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
+            string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37); //Magic number, not good, what does 37 mean? Make a constant for it.
             List<Claim> claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, steamId));
             claims.Add(new Claim(ClaimTypes.Role, "Guest"));

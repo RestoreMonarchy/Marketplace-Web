@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Dapper;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider
 {
@@ -15,14 +16,15 @@ namespace Marketplace.DatabaseProvider
             _connectionString = connectionString;
         }
 
-        public void AddItemIcon(ushort itemId, byte[] iconData)
+        public async Task AddItemIconAsync(ushort itemId, byte[] iconData)
         {
             string sql = "UPDATE dbo.UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
             using (connection)
             {
-                connection.Executeas(sql, new { iconData, itemId = (int)itemId });
+                await connection.ExecuteAsync(sql, new { iconData, itemId = (int)itemId });
             }
         }
+        //TODO: Make this async
 
         public int AddMarketItem(MarketItem marketItem)
         {

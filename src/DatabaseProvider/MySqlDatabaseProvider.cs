@@ -33,7 +33,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task AddItemIcon(ushort itemId, byte[] iconData)
+        public async Task AddItemIconAsync(ushort itemId, byte[] iconData)
         {
             const string sql = "UPDATE UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
             using (connection)
@@ -42,7 +42,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<int> AddMarketItem(MarketItem marketItem)
+        public async Task<int> AddMarketItemAsync(MarketItem marketItem)
         {
             string sql = "INSERT INTO MarketItems (ItemId, Quality, Amount, Metadata, Price, SellerId) " +
                 "VALUES (@ItemId, @Quality, @Amount, @Metadata, @Price, @SellerId);";
@@ -52,7 +52,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task AddUnturnedItem(UnturnedItem item)
+        public async Task AddUnturnedItemAsync(UnturnedItem item)
         {
             string sql = "INSERT INTO UnturnedItems (ItemId, ItemName, ItemType, ItemDescription, Amount) " +
                 "VALUES (@ItemId, @ItemName, @ItemType, @ItemDescription, @Amount);";
@@ -62,7 +62,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task BuyMarketItem(int id, string buyerId)
+        public async Task BuyMarketItemAsync(int id, string buyerId)
         {
             string sql = "UPDATE MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = NOW() WHERE Id = @id;";
             using (connection)
@@ -71,7 +71,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task ChangePriceMarketItem(int id, decimal price)
+        public async Task ChangePriceMarketItemAsync(int id, decimal price)
         {
             string sql = "UPDATE MarketItems SET Price = @price WHERE Id = @id;";
             using (connection)
@@ -80,7 +80,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task ClaimMarketItem(int id)
+        public async Task ClaimMarketItemAsync(int id)
         {
             string sql = "UPDATE MarketItems SET IsClaimed = 1, ClaimDate = NOW() WHERE Id = @id;";
 
@@ -90,7 +90,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<byte[]> GetItemIcon(ushort itemId)
+        public async Task<byte[]> GetItemIconAsync(ushort itemId)
         {
             string sql = "SELECT Icon FROM UnturnedItems WHERE ItemId = @itemId;";
             using (connection)
@@ -99,7 +99,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<MarketItem> GetMarketItem(int id)
+        public async Task<MarketItem> GetMarketItemAsync(int id)
         {
             string sql = "SELECT * FROM MarketItems WHERE Id = @id;";
             using (connection)
@@ -108,7 +108,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<IEnumerable<MarketItem>> GetMarketItems()
+        public async Task<IEnumerable<MarketItem>> GetMarketItemsAsync()
         {
             string sql = "SELECT * FROM MarketItems;";
             using (connection)
@@ -118,7 +118,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<IEnumerable<MarketItem>> GetPlayerMarketItems(string playerId)
+        public async Task<IEnumerable<MarketItem>> GetPlayerMarketItemsAsync(string playerId)
         {
             string sql = "SELECT m.*, u.ItemName, u.ItemType, u.ItemDescription, u.Amount, u.Icon FROM MarketItems m " +
                 "LEFT JOIN UnturnedItems u ON m.ItemId = u.ItemId WHERE BuyerId = @playerId OR SellerId = @playerId;";
@@ -134,7 +134,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<UnturnedItem> GetUnturnedItem(int itemId)
+        public async Task<UnturnedItem> GetUnturnedItemAsync(int itemId)
         {
             string sql = "SELECT u.*, m.Id, m.ItemId, m.Metadata, m.Quality, m.Price, m.SellerId, m.CreateDate FROM UnturnedItems u " +
                 "LEFT JOIN MarketItems m ON m.ItemId = u.ItemId AND m.IsSold = 0 WHERE u.ItemId = @itemId;";
@@ -159,7 +159,7 @@ namespace Marketplace.DatabaseProvider
             return item;
         }
 
-        public async Task<List<UnturnedItem>> GetUnturnedItems()
+        public async Task<List<UnturnedItem>> GetUnturnedItemsAsync()
         {
             string sql = "SELECT ItemId, ItemName, ItemType, ItemDescription, Amount, " +
                 "(SELECT COUNT(*) FROM MarketItems m WHERE m.ItemId = u.ItemId AND m.IsSold = 0) MarketItemsCount FROM UnturnedItems u;";
@@ -169,7 +169,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<List<UnturnedItem>> GetUnturnedItemsIds()
+        public async Task<List<UnturnedItem>> GetUnturnedItemsIdsAsync()
         {
             string sql = "SELECT ItemId FROM UnturnedItems;";
             using (connection)
@@ -178,7 +178,7 @@ namespace Marketplace.DatabaseProvider
             }
         }
 
-        public async Task<List<UnturnedItem>> GetUnturnedItemsIdsNoIcon()
+        public async Task<List<UnturnedItem>> GetUnturnedItemsIdsNoIconAsync()
         {
             string sql = "SELECT ItemId FROM UnturnedItems WHERE Icon IS NULL;";
             using (connection)
