@@ -28,7 +28,7 @@ namespace Marketplace.Server.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetUnturnedItems([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
+        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
         {
             if (onlyIds)
             {
@@ -47,14 +47,14 @@ namespace Marketplace.Server.Controllers
         }
 
         [HttpGet("{itemId}")]
-        public async Task<IActionResult> GetUnturnedItem([FromRoute] ushort itemId)
+        public async Task<IActionResult> GetUnturnedItemAsync([FromRoute] ushort itemId)
         {
             return Ok(await unturnedItemAssetsRepository.GetUnturnedItemAsync(itemId));
         }
 
         [ApiKeyAuth]
         [HttpPost("{itemId}/icon")]
-        public async Task AddIcon([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
+        public async Task AddIconAsync([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
             using var stream = new MemoryStream(item.Icon);
             await unturnedItemAssetsRepository.AddItemIconAsync(itemId, stream);
@@ -73,7 +73,7 @@ namespace Marketplace.Server.Controllers
 
         [ApiKeyAuth]
         [HttpPost]        
-        public async Task AddUnturnedItems([FromBody] UnturnedItem item)
+        public async Task AddUnturnedItemsAsync([FromBody] UnturnedItem item)
         {
             await unturnedItemAssetsRepository.AddUnturnedItemAsync(item);
         }

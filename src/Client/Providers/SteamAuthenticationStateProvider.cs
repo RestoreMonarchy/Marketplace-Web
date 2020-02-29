@@ -12,16 +12,16 @@ namespace Marketplace.Client.Providers
 {
     public class SteamAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient httpClient;
 
         public SteamAuthenticationStateProvider(HttpClient httpClient)
         {
-            this._httpClient = httpClient;
+            this.httpClient = httpClient;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var userInfo = await _httpClient.GetJsonAsync<UserInfo>("api/authentication");
+            var userInfo = await httpClient.GetJsonAsync<UserInfo>("api/authentication");
             ClaimsIdentity steamIdentity;
 
             if (userInfo.IsAuthenticated)
