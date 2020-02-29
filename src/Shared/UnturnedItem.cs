@@ -26,6 +26,6 @@ namespace Marketplace.Shared
         public byte[] Icon { get; set; }
 
         public int MarketItemsCount { get; set; }
-        public List<MarketItem> MarketItems { get; set; }
+        public ICollection<MarketItem> MarketItems { get; set; }
     }
 }

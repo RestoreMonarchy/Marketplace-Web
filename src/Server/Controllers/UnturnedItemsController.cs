@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider;
-using Marketplace.Server.Models;
+using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Server.Extensions;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Marketplace.Server.Controllers
 {
@@ -12,69 +16,66 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UnturnedItemsController : ControllerBase
     {
-        private readonly IDatabaseProvider _databaseProvider;
-        private Dictionary<ushort, IconCache> cacheIcons = new Dictionary<ushort, IconCache>();
+        private readonly IUnturnedItemAssetsRepository unturnedItemAssetsRepository;
+        private readonly IMemoryCache memoryCache;
 
-        public UnturnedItemsController(IDatabaseProvider databaseManager)
+        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository,
+            IMemoryCache memoryCache)
         {
-            _databaseProvider = databaseManager;
+            this.unturnedItemAssetsRepository = unturnedItemAssetsRepository;
+            this.memoryCache = memoryCache;
         }
 
+
         [HttpGet]
-        public List<UnturnedItem> GetUnturnedItems([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
+        public async Task<IActionResult> GetUnturnedItems([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
         {
             if (onlyIds)
             {
                 if (withNoIcons)
                 {
-                    return _databaseProvider.GetUnturnedItemsIdsNoIcon();  
+                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());  
                 } else
                 {
-                    return _databaseProvider.GetUnturnedItemsIds();
+                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
                 }                
             }
             else
             {
-                return _databaseProvider.GetUnturnedItems();
+                return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
             }
         }
 
         [HttpGet("{itemId}")]
-        public UnturnedItem GetUnturnedItem(ushort itemId)
+        public async Task<IActionResult> GetUnturnedItem([FromRoute] ushort itemId)
         {
-            return _databaseProvider.GetUnturnedItem(itemId);
+            return Ok(await unturnedItemAssetsRepository.GetUnturnedItemAsync(itemId));
         }
 
         [ApiKeyAuth]
         [HttpPost("{itemId}/icon")]
-        public void AddIcon(ushort itemId, [FromBody] UnturnedItem item)
+        public async Task AddIcon([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
-            _databaseProvider.AddItemIcon(itemId, item.Icon);
+            using var stream = new MemoryStream(item.Icon);
+            await unturnedItemAssetsRepository.AddItemIconAsync(itemId, stream);
         }
 
         [HttpGet("{itemId}/icon")]
-        public IActionResult GetIcon(ushort itemId)
+        public async Task<IActionResult> GetIcon([FromRoute] ushort itemId)
         {
-            if (!cacheIcons.TryGetValue(itemId, out IconCache cache) || cache.LastUpdate.AddMinutes(10) > DateTime.Now)
+            using var icon = await memoryCache.GetOrCreateIconAsync(itemId, async () =>
             {
-                cacheIcons[itemId] = new IconCache(_databaseProvider.GetItemIcon(itemId), DateTime.Now);
-            }
+                return await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
+            });
 
-            if (cacheIcons[itemId].Data != null)
-            {                
-                return File(cacheIcons[itemId].Data, "image/png");
-            }
-            else
-            {
-                return File(new byte[0] { }, "image/png");
-            }
+            return Ok(File(icon, "image/png"));
         }
 
         [ApiKeyAuth]
         [HttpPost]        
-        public void AddUnturnedItems([FromBody] UnturnedItem item)
+        public async Task AddUnturnedItems([FromBody] UnturnedItem item)
         {
-            _databaseProvider.AddUnturnedItem(item);
+            await unturnedItemAssetsRepository.AddUnturnedItemAsync(item);
         }
     }
 }
