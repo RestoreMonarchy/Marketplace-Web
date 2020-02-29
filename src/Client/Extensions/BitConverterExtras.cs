@@ -9,15 +9,11 @@ namespace Marketplace.Client.Extensions
 {
     public static class BitConverterExtras
     {
-        public static unsafe T Get<T>(byte[] array, int index)
+        public static unsafe T Get<T>(byte[] array, int index) where T : struct
         {
-            fixed(byte* ptr = array)
+            fixed(byte* ptr = &array[index * Unsafe.SizeOf<T>()])
             {
-                int startIndex = (index * Unsafe.SizeOf<T>());
-
-                var starting = ptr + startIndex;
-
-                return Marshal.PtrToStructure<T>((IntPtr)starting);
+                return Marshal.PtrToStructure<T>((IntPtr)ptr);
             }
         }
 
