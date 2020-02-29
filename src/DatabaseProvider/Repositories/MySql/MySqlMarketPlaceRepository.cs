@@ -20,7 +20,7 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
         public async Task<int> AddMarketItemAsync(MarketItem marketItem)
         {
             const string sql = "INSERT INTO MarketItems (ItemId, Quality, Amount, Metadata, Price, SellerId) " +
-                "VALUES (@ItemId, @Quality, @Amount, @Metadata, @Price, @SellerId);";
+                "VALUES (@SellingItem.ItemId, @Quality, @Amount, @Metadata, @Price, @SellerId);";
 
             return await connection.ExecuteScalarAsync<int>(sql, marketItem);
         }
@@ -74,6 +74,15 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
                 m.Item.ItemId = m.ItemId;
                 return m;
             }, new { playerId }, splitOn: "ItemName"));
+        }
+
+        public async Task Initialize()
+        {
+            const string sql = "CREATE TABLE IF NOT EXISTS MarketItems (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, ItemId INT NOT NULL, Metadata BLOB NOT NULL, " +
+                "Quality TINYINT(255) UNSIGNED NOT NULL, Amount TINYINT(255) UNSIGNED NOT NULL, Price DECIMAL(9, 2) NOT NULL, SellerId VARCHAR(255) NOT NULL, " +
+                "CreateDate DATETIME NOT NULL DEFAULT NOW(), IsSold BIT NOT NULL DEFAULT 0, BuyerId VARCHAR(255) NULL, SoldDate DATETIME NULL, IsClaimed BIT NOT NULL DEFAULT 0, " +
+                "ClaimDate DATETIME NULL, CONSTRAINT FK_MarketItems_ItemID FOREIGN KEY(ItemId) REFERENCES UnturnedItems(ItemId));";
+            await connection.ExecuteAsync(sql).ConfigureAwait(false);
         }
     }
 }

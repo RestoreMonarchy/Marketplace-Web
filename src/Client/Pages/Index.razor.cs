@@ -1,4 +1,5 @@
-﻿using Marketplace.Shared;
+﻿using Marketplace.Client.Api;
+using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,12 @@ namespace Marketplace.Client.Pages
     public partial class Index
     {
         [Inject]
-        private HttpClient HttpClient { get; set; }
+        private UnturnedItemsClient UnturnedItemsClient { get; set; }
 
-        private List<UnturnedItem> items;
-        private List<UnturnedItem> filteredItems => items.Where(x => !showOnlyWithOffers || x.MarketItemsCount > 0).OrderByDescending(x => x.MarketItemsCount).ToList();
-        private List<UnturnedItem> searchItems => filteredItems.Where(x => x.ItemId.ToString()
+        private IEnumerable<UnturnedItem> items;
+
+        private IEnumerable<UnturnedItem> filteredItems => items.Where(x => !showOnlyWithOffers || x.MarketItemsCount > 0).OrderByDescending(x => x.MarketItemsCount).ToList();
+        private IEnumerable<UnturnedItem> searchItems => filteredItems.Where(x => x.ItemId.ToString()
             .Equals(searchString) || x.ItemName.ToLower().Contains(searchString)).ToList();
 
         string searchString = string.Empty;
@@ -24,7 +26,7 @@ namespace Marketplace.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            items = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
+            items = await UnturnedItemsClient.GetUnturnedItemsAsync(null);
         }
 
         void ChangeShowAll()

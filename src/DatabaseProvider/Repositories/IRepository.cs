@@ -7,6 +7,6 @@ namespace Marketplace.DatabaseProvider.Repositories
 {
     public interface IRepository
     {
-
+        Task Initialize();
     }
 }
