@@ -62,7 +62,7 @@ namespace Marketplace.Server.Controllers
 
         [Authorize]
         [HttpPost("{id}/buy")]
-        public async Task<bool> TryBuyMarketItem(int id)
+        public async Task<IActionResult> TryBuyMarketItemAsync(int id)
         {
             decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
             MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
@@ -71,21 +71,21 @@ namespace Marketplace.Server.Controllers
                 await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
                 await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
                 await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name);
-                return true;
+                return Ok(true);
             }
-            return false;
+            return Ok(false);
         }
 
         [Authorize]
         [HttpGet("my")] //I'm not sure about this naming, I think it should be /items instead of /my
-        public async Task<IActionResult> GetMyMarketItems()
+        public async Task<IActionResult> GetMyMarketItemsAsync()
         {
             return Ok(await marketPlaceRepository.GetPlayerMarketItemsAsync(User.Identity.Name));
         }
 
         [ApiKeyAuth]
         [HttpGet("{id}/claim")]
-        public async Task<IActionResult> ClaimMarketItem(int id, [FromQuery] string playerId)
+        public async Task<IActionResult> ClaimMarketItemAsync(int id, [FromQuery] string playerId)
         {
             MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
             
@@ -103,7 +103,7 @@ namespace Marketplace.Server.Controllers
 
         [Authorize]
         [HttpGet("~/mybalance")]
-        public async Task<IActionResult> GetMyBalance()
+        public async Task<IActionResult> GetMyBalanceAsync()
         {
             return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
         }
