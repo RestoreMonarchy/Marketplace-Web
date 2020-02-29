@@ -15,8 +15,6 @@ namespace Marketplace.Server.Controllers
     {
         private readonly IConfiguration _configuration;
 
-        private MySqlConnection serversConnection => new MySqlConnection(_configuration.GetConnectionString("ServersDatabase"));
-
         public AuthenticationController(IConfiguration configuration)
         {
             _configuration = configuration;

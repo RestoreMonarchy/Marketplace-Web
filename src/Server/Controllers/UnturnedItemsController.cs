@@ -4,8 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider;
+using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Extensions;
-using Marketplace.Server.Models;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,12 +16,13 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UnturnedItemsController : ControllerBase
     {
-        private readonly IDatabaseProvider databaseProvider;
+        private readonly IUnturnedItemAssetsRepository unturnedItemAssetsRepository;
         private readonly IMemoryCache memoryCache;
 
-        public UnturnedItemsController(IDatabaseProvider databaseProvider, IMemoryCache memoryCache)
+        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository,
+            IMemoryCache memoryCache)
         {
-            this.databaseProvider = databaseProvider;
+            this.unturnedItemAssetsRepository = unturnedItemAssetsRepository;
             this.memoryCache = memoryCache;
         }
 
@@ -33,29 +34,30 @@ namespace Marketplace.Server.Controllers
             {
                 if (withNoIcons)
                 {
-                    return Ok(await databaseProvider.GetUnturnedItemsIdsNoIconAsync());  
+                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());  
                 } else
                 {
-                    return Ok(await databaseProvider.GetUnturnedItemsIdsNoIconAsync());
+                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
                 }                
             }
             else
             {
-                return Ok(await databaseProvider.GetUnturnedItemsAsync());
+                return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
             }
         }
 
         [HttpGet("{itemId}")]
         public async Task<IActionResult> GetUnturnedItem([FromRoute] ushort itemId)
         {
-            return Ok(await databaseProvider.GetUnturnedItemAsync(itemId));
+            return Ok(await unturnedItemAssetsRepository.GetUnturnedItemAsync(itemId));
         }
 
         [ApiKeyAuth]
         [HttpPost("{itemId}/icon")]
         public async Task AddIcon([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
-            await databaseProvider.AddItemIconAsync(itemId, item.Icon);
+            using var stream = new MemoryStream(item.Icon);
+            await unturnedItemAssetsRepository.AddItemIconAsync(itemId, stream);
         }
 
         [HttpGet("{itemId}/icon")]
@@ -63,7 +65,7 @@ namespace Marketplace.Server.Controllers
         {
             using var icon = await memoryCache.GetOrCreateIconAsync(itemId, async () =>
             {
-                return new MemoryStream(await databaseProvider.GetItemIconAsync(itemId));
+                return await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
             });
 
             return Ok(File(icon, "image/png"));
@@ -73,7 +75,7 @@ namespace Marketplace.Server.Controllers
         [HttpPost]        
         public async Task AddUnturnedItems([FromBody] UnturnedItem item)
         {
-            await databaseProvider.AddUnturnedItemAsync(item);
+            await unturnedItemAssetsRepository.AddUnturnedItemAsync(item);
         }
     }
 }

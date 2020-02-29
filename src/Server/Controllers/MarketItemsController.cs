@@ -2,12 +2,15 @@
 using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider;
+using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Database;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
+using Marketplace.DatabaseProvider.Extensions;
+
 
 namespace Marketplace.Server.Controllers
 {
@@ -16,35 +19,35 @@ namespace Marketplace.Server.Controllers
     public class MarketItemsController : ControllerBase
     {
         private readonly IConfiguration configuration;
-        private readonly IDatabaseProvider databaseProvider;
-        private MySqlConnection serversConnection => new MySqlConnection(configuration.GetConnectionString("ServersDatabase")); //TODO: Big nono
-
-        public MarketItemsController(IConfiguration configuration, IDatabaseProvider databaseProvider)
+        private readonly IMarketPlaceRepository marketPlaceRepository;
+        private readonly IUconomyRepository uconomyRepository;
+        public MarketItemsController(IConfiguration configuration, IMarketPlaceRepository marketPlaceRepository, IUconomyRepository uconomyRepository)
         {
             this.configuration = configuration;
-            this.databaseProvider = databaseProvider;
+            this.marketPlaceRepository = marketPlaceRepository;
+            this.uconomyRepository = uconomyRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMarketItems()
         {
-            return Ok( await databaseProvider.GetMarketItemsAsync());
+            return Ok(await marketPlaceRepository.GetMarketItemsAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketItem(int id)
         {
-            return Ok(await databaseProvider.GetMarketItemAsync(id));
+            return Ok(await marketPlaceRepository.GetMarketItemAsync(id));
         }
 
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> ChangePriceMarketItem(int id, [FromQuery] decimal price) //I think price should be in the body but I wanna hear what you think about that
         {
-            MarketItem marketItem = await databaseProvider.GetMarketItemAsync(id);
+            MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
             if (marketItem.SellerId == User.Identity.Name && !marketItem.IsSold)
             {
-                await databaseProvider.ChangePriceMarketItemAsync(id, price);
+                await marketPlaceRepository.ChangePriceMarketItemAsync(id, price);
                 return Ok();
             }
             return Unauthorized();
@@ -54,20 +57,20 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostMarketItem([FromBody] MarketItem marketItem)
         {
-            return Ok(await databaseProvider.AddMarketItemAsync(marketItem));
+            return Ok(await marketPlaceRepository.AddMarketItemAsync(marketItem));
         }
 
         [Authorize]
         [HttpPost("{id}/buy")]
         public async Task<bool> TryBuyMarketItem(int id)
         {
-            decimal balance = await serversConnection.UconomyGetBalanceAsync(User.Identity.Name);
-            MarketItem item = await databaseProvider.GetMarketItemAsync(id);
+            decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
+            MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
             if (item != null && !item.IsSold && item.Price <= balance && item.SellerId != User.Identity.Name)
             {
-                await serversConnection.UconomyPay(User.Identity.Name, item.Price * -1);
-                await serversConnection.UconomyPay(item.SellerId, item.Price);
-                await databaseProvider.BuyMarketItemAsync(id, User.Identity.Name);
+                await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
+                await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
+                await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name);
                 return true;
             }
             return false;
@@ -77,14 +80,14 @@ namespace Marketplace.Server.Controllers
         [HttpGet("my")] //I'm not sure about this naming, I think it should be /items instead of /my
         public async Task<IActionResult> GetMyMarketItems()
         {
-            return Ok(await databaseProvider.GetPlayerMarketItemsAsync(User.Identity.Name));
+            return Ok(await marketPlaceRepository.GetPlayerMarketItemsAsync(User.Identity.Name));
         }
 
         [ApiKeyAuth]
         [HttpGet("{id}/claim")]
         public async Task<IActionResult> ClaimMarketItem(int id, [FromQuery] string playerId)
         {
-            MarketItem marketItem = await databaseProvider.GetMarketItemAsync(id);
+            MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
             
             if (marketItem == null) //Ehm this feels wrong.
             {
@@ -93,7 +96,7 @@ namespace Marketplace.Server.Controllers
 
             if (playerId == marketItem.BuyerId && !marketItem.IsClaimed)
             {
-                await databaseProvider.ClaimMarketItemAsync(id);                
+                await marketPlaceRepository.ClaimMarketItemAsync(id);                
             }
             return Ok(marketItem);
         }
@@ -102,7 +105,7 @@ namespace Marketplace.Server.Controllers
         [HttpGet("~/mybalance")]
         public async Task<IActionResult> GetMyBalance()
         {
-            return Ok(await serversConnection.UconomyGetBalanceAsync(User.Identity.Name));
+            return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
         }
     }
 }
