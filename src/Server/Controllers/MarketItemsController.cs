@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider;
 using Marketplace.DatabaseProvider.Repositories;
-using Marketplace.Server.Database;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +20,7 @@ namespace Marketplace.Server.Controllers
         private readonly IConfiguration configuration;
         private readonly IMarketPlaceRepository marketPlaceRepository;
         private readonly IUconomyRepository uconomyRepository;
+
         public MarketItemsController(IConfiguration configuration, IMarketPlaceRepository marketPlaceRepository, IUconomyRepository uconomyRepository)
         {
             this.configuration = configuration;
@@ -29,20 +29,20 @@ namespace Marketplace.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMarketItems()
+        public async Task<IActionResult> GetMarketItemsAsync()
         {
             return Ok(await marketPlaceRepository.GetMarketItemsAsync());
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetMarketItem(int id)
+        public async Task<IActionResult> GetMarketItemAsync(int id)
         {
             return Ok(await marketPlaceRepository.GetMarketItemAsync(id));
         }
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> ChangePriceMarketItem(int id, [FromQuery] decimal price) //I think price should be in the body but I wanna hear what you think about that
+        public async Task<IActionResult> ChangePriceMarketItemAsync(int id, [FromQuery] decimal price) //I think price should be in the body but I wanna hear what you think about that
         {
             MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
             if (marketItem.SellerId == User.Identity.Name && !marketItem.IsSold)
@@ -55,7 +55,7 @@ namespace Marketplace.Server.Controllers
 
         [ApiKeyAuth]
         [HttpPost]
-        public async Task<IActionResult> PostMarketItem([FromBody] MarketItem marketItem)
+        public async Task<IActionResult> PostMarketItemAsync([FromBody] MarketItem marketItem)
         {
             return Ok(await marketPlaceRepository.AddMarketItemAsync(marketItem));
         }
