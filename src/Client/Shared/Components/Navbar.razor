@@ -34,15 +34,17 @@
 
 @code  {
     [Inject]
-    public HttpClient HttpClient { get; set; }
+    public AuthenticationStateProvider AuthProvider { get; set; }
     [Inject]
-    public AuthenticationStateProvider authProvider { get; set; }
-    private AuthenticationState authState { get; set; }
+    public MarketItemsClient MarketItemsClient { get; set; }
+
+    private AuthenticationState AuthState { get; set; }
+
     public decimal Balance { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        authState = await authProvider.GetAuthenticationStateAsync();
+        AuthState = await AuthProvider.GetAuthenticationStateAsync();
         navManager.LocationChanged += async (a, b) => await UpdateBalance();
         await UpdateBalance();
     }
@@ -50,9 +52,9 @@
 
     public async Task UpdateBalance()
     {
-        if (authState.User.Identity.IsAuthenticated)
+        if (AuthState.User.Identity.IsAuthenticated)
         {
-            Balance = await HttpClient.GetJsonAsync<decimal>("mybalance");
+            Balance = await MarketItemsClient.GetMyBalanceAsync();
             StateHasChanged();
         }
     }

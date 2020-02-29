@@ -7,6 +7,7 @@ using Marketplace.DatabaseProvider;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Extensions;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -28,54 +29,56 @@ namespace Marketplace.Server.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
+        [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(IEnumerable<UnturnedItem>))]
+        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool onlyIds = false)
         {
             if (onlyIds)
-            {
-                if (withNoIcons)
-                {
-                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());  
-                } else
-                {
-                    return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
-                }                
-            }
-            else
-            {
-                return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
-            }
+                return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
+            return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
         }
 
         [HttpGet("{itemId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnturnedItem))]
         public async Task<IActionResult> GetUnturnedItemAsync([FromRoute] ushort itemId)
         {
             return Ok(await unturnedItemAssetsRepository.GetUnturnedItemAsync(itemId));
         }
 
         [ApiKeyAuth]
-        [HttpPost("{itemId}/icon")]
-        public async Task AddIconAsync([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
+        [HttpPut("{itemId}/icon")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SetIconAsync([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
             using var stream = new MemoryStream(item.Icon);
-            await unturnedItemAssetsRepository.AddItemIconAsync(itemId, stream);
+            await unturnedItemAssetsRepository.SetIconAsync(itemId, stream); //Mabye
+            return Ok();
         }
 
         [HttpGet("{itemId}/icon")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
         public async Task<IActionResult> GetIcon([FromRoute] ushort itemId)
         {
             using var icon = await memoryCache.GetOrCreateIconAsync(itemId, async () =>
             {
                 return await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
             });
-
+            if (icon.Length == 0)
+                return NotFound();
             return Ok(File(icon, "image/png"));
         }
 
         [ApiKeyAuth]
-        [HttpPost]        
-        public async Task AddUnturnedItemsAsync([FromBody] UnturnedItem item)
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnturnedItem))]
+        public async Task<IActionResult> AddUnturnedItemsAsync([FromBody] UnturnedItem item)
         {
+            if (await unturnedItemAssetsRepository.GetUnturnedItemAsync(item.ItemId) != null)
+                return Conflict();
+
             await unturnedItemAssetsRepository.AddUnturnedItemAsync(item);
+            return Ok(item);
         }
     }
 }

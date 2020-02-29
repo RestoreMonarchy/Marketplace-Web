@@ -18,7 +18,7 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             this.connection = connection;
         }
 
-        public async Task AddItemIconAsync(ushort itemId, Stream iconData)
+        public async Task SetIconAsync(ushort itemId, Stream iconData)
         {
             const string sql = "UPDATE UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
 
@@ -89,6 +89,13 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             string sql = "SELECT ItemId FROM UnturnedItems WHERE Icon IS NULL;";
 
             return (await connection.QueryAsync<UnturnedItem>(sql));
+        }
+
+        public async Task Initialize()
+        {
+            const string sql = "CREATE TABLE IF NOT EXISTS UnturnedItems (ItemId INT NOT NULL PRIMARY KEY, ItemName TEXT NOT NULL, ItemType VARCHAR(255) NOT NULL, " +
+                "ItemDescription TEXT NOT NULL, Amount TINYINT NOT NULL DEFAULT 1, Icon MEDIUMBLOB NULL);";
+            await connection.ExecuteAsync(sql).ConfigureAwait(false);
         }
     }
 }

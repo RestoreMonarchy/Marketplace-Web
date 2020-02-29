@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Extensions;
+using Marketplace.DatabaseProvider.Repositories;
 
 namespace Marketplace.Server
 {
@@ -46,6 +47,8 @@ namespace Marketplace.Server
 
             services.AddLogging();
 
+            services.AddSwaggerDocument();
+
             services.AddMvc();
             services.AddResponseCompression(opts =>
             {
@@ -53,8 +56,8 @@ namespace Marketplace.Server
                     new[] { "application/octet-stream" });
             });
 
-
-            switch (configuration["DatabaseProvider"])
+            var provider = configuration.GetValue<string>("DatabaseProvider");
+            switch (provider)
             {
                 case "MySql":
                     services.AddMarketplaceMySql(configuration.GetConnectionString("MySql"));
@@ -69,6 +72,7 @@ namespace Marketplace.Server
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -81,6 +85,9 @@ namespace Marketplace.Server
                 app.UseBlazorDebugging();
             }
 
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
+
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<Client.Startup>();
             app.UseAuthentication();
@@ -92,6 +99,11 @@ namespace Marketplace.Server
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
             });
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
+                Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
+            }
         }
     }
 }

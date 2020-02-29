@@ -18,7 +18,7 @@ namespace Marketplace.Shared
 
         public UnturnedItem() { }
 
-        public int ItemId { get; set; }
+        public ushort ItemId { get; set; }
         public string ItemName { get; set; }
         public EItemType ItemType { get; set; }
         public string ItemDescription { get; set; }
