@@ -1,5 +1,4 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
-using Marketplace.Client.Api;
 using Marketplace.Client.Extensions;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +17,7 @@ namespace Marketplace.Client.Pages
     public partial class TrunkPage
     {
         [Inject]
-        public MarketItemsClient MarketItemsClient { get; set; }
+        public HttpClient HttpClient { get; set; }
         [Inject]
         public AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         [Inject]
@@ -38,7 +37,7 @@ namespace Marketplace.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            Items = await MarketItemsClient.GetMyMarketItemsAsync();
+            Items = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/items");
         }
 
         public void ShowInfo(MarketItem marketItem)
@@ -70,7 +69,8 @@ namespace Marketplace.Client.Pages
                 if (!string.IsNullOrEmpty(result.Value) && decimal.TryParse(result.Value, out decimal price))
                 {
                     item.Price = price;
-                    await MarketItemsClient.ChangePriceMarketItemAsync(item.Id, price);
+                    await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), $"api/marketitems/{item.Id}?price={price}"));
+
                     await Swal.FireAsync("Price Changed", $"Successfully changed the price of listing {item.Id} [{item.Item.ItemName}] to {item.Price}!", SweetAlertIcon.Success);
                 } else
                 {

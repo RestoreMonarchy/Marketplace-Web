@@ -1,5 +1,4 @@
-﻿using Marketplace.Client.Api;
-using Marketplace.Shared;
+﻿using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ namespace Marketplace.Client.Pages
     public partial class Index
     {
         [Inject]
-        private UnturnedItemsClient UnturnedItemsClient { get; set; }
+        private HttpClient HttpClient { get; set; }
 
         private IEnumerable<UnturnedItem> items;
 
@@ -26,7 +25,7 @@ namespace Marketplace.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            items = await UnturnedItemsClient.GetUnturnedItemsAsync(null);
+            items = await HttpClient.GetJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
         }
 
         void ChangeShowAll()

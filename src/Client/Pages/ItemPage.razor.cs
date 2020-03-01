@@ -7,7 +7,6 @@ using Marketplace.Client.Extensions;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Collections.Generic;
-using Marketplace.Client.Api;
 using System.Net;
 
 namespace Marketplace.Client.Pages
@@ -15,12 +14,10 @@ namespace Marketplace.Client.Pages
     public partial class ItemPage
     {
         [Parameter]
-        public ushort ItemId { get; set; }
+        public string ItemId { get; set; }
 
         [Inject]
-        public UnturnedItemsClient UnturnedItemsClient { get; set; }
-        [Inject]
-        public MarketItemsClient MarketItemsClient { get; set; }
+        public HttpClient HttpClient { get; set; }
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
         [Inject]
@@ -36,7 +33,7 @@ namespace Marketplace.Client.Pages
         protected override async Task OnInitializedAsync()
         {
             authenticationState = await authenticationStateProvider.GetAuthenticationStateAsync();
-            Item = await UnturnedItemsClient.GetUnturnedItemAsync(ItemId);
+            Item = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{ItemId}");
         }
 
         public void PreviewListing(MarketItem listing)
@@ -54,19 +51,16 @@ namespace Marketplace.Client.Pages
                 await Swal.FireAsync("Purchase Error", $"You have to sign in to be able to buy!", SweetAlertIcon.Error);
                 return;
             }
-            try
-            {
-                var item = await MarketItemsClient.TryBuyMarketItemAsync(ItemId);
-                Item.MarketItems.Remove(listing);
-                await Swal.FireAsync("Purchase Success", $"You successfully bought {Item.ItemName}({listing.ItemId}) for ${listing.Price}!", SweetAlertIcon.Success);
 
-            }
-            catch (ApiException ex) when (ex.StatusCode == (int)HttpStatusCode.BadRequest)
+            var item = await HttpClient.PostAsync($"api/unturneditems/{ItemId}", null);
+            if (item.StatusCode == HttpStatusCode.BadRequest)
             {
                 await Swal.FireAsync("Purchase Error", "The item has already been sold or you can't afford it!", SweetAlertIcon.Error);
+                return;
             }
 
-
+            Item.MarketItems.Remove(listing);
+            await Swal.FireAsync("Purchase Success", $"You successfully bought {Item.ItemName}({listing.ItemId}) for ${listing.Price}!", SweetAlertIcon.Success);
         }
     }
 }

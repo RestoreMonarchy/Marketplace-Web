@@ -135,7 +135,7 @@ namespace Marketplace.Server.Controllers
         }
 
         [Authorize]
-        [HttpGet("~/mybalance")]
+        [HttpGet("~/balance")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(decimal))]
         public async Task<IActionResult> GetMyBalanceAsync()
         {

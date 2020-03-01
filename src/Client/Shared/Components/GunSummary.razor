@@ -19,7 +19,7 @@
     public byte[] Metadata { get; set; }
 
     [Inject]
-    public UnturnedItemsClient UnturnedItemsClient { get; set; }
+    public HttpClient HttpClient { get; set; }
 
     public UnturnedItem Sight { get; set; }
     public UnturnedItem Tactical { get; set; }
@@ -46,14 +46,14 @@
         Ammo = Metadata[10];
 
         if (sightId != 0)
-            Sight = await UnturnedItemsClient.GetUnturnedItemAsync(sightId);
+            Sight = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{sightId}");
         if (tacticalId != 0)
-            Tactical = await UnturnedItemsClient.GetUnturnedItemAsync(tacticalId);
+            Tactical = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{tacticalId}");
         if (gripId != 0)
-            Grip = await UnturnedItemsClient.GetUnturnedItemAsync(gripId);
+            Grip = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{gripId}");
         if (barrelId != 0)
-            Barrel = await UnturnedItemsClient.GetUnturnedItemAsync(barrelId);
+            Barrel = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{barrelId}");
         if (magazineId != 0)
-            Magazine = await UnturnedItemsClient.GetUnturnedItemAsync(magazineId);
+            Magazine = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{magazineId}");
     }
 }
