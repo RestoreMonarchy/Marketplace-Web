@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiKeyAuthentication\Marketplace.ApiKeyAuthentication.csproj" />
-    <ProjectReference Include="..\Client\Marketplace.Client.csproj" />
     <ProjectReference Include="..\DatabaseProvider\Marketplace.DatabaseProvider.csproj" />
     <ProjectReference Include="..\Shared\Marketplace.Shared.csproj" />
   </ItemGroup>

@@ -89,7 +89,7 @@ namespace Marketplace.Server
             app.UseSwaggerUi3();
 
             app.UseStaticFiles();
-            app.UseClientSideBlazorFiles<Client.Startup>();
+           // app.UseClientSideBlazorFiles<Client.Startup>();
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -97,12 +97,12 @@ namespace Marketplace.Server
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
-                endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+               //endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
             });
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
+                //Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
+                //Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
             }
         }
     }
