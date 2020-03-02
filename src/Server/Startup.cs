@@ -47,7 +47,6 @@ namespace Marketplace.Server
 
             services.AddLogging();
 
-            services.AddSwaggerDocument();
 
             services.AddMvc();
             services.AddResponseCompression(opts =>
@@ -84,9 +83,6 @@ namespace Marketplace.Server
                 app.UseDeveloperExceptionPage();
                 app.UseBlazorDebugging();
             }
-
-            app.UseOpenApi();
-            app.UseSwaggerUi3();
 
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<Client.Startup>();
