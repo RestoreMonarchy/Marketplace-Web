@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
-using Marketplace.DatabaseProvider;
 using Marketplace.DatabaseProvider.Repositories;
-using Marketplace.Server.Extensions;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Marketplace.Server.Controllers
 {
@@ -18,15 +14,11 @@ namespace Marketplace.Server.Controllers
     public class UnturnedItemsController : ControllerBase
     {
         private readonly IUnturnedItemAssetsRepository unturnedItemAssetsRepository;
-        private readonly IMemoryCache memoryCache;
 
-        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository,
-            IMemoryCache memoryCache)
+        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository)
         {
             this.unturnedItemAssetsRepository = unturnedItemAssetsRepository;
-            this.memoryCache = memoryCache;
         }
-
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(IEnumerable<UnturnedItem>))]
@@ -57,15 +49,20 @@ namespace Marketplace.Server.Controllers
         [HttpGet("{itemId}/icon")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
-        public async Task<IActionResult> GetIcon([FromRoute] ushort itemId)
+        public async Task<IActionResult> GetIconAsync([FromRoute] ushort itemId)
         {
-            using var icon = await memoryCache.GetOrCreateIconAsync(itemId, async () =>
-            {
-                return await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
-            });
+            var icon = await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
+
             if (icon.Length == 0)
                 return NotFound();
-            return Ok(File(icon, "image/png"));
+
+            if (!icon.CanTimeout)
+            {
+                byte[] buffer = new byte[icon.Length];
+                await icon.ReadAsync(buffer, 0, buffer.Length);
+                return File(buffer, "image/png");
+            }
+            return File(icon, "image/png");
         }
 
         [ApiKeyAuth]
