@@ -12,6 +12,7 @@ namespace Marketplace.Client
         {
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, SteamAuthenticationStateProvider>();
+
             services.AddSweetAlert2(options =>
             {
                 options.Theme = SweetAlertTheme.Bootstrap4;

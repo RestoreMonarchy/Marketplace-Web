@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
-using Marketplace.DatabaseProvider;
-using Marketplace.Server.Models;
+using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketplace.Server.Controllers
@@ -12,69 +13,69 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UnturnedItemsController : ControllerBase
     {
-        private readonly IDatabaseProvider _databaseProvider;
-        private Dictionary<ushort, IconCache> cacheIcons = new Dictionary<ushort, IconCache>();
+        private readonly IUnturnedItemAssetsRepository unturnedItemAssetsRepository;
 
-        public UnturnedItemsController(IDatabaseProvider databaseManager)
+        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository)
         {
-            _databaseProvider = databaseManager;
+            this.unturnedItemAssetsRepository = unturnedItemAssetsRepository;
         }
 
         [HttpGet]
-        public List<UnturnedItem> GetUnturnedItems([FromQuery] bool onlyIds = false, [FromQuery] bool withNoIcons = false)
+        [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(IEnumerable<UnturnedItem>))]
+        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool onlyIds = false)
         {
             if (onlyIds)
-            {
-                if (withNoIcons)
-                {
-                    return _databaseProvider.GetUnturnedItemsIdsNoIcon();  
-                } else
-                {
-                    return _databaseProvider.GetUnturnedItemsIds();
-                }                
-            }
-            else
-            {
-                return _databaseProvider.GetUnturnedItems();
-            }
+                return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
+            return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
         }
 
         [HttpGet("{itemId}")]
-        public UnturnedItem GetUnturnedItem(ushort itemId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnturnedItem))]
+        public async Task<IActionResult> GetUnturnedItemAsync([FromRoute] ushort itemId)
         {
-            return _databaseProvider.GetUnturnedItem(itemId);
+            return Ok(await unturnedItemAssetsRepository.GetUnturnedItemAsync(itemId));
         }
 
         [ApiKeyAuth]
-        [HttpPost("{itemId}/icon")]
-        public void AddIcon(ushort itemId, [FromBody] UnturnedItem item)
+        [HttpPut("{itemId}/icon")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> SetIconAsync([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
-            _databaseProvider.AddItemIcon(itemId, item.Icon);
+            using var stream = new MemoryStream(item.Icon);
+            await unturnedItemAssetsRepository.SetIconAsync(itemId, stream); //Mabye
+            return Ok();
         }
 
         [HttpGet("{itemId}/icon")]
-        public IActionResult GetIcon(ushort itemId)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
+        public async Task<IActionResult> GetIconAsync([FromRoute] ushort itemId)
         {
-            if (!cacheIcons.TryGetValue(itemId, out IconCache cache) || cache.LastUpdate.AddMinutes(10) > DateTime.Now)
-            {
-                cacheIcons[itemId] = new IconCache(_databaseProvider.GetItemIcon(itemId), DateTime.Now);
-            }
+            var icon = await unturnedItemAssetsRepository.GetItemIconAsync(itemId);
 
-            if (cacheIcons[itemId].Data != null)
-            {                
-                return File(cacheIcons[itemId].Data, "image/png");
-            }
-            else
+            if (icon.Length == 0)
+                return NotFound();
+
+            if (!icon.CanTimeout)
             {
-                return File(new byte[0] { }, "image/png");
+                byte[] buffer = new byte[icon.Length];
+                await icon.ReadAsync(buffer, 0, buffer.Length);
+                return File(buffer, "image/png");
             }
+            return File(icon, "image/png");
         }
 
         [ApiKeyAuth]
-        [HttpPost]        
-        public void AddUnturnedItems([FromBody] UnturnedItem item)
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UnturnedItem))]
+        public async Task<IActionResult> AddUnturnedItemsAsync([FromBody] UnturnedItem item)
         {
-            _databaseProvider.AddUnturnedItem(item);
+            if (await unturnedItemAssetsRepository.GetUnturnedItemAsync(item.ItemId) != null)
+                return Conflict();
+
+            await unturnedItemAssetsRepository.AddUnturnedItemAsync(item);
+            return Ok(item);
         }
     }
 }

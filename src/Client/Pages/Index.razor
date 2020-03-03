@@ -27,11 +27,11 @@
         </li>
         }
     </ul>
-    @if (searchItems.Count == 0)
+    @if (searchItems.Count() == 0)
     {
         <h3 class="text-center">No items match filters or search</h3>
     }
-    @if (searchItems.Count >= 100)
+    @if (searchItems.Count() >= 100)
     {
         <h5 class="mt-2">... to see more use search</h5>
     }

@@ -12,15 +12,18 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Marketplace.DatabaseProvider.Extensions;
+using Marketplace.DatabaseProvider.Repositories;
 
 namespace Marketplace.Server
 {
     public class Startup
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
+
         public Startup(IConfiguration configuration)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -30,8 +33,20 @@ namespace Marketplace.Server
                 {
                     options.LoginPath = "/signin";
                     options.LogoutPath = "/signout";
-                    options.Events.OnValidatePrincipal = InitializePlayerAsync;
+                    options.Events.OnValidatePrincipal = (arg) =>
+                    {
+                        string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37); //Magic number, not good, what does 37 mean? Make a constant for it.
+                        List<Claim> claims = new List<Claim>();
+                        claims.Add(new Claim(ClaimTypes.Name, steamId));
+                        claims.Add(new Claim(ClaimTypes.Role, "Guest"));
+
+                        arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
+                        return Task.CompletedTask;
+                    };
                 }).AddSteam();
+
+            services.AddLogging();
+
 
             services.AddMvc();
             services.AddResponseCompression(opts =>
@@ -40,27 +55,23 @@ namespace Marketplace.Server
                     new[] { "application/octet-stream" });
             });
 
-            if (_configuration["DatabaseProvider"].Equals("MYSQL", StringComparison.OrdinalIgnoreCase))
+            var provider = configuration.GetValue<string>("DatabaseProvider");
+            switch (provider)
             {
-                services.AddSingleton<IDatabaseProvider>(new MySqlDatabaseProvider(_configuration.GetConnectionString("MYSQL")));
-            } else
-            {
-                services.AddSingleton<IDatabaseProvider>(new SqlDatabaseProvider(_configuration.GetConnectionString("MSSQL")));
+                case "MySql":
+                    services.AddMarketplaceMySql(configuration.GetConnectionString("MySql"));
+                    break;
+                case "MsSql":
+                    services.AddMarketplaceSql(configuration.GetConnectionString("MsSql"));
+                    break;
             }
 
+            services.AddMemoryCache();
+
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded...");
+            Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
-        }
 
-        private async Task InitializePlayerAsync(CookieValidatePrincipalContext arg)
-        {
-            string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
-            List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, steamId));
-            claims.Add(new Claim(ClaimTypes.Role, "Guest"));
-
-            arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -84,6 +95,11 @@ namespace Marketplace.Server
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
             });
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
+                Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
+            }
         }
     }
 }

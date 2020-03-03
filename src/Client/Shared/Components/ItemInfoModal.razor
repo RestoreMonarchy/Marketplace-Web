@@ -21,7 +21,7 @@
                         <li><b>Quality:</b> @Listing.Quality</li>
                         @if (Listing.Item.ItemType == EItemType.FUEL)
                         {
-                            <li><b>Fuel:</b> @BitConverter.ToUInt16(Listing.Metadata, 0)</li>
+                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(Listing.Metadata, 0)</li>
                         }
                         @if (Listing.Item.ItemType == EItemType.MAGAZINE)
                         {

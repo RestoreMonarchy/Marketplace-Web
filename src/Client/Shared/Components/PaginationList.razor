@@ -1,6 +1,6 @@
 ﻿@typeparam TData
 
-@if (PagedData != null && PagedData.Count > 0)
+@if ((PagedData?.Count() ?? 0) > 0)
 {
     @ChildContent
 
@@ -28,20 +28,20 @@
 
 @code {
     [Parameter]
-    public List<TData> Data { get; set; }
+    public IEnumerable<TData> Data { get; set; }
     [Parameter]
     public RenderFragment ChildContent { get; set; }
     [Parameter]
     public int DefaultPerPage { get; set; }
     
     [Parameter]
-    public List<TData> PagedData { get; set; }
+    public IEnumerable<TData> PagedData { get; set; }
     [Parameter] 
-    public EventCallback<List<TData>> PagedDataChanged { get; set; }
+    public EventCallback<IEnumerable<TData>> PagedDataChanged { get; set; }
 
 
     int currentPage = 1;
-    int allPages => Data.Count / DefaultPerPage + (Data.Count % DefaultPerPage > 0 ? 1 : 0);
+    int allPages => Data.Count() / DefaultPerPage + (Data.Count() % DefaultPerPage > 0 ? 1 : 0);
 
     protected override async Task OnInitializedAsync()
     {        

@@ -19,25 +19,25 @@ namespace Marketplace.Client.Pages
         [Inject]
         public HttpClient HttpClient { get; set; }
         [Inject]
-        public AuthenticationStateProvider stateProvider { get; set; }
+        public AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
         [Inject]
         public SweetAlertService Swal { get; set; }
         private AuthenticationState state { get; set; }
 
-        public List<MarketItem> Items { get; set; }
+        public IEnumerable<MarketItem> Items { get; set; }
 
-        private List<MarketItem> sellingItems => Items.Where(x => x.SellerId == state.User.Identity.Name && !x.IsSold).ToList();
-        private List<MarketItem> boughtItems => Items.Where(x => x.BuyerId == state.User.Identity.Name && !x.IsClaimed).ToList();
-        private List<MarketItem> historyItems => Items.Where(x => (x.IsSold && x.SellerId == state.User.Identity.Name) || (x.IsClaimed && x.BuyerId == state.User.Identity.Name)).ToList();
+        private IEnumerable<MarketItem> sellingItems => Items.Where(x => x.SellerId == state.User.Identity.Name && !x.IsSold).ToList();
+        private IEnumerable<MarketItem> boughtItems => Items.Where(x => x.BuyerId == state.User.Identity.Name && !x.IsClaimed).ToList();
+        private IEnumerable<MarketItem> historyItems => Items.Where(x => (x.IsSold && x.SellerId == state.User.Identity.Name) || (x.IsClaimed && x.BuyerId == state.User.Identity.Name)).ToList();
 
         private MarketItem infoItem;
 
         protected override async Task OnInitializedAsync()
         {
-            state = await stateProvider.GetAuthenticationStateAsync();
-            Items = await HttpClient.GetJsonAsync<List<MarketItem>>("api/marketitems/my");
+            state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            Items = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/items");
         }
 
         public void ShowInfo(MarketItem marketItem)
@@ -69,7 +69,8 @@ namespace Marketplace.Client.Pages
                 if (!string.IsNullOrEmpty(result.Value) && decimal.TryParse(result.Value, out decimal price))
                 {
                     item.Price = price;
-                    await HttpClient.PutAsync($"api/marketitems/{item.Id}?price={price}", null);
+                    await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), $"api/marketitems/{item.Id}?price={price}"));
+
                     await Swal.FireAsync("Price Changed", $"Successfully changed the price of listing {item.Id} [{item.Item.ItemName}] to {item.Price}!", SweetAlertIcon.Success);
                 } else
                 {

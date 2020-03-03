@@ -9,6 +9,9 @@
 
 
 @code {
+
+
+
     [Parameter]
     public int GunId { get; set; }
 
@@ -35,22 +38,22 @@
         Magazine = null;
         Ammo = 0;
 
-        ushort sightId = BitConverter.ToUInt16(Metadata.Take(2).ToArray(), 0);
-        ushort tacticalId = BitConverter.ToUInt16(Metadata.Take(4).ToArray(), 2);
-        ushort gripId = BitConverter.ToUInt16(Metadata.Take(6).ToArray(), 4);
-        ushort barrelId = BitConverter.ToUInt16(Metadata.Take(8).ToArray(), 6);
-        ushort magazineId = BitConverter.ToUInt16(Metadata.Take(10).ToArray(), 8);
+        ushort sightId = BitConverterExtras.Get<ushort>(Metadata, 0);
+        ushort tacticalId = BitConverterExtras.Get<ushort>(Metadata, 1);
+        ushort gripId = BitConverterExtras.Get<ushort>(Metadata, 2);
+        ushort barrelId = BitConverterExtras.Get<ushort>(Metadata, 3);
+        ushort magazineId = BitConverterExtras.Get<ushort>(Metadata, 4);
         Ammo = Metadata[10];
 
         if (sightId != 0)
-            Sight = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + sightId);
+            Sight = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{sightId}");
         if (tacticalId != 0)
-            Tactical = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + tacticalId);
+            Tactical = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{tacticalId}");
         if (gripId != 0)
-            Grip = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + gripId);
+            Grip = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{gripId}");
         if (barrelId != 0)
-            Barrel = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + barrelId);
+            Barrel = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{barrelId}");
         if (magazineId != 0)
-            Magazine = await HttpClient.GetJsonAsync<UnturnedItem>("api/unturneditems/" + magazineId);
+            Magazine = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{magazineId}");
     }
 }

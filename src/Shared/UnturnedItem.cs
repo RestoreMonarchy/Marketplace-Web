@@ -18,7 +18,7 @@ namespace Marketplace.Shared
 
         public UnturnedItem() { }
 
-        public int ItemId { get; set; }
+        public ushort ItemId { get; set; }
         public string ItemName { get; set; }
         public EItemType ItemType { get; set; }
         public string ItemDescription { get; set; }
@@ -26,6 +26,6 @@ namespace Marketplace.Shared
         public byte[] Icon { get; set; }
 
         public int MarketItemsCount { get; set; }
-        public List<MarketItem> MarketItems { get; set; }
+        public ICollection<MarketItem> MarketItems { get; set; }
     }
 }

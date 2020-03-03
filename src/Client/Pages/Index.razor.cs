@@ -13,9 +13,10 @@ namespace Marketplace.Client.Pages
         [Inject]
         private HttpClient HttpClient { get; set; }
 
-        private List<UnturnedItem> items;
-        private List<UnturnedItem> filteredItems => items.Where(x => !showOnlyWithOffers || x.MarketItemsCount > 0).OrderByDescending(x => x.MarketItemsCount).ToList();
-        private List<UnturnedItem> searchItems => filteredItems.Where(x => x.ItemId.ToString()
+        private IEnumerable<UnturnedItem> items;
+
+        private IEnumerable<UnturnedItem> filteredItems => items.Where(x => !showOnlyWithOffers || x.MarketItemsCount > 0).OrderByDescending(x => x.MarketItemsCount).ToList();
+        private IEnumerable<UnturnedItem> searchItems => filteredItems.Where(x => x.ItemId.ToString()
             .Equals(searchString) || x.ItemName.ToLower().Contains(searchString)).ToList();
 
         string searchString = string.Empty;
@@ -24,7 +25,7 @@ namespace Marketplace.Client.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            items = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
+            items = await HttpClient.GetJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
         }
 
         void ChangeShowAll()
