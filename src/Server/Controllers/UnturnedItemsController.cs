@@ -21,10 +21,10 @@ namespace Marketplace.Server.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type =typeof(IEnumerable<UnturnedItem>))]
-        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool onlyIds = false)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UnturnedItem>))]
+        public async Task<IActionResult> GetUnturnedItemsAsync([FromQuery] bool haveNoIcons = false)
         {
-            if (onlyIds)
+            if (haveNoIcons)
                 return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsIdsNoIconAsync());
             return Ok(await unturnedItemAssetsRepository.GetUnturnedItemsAsync());
         }
