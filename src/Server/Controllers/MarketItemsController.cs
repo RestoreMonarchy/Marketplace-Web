@@ -130,7 +130,7 @@ namespace Marketplace.Server.Controllers
 
 
             await marketPlaceRepository.ClaimMarketItemAsync(id);
-            return CreatedAtAction(nameof(GetMarketItemAsync), new { id = marketItem.Id }, marketItem);
+            return Ok(marketItem);
 
         }
 
