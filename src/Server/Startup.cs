@@ -14,6 +14,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Extensions;
 using Marketplace.DatabaseProvider.Repositories;
+using MySql.Data.MySqlClient;
 
 namespace Marketplace.Server
 {
@@ -65,7 +66,7 @@ namespace Marketplace.Server
                     services.AddMarketplaceSql(configuration.GetConnectionString("MsSql"));
                     break;
             }
-
+            services.AddUconomyMySql(configuration.GetConnectionString("ServersDatabase"));
             services.AddMemoryCache();
 
             Console.ForegroundColor = ConsoleColor.Yellow;

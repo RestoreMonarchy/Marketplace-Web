@@ -17,7 +17,6 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<SqlConnection>(c => new SqlConnection(connectionString));
             source.AddTransient<IMarketPlaceRepository, SqlMarketPlaceRepository>();
             source.AddTransient<IUnturnedItemAssetsRepository, SqlUnturnedItemAssetsRepository>();
-            source.AddTransient<IUconomyRepository, MySqlUconomyRepository>(); //It should prob be mysql considering uconomy is always mysql?
         }
 
         public static void AddMarketplaceMySql(this IServiceCollection source, string connectionString)
@@ -25,7 +24,11 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<MySqlConnection>(c => new MySqlConnection(connectionString));
             source.AddTransient<IMarketPlaceRepository, MySqlMarketPlaceRepository>();
             source.AddTransient<IUnturnedItemAssetsRepository, MySqlUnturnedItemAssetsRepository>();
-            source.AddTransient<IUconomyRepository, MySqlUconomyRepository>();
+        }
+
+        public static void AddUconomyMySql(this IServiceCollection source, string connectionString)
+        {
+            source.AddTransient<IUconomyRepository>(c => new MySqlUconomyRepository(new MySqlConnection(connectionString)));
         }
     }
 }
