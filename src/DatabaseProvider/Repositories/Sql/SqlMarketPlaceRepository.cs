@@ -44,13 +44,12 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         {
             const string sql = "UPDATE dbo.MarketItems SET IsClaimed = 1, ClaimDate = SYSDATETIME() WHERE Id = @id;";
 
-
             await connection.ExecuteAsync(sql, new { id });
         }
 
         public async Task<MarketItem> GetMarketItemAsync(int id)
         {
-            const string sql = "SELECT * FROM dbo.MarketItems WHERE Id = @id LIMIT 1;"; //Should work
+            const string sql = "SELECT * FROM dbo.MarketItems WHERE Id = @id;";
 
             return await connection.QuerySingleOrDefaultAsync<MarketItem>(sql, new { id });
         }
