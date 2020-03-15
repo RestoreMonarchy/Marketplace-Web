@@ -109,10 +109,7 @@ namespace Marketplace.Server.Controllers
         }
 
         [ApiKeyAuth]
-        [HttpPost("{id}/claim")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(MarketItem))]
+        [HttpGet("{id}/claim")]
         public async Task<IActionResult> ClaimMarketItemAsync(int id, [FromQuery] string playerId)
         {
             MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
@@ -131,7 +128,6 @@ namespace Marketplace.Server.Controllers
 
             await marketPlaceRepository.ClaimMarketItemAsync(id);
             return Ok(marketItem);
-
         }
 
         [Authorize]
