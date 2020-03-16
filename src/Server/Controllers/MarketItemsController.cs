@@ -74,10 +74,6 @@ namespace Marketplace.Server.Controllers
 
         [Authorize]
         [HttpPost("{id}/buy")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ItemInfo))]
         public async Task<IActionResult> BuyMarketItemAsync(int id)
         {
             decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
@@ -96,7 +92,7 @@ namespace Marketplace.Server.Controllers
             await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
             await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
             await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name);
-            return Ok(item.ItemInfo);
+            return Ok();
 
         }
 

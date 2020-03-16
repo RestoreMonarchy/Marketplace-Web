@@ -35,9 +35,9 @@
     public int DefaultPerPage { get; set; }
     
     [Parameter]
-    public IEnumerable<TData> PagedData { get; set; }
+    public List<TData> PagedData { get; set; }
     [Parameter] 
-    public EventCallback<IEnumerable<TData>> PagedDataChanged { get; set; }
+    public EventCallback<List<TData>> PagedDataChanged { get; set; }
 
 
     int currentPage = 1;

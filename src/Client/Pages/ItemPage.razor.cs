@@ -27,7 +27,7 @@ namespace Marketplace.Client.Pages
         public AuthenticationState authenticationState { get; set; }
 
         public UnturnedItem Item { get; set; }
-        public IEnumerable<MarketItem> PagedData { get; set; }
+        public List<MarketItem> PagedData { get; set; }
         private MarketItem listing;
 
         protected override async Task OnInitializedAsync()
@@ -52,7 +52,7 @@ namespace Marketplace.Client.Pages
                 return;
             }
 
-            var item = await HttpClient.PostAsync($"api/unturneditems/{ItemId}", null);
+            var item = await HttpClient.PostAsync($"api/marketitems/{listing.Id}/buy", null);
             if (item.StatusCode == HttpStatusCode.BadRequest)
             {
                 await Swal.FireAsync("Purchase Error", "The item has already been sold or you can't afford it!", SweetAlertIcon.Error);
@@ -60,6 +60,7 @@ namespace Marketplace.Client.Pages
             }
 
             Item.MarketItems.Remove(listing);
+            PagedData.Remove(listing);
             await Swal.FireAsync("Purchase Success", $"You successfully bought {Item.ItemName}({listing.ItemId}) for ${listing.Price}!", SweetAlertIcon.Success);
         }
     }
