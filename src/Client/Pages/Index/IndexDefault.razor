@@ -1,0 +1,40 @@
+﻿<div class="input-group mb-3">
+    <div class="input-group-prepend">
+        <span class="input-group-text">Search Item</span>
+    </div>
+    <input type="text" @bind-value="@searchString" @bind-value:event="oninput" class="form-control" placeholder="ID or Name">
+    <div class="dropdown">
+        <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
+            <i class="fas fa-filter"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="javascript:void(0)" @onclick="ChangeShowAll"><i class="fas fa-toggle-@(showOnlyWithOffers ? "on" : "off")"></i> Show Only With Offers</a>
+        </div>
+    </div>
+</div>
+
+@if (items != null)
+{
+    <ul class="list-group">
+        @foreach (var item in searchItems.Take(100))
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <img src="/api/unturneditems/@item.ItemId/icon" style="width: 40px; height: 25px;">
+                <a href="/items/@item.ItemId">@item.ItemName</a>
+                <span class="badge badge-primary badge-pill">@item.MarketItemsCount</span>
+            </li>
+        }
+    </ul>
+    @if (searchItems.Count() == 0)
+    {
+        <h3 class="text-center">No items match filters or search</h3>
+    }
+    @if (searchItems.Count() >= 100)
+    {
+        <h5 class="mt-2">... to see more use search</h5>
+    }
+}
+else
+{
+    <ProgressBar />
+}

@@ -102,6 +102,7 @@ namespace Marketplace.Server
             {
                 Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
                 Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
+                Task.Run(scope.ServiceProvider.GetService<ISettingsRepository>().Initialize).Wait();
             }
         }
     }

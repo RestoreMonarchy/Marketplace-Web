@@ -1,0 +1,27 @@
+﻿@page "/"
+
+@if (LayoutSetting != null)
+{
+    if (LayoutSetting.SettingValue == "Rushed")
+    {
+        <IndexRushed />
+    } else
+    {
+        <IndexDefault />
+    }
+} else
+{
+    <ProgressBar />
+}
+
+
+@code { 
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+    private Setting LayoutSetting { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/indexlayout");
+    }
+} 

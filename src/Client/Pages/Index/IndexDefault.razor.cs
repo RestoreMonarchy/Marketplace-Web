@@ -6,9 +6,9 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Marketplace.Client.Pages
+namespace Marketplace.Client.Pages.Index
 {
-    public partial class Index
+    public partial class IndexDefault
     {
         [Inject]
         private HttpClient HttpClient { get; set; }
