@@ -64,7 +64,7 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
                     item.MarketItems.Add(m);
                 }
                 return null;
-            }, new { itemId }); //NOt gonna lie this feels really ugly, we might wanna 
+            }, new { itemId });
 
             return item;
         }

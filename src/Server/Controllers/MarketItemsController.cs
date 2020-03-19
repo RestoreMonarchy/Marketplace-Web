@@ -133,5 +133,13 @@ namespace Marketplace.Server.Controllers
         {
             return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("balance/total")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(decimal))]
+        public async Task<IActionResult> GetTotalBalanceAsync()
+        {
+            return Ok(await uconomyRepository.GetTotalBalanceAsync());
+        }
     }
 }

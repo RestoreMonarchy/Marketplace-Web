@@ -39,7 +39,10 @@ namespace Marketplace.Server
                         string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37); //Magic number, not good, what does 37 mean? Make a constant for it.
                         List<Claim> claims = new List<Claim>();
                         claims.Add(new Claim(ClaimTypes.Name, steamId));
-                        claims.Add(new Claim(ClaimTypes.Role, "Guest"));
+                        if (configuration.GetSection("Admins").Get<string[]>().Any(x=> x == steamId))
+                            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                        else
+                            claims.Add(new Claim(ClaimTypes.Role, "Guest"));
 
                         arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
                         return Task.CompletedTask;
@@ -72,7 +75,6 @@ namespace Marketplace.Server
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
