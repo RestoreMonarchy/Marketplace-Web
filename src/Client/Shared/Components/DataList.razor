@@ -1,9 +1,39 @@
-﻿<div class="input-group mb-3">
+﻿@typeparam TData
+
+<div class="input-group mb-3">
     <input type="text" @bind-value="Filters.SearchString" @bind-value:event="oninput" class="form-control" placeholder="ID or Name">
+    @if (Filters.ToggleFilters.Count() != 0)
+    {
+        <div class="dropdown">
+            <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
+                <i class="fas fa-filter"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                @foreach (var filter in Filters.ToggleFilters)
+                {
+                    <a class="dropdown-item" href="javascript:void(0)" @onclick="filter.Toggle"><i class="fas fa-toggle-@(filter.Enabled ? "on" : "off")"></i> @filter.Text</a>
+                }                 
+            </div>
+        </div>
+    }
+    @if (Filters.OrderFilters.Count() != 0) 
+    {
+        <div class="dropdown">
+            <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
+                Order By
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                @foreach (var filter in Filters.OrderFilters)
+                {
+                    <a class="dropdown-item @(filter.Enabled ? "active" : "")" href="javascript:void(0)" @onclick="() => Filters.ChangeOrderFilter(filter)">@filter.Text</a>
+                }  
+            </div>
+        </div>
+    }    
 </div>
 
 @ChildContent
-
+  
 <nav class="mt-2">
     <ul class="pagination justify-content-end">
         <li class="page-item @(Filters.CanGoPrev ? "" : "disabled")">
@@ -18,7 +48,7 @@
 
 @code {
     [Parameter]
-    public IFilters Filters { get; set; }
+    public IFilters<TData> Filters { get; set; }
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 } 

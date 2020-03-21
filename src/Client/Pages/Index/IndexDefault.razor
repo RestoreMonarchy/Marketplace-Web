@@ -1,30 +1,17 @@
 ﻿@if (Data != null)
 {
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text">Search Item</span>
-        </div>
-        <input type="text" @bind-value="@Data.SearchString" @bind-value:event="oninput" class="form-control" placeholder="ID or Name">
-        <div class="dropdown">
-            <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
-                <i class="fas fa-filter"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0)" @onclick="ChangeShowAll"><i class="fas fa-toggle-@(showOnlyWithOffers ? "on" : "off")"></i> Show Only With Offers</a>
-            </div>
-        </div>
-    </div>
-
-    <ul class="list-group">
-        @foreach (var item in Data.FilteredData.Take(100))
-        {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <img src="/api/unturneditems/@item.ItemId/icon" style="width: 40px; height: 25px;">
-                <a href="/items/@item.ItemId">@item.ItemName</a>
-                <span class="badge badge-primary badge-pill">@item.MarketItemsCount</span>
-            </li>
-        }
-    </ul>
+    <DataList TData="UnturnedItem" Filters="Data">
+        <ul class="list-group">
+            @foreach (var item in Data.FilteredData.Take(100))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <img src="/api/unturneditems/@item.ItemId/icon" style="width: 40px; height: 25px;">
+                    <a href="/items/@item.ItemId">@item.ItemName</a>
+                    <span class="badge badge-primary badge-pill">@item.MarketItemsCount</span>
+                </li>
+            }
+        </ul>
+    </DataList>    
 }
 else
 {

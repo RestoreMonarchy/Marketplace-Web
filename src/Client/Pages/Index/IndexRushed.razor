@@ -1,6 +1,6 @@
 ﻿@if (MarketItems != null)
 {    
-    <DataList Filters="FiltersData">
+    <DataList TData="MarketItem" Filters="FiltersData">
         <h2 class="text-center">Most Recent Listings</h2>
         <ul class="list-group">
             @foreach (var market in FiltersData.FilteredData)

@@ -1,4 +1,6 @@
 ﻿using Marketplace.Client.Models;
+using Marketplace.Client.Models.Filters;
+using Marketplace.Client.Models.Filters.Orders;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
@@ -16,20 +18,12 @@ namespace Marketplace.Client.Pages.Index
 
         private IEnumerable<UnturnedItem> Items { get; set; }
 
-        private IEnumerable<UnturnedItem> FilteredItems => Items.Where(x => !showOnlyWithOffers || x.MarketItemsCount > 0).OrderByDescending(x => x.MarketItemsCount).ToList();
-
-        bool showOnlyWithOffers = true;
         public FiltersData<UnturnedItem> Data { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             Items = await HttpClient.GetJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
-            Data = new FiltersData<UnturnedItem>(Items, 0);
-        }
-
-        void ChangeShowAll()
-        {
-            showOnlyWithOffers = !showOnlyWithOffers;
+            Data = new FiltersData<UnturnedItem>(Items, 20, new ShowOnlyOffersFilter(), new QuantityOrderFilter(), new ItemIdOrderFilter());
         }
     }
 }

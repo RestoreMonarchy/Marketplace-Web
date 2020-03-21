@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Marketplace.Client.Models.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Models
 {
-    public interface IFilters
+    public interface IFilters<TData>
     {
         int CurrentPage { get; set; }
         string SearchString { get; set; }
@@ -13,5 +14,10 @@ namespace Marketplace.Client.Models
         bool CanGoNext { get; }
         void PrevPage();
         void NextPage();
+
+        IEnumerable<IToggleFilter<TData>> ToggleFilters { get; }
+        IEnumerable<IOrderFilter<TData>> OrderFilters { get; }
+        void ChangeOrderFilter(IOrderFilter<TData> filter);
+        IOrderFilter<TData> CurrentOrderFilter { get; }
     }
 }

@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    <ItemInfoModal Listing="infoItem" IsBuy="false">
+    @*<PreviewModal Order="" Listing="infoItem" IsBuy="false">
         @if (infoItem.IsSold)
         {
             <h3>Buyer Information</h3>
@@ -74,7 +74,7 @@
                 <li><b>Buy Date:</b> @infoItem.SoldDate</li>
             </ul>
         }
-    </ItemInfoModal>
+    </PreviewModal>*@
 } else
 {
     <ProgressBar />
