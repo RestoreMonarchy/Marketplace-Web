@@ -34,7 +34,7 @@
             <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("IndexLayout"))" Model="indexLayout" class="form-inline">
                 <label class="my-1 mr-2">Index Layout</label>
                 <InputSelect @bind-Value="indexLayout.SettingValue" class="custom-select my-1 mr-sm-2">
-                    <option value="Default" selected>Default</option>
+                    <option value="Default">Default</option>
                     <option value="Rushed">Rushed</option>
                 </InputSelect>
                 <button type="submit" class="btn btn-primary mb-2">Save</button>

@@ -56,9 +56,15 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task<IEnumerable<MarketItem>> GetMarketItemsAsync()
         {
-            const string sql = "SELECT * FROM dbo.MarketItems;";
+            const string sql = "SELECT m.Id, m.Metadata, m.Quality, m.Amount, m.Price, m.SellerId, m.CreateDate, m.IsSold, u.ItemId, u.ItemName, " +
+                "u.ItemDescription, u.ItemType, u.Amount FROM dbo.MarketItems m JOIN dbo.UnturnedItems u ON m.ItemId = u.ItemId WHERE m.IsSold = 0;";
 
-            return await connection.QueryAsync<MarketItem>(sql);
+            return await connection.QueryAsync<MarketItem, UnturnedItem, MarketItem>(sql, (m, u) => 
+            {
+                m.ItemId = u.ItemId;
+                m.Item = u;
+                return m;
+            }, splitOn: "ItemId");
         }
 
         public async Task<IEnumerable<MarketItem>> GetPlayerMarketItemsAsync(string playerId)

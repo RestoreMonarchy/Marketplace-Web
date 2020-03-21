@@ -1,0 +1,24 @@
+﻿<div class="input-group mb-3">
+    <input type="text" @bind-value="Filters.SearchString" @bind-value:event="oninput" class="form-control" placeholder="ID or Name">
+</div>
+
+@ChildContent
+
+<nav class="mt-2">
+    <ul class="pagination justify-content-end">
+        <li class="page-item @(Filters.CanGoPrev ? "" : "disabled")">
+            <a class="page-link" @onclick="Filters.PrevPage" href="javascript:void(0)" tabindex="-1">Previous</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="javascript:void(0)">@Filters.CurrentPage</a></li>
+        <li class="page-item @(Filters.CanGoNext ? "" : "disabled")">
+            <a class="page-link" @onclick="Filters.NextPage" href="javascript:void(0)">Next</a>
+        </li>
+    </ul>
+</nav>
+
+@code {
+    [Parameter]
+    public IFilters Filters { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+} 

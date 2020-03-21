@@ -34,7 +34,6 @@ namespace Marketplace.Client.Pages.Dashboard
             
             indexLayout = Settings["IndexLayout"];
 
-
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            
         }
@@ -42,6 +41,13 @@ namespace Marketplace.Client.Pages.Dashboard
         public async Task UpdateSettingAsync(string settingId)
         {
             await HttpClient.PutJsonAsync($"api/settings/{settingId}", Settings[settingId]);
+            await Swal.FireAsync(new SweetAlertOptions($"Successfully updated {settingId} to {Settings[settingId].SettingValue}!") 
+            { 
+                Position = SweetAlertPosition.TopEnd,
+                Icon = SweetAlertIcon.Success,
+                ShowConfirmButton = false,
+                Timer = 1000
+            });
         }        
     }
 }

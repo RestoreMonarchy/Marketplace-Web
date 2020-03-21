@@ -1,32 +1,34 @@
 ﻿<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        @if (Listing != null && Listing.Item != null)
+        @if (Order != null)
         {
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@Listing.Item.ItemName</h5>
+                    <h5 class="modal-title">@Order.UnturnedItem.ItemName</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    @if (Listing.Item.ItemType == EItemType.GUN)
+                    @if (Order.UnturnedItem.ItemType == EItemType.GUN)
                     {
-                        <GunSummary GunId="Listing.Item.ItemId" Metadata="Listing.Metadata" />
+                        <GunSummary GunId="Order.MarketItem.ItemId" Metadata="Order.MarketItem.Metadata" />
                     }
                     <h3>Listing Info</h3>
                     <ul class="list-unstyled">
-                        <li><b>Seller:</b> @Listing.SellerId</li>
-                        <li><b>Price:</b> $@Listing.Price</li>
-                        <li><b>Quality:</b> @Listing.Quality</li>
-                        @if (Listing.Item.ItemType == EItemType.FUEL)
+                        <li><b>Seller:</b> @Order.MarketItem.SellerId</li>
+                        <li><b>Price:</b> $@Order.MarketItem.Price</li>
+                        <li><b>Quality:</b> @Order.MarketItem.Quality</li>
+
+                        @if (Order.UnturnedItem.ItemType == EItemType.FUEL)
                         {
-                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(Listing.Metadata, 0)</li>
+                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(Order.MarketItem.Metadata, 0)</li>
                         }
-                        @if (Listing.Item.ItemType == EItemType.MAGAZINE)
+                        @if (Order.UnturnedItem.ItemType == EItemType.MAGAZINE)
                         {
-                            <li><b>Magazine:</b> @Listing.Amount/@Listing.Item.Amount</li>
+                            <li><b>Magazine:</b> @Order.MarketItem.Amount/@Order.UnturnedItem.Amount</li>
                         }
+
                     </ul>
                     @ChildContent
                 </div>
@@ -34,7 +36,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     @if (IsBuy)
                     {
-                        <button type="button" @onclick="() => OnClickBuy.InvokeAsync(Listing)" class="btn btn-primary">Buy for $@Listing.Price</button>
+                        <button type="button" @onclick="OnClickBuy.InvokeAsync" class="btn btn-primary">Buy for $@Order.MarketItem.Price</button>
                     }
                 </div>
             </div>
@@ -44,12 +46,11 @@
 
 @code {
     [Parameter]
-    public MarketItem Listing { get; set; }
-
-    [Parameter]
-    public EventCallback<MarketItem> OnClickBuy { get; set; }
-    [Parameter]
     public bool IsBuy { get; set; }
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public Order Order { get; set; }
+    [Parameter]
+    public EventCallback OnClickBuy { get; set; }
 }
