@@ -36,11 +36,11 @@ namespace Marketplace.Client.Models
                     ApplySearch(filterData);
 
                 ExecuteToggleFilters(filterData);
-                if (CurrentOrderFilter != null)
-                    CurrentOrderFilter.Execute(ref filterData);
+                if (CurrentOrderFilter != null) 
+                    CurrentOrderFilter.Execute(ref filterData);              
 
                 if (PagesDefault != 0)
-                {
+                {                    
                     UpdatePagesState(filterData);
                     ApplyPagination(ref filterData);
                 }
@@ -87,7 +87,7 @@ namespace Marketplace.Client.Models
         {
             PagesCount = data.Count / PagesDefault + (data.Count % PagesDefault > 0 ? 1 : 0);
             CanGoPrev = CurrentPage > 1;
-            CanGoNext = CurrentPage < PagesCount;
+            CanGoNext = CurrentPage < PagesCount;                
         }
 
         private void ApplyPagination(ref List<TData> data)
@@ -130,7 +130,9 @@ namespace Marketplace.Client.Models
             foreach (var filter in ToggleFilters)
             {
                 if (filter.Enabled)
-                    filter.Execute(data);
+                {
+                    filter.Execute(data);                    
+                }                    
             }
         }
 
@@ -138,10 +140,17 @@ namespace Marketplace.Client.Models
 
         public void ChangeOrderFilter(IOrderFilter<TData> filter)
         {
+            CurrentPage = 1;
             if (CurrentOrderFilter != null)
-                CurrentOrderFilter.Toggle();
+                CurrentOrderFilter.Enabled = false;
             CurrentOrderFilter = filter;
-            CurrentOrderFilter.Toggle();
+            CurrentOrderFilter.Enabled = true;
+        }
+
+        public void ToggleFilter(IToggleFilter<TData> filter)
+        {
+            filter.Enabled = !filter.Enabled;
+            CurrentPage = 1;
         }
     }
 }

@@ -14,10 +14,5 @@ namespace Marketplace.Client.Models.Filters.Orders
         {
             data = data.OrderByDescending(x => x.MarketItemsCount).ToList();
         }
-
-        public void Toggle()
-        {
-            Enabled = !Enabled;
-        }
     }
 }

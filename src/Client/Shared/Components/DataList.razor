@@ -14,7 +14,7 @@
                 <div class="dropdown-menu dropdown-menu-right">
                     @foreach (var filter in Filters.ToggleFilters)
                     {
-                        <a class="dropdown-item" href="javascript:void(0)" @onclick="filter.Toggle"><i class="fas fa-toggle-@(filter.Enabled ? "on" : "off")"></i> @filter.Text</a>
+                        <a class="dropdown-item" href="javascript:void(0)" @onclick="() => Filters.ToggleFilter(filter)"><i class="fas fa-toggle-@(filter.Enabled ? "on" : "off")"></i> @filter.Text</a>
                     }
                 </div>
             </div>

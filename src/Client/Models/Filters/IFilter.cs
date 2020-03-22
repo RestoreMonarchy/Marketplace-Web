@@ -8,7 +8,6 @@ namespace Marketplace.Client.Models
     public interface IFilter
     {
         string Text { get; }
-        bool Enabled { get; }        
-        void Toggle();
+        bool Enabled { get; set; }
     }
 }

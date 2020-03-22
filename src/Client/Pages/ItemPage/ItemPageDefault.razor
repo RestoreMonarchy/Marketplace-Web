@@ -26,7 +26,7 @@
             </DataList>
         </div>
     </div>
-    <PreviewModal IsBuy="true" Order="OrderState.Order" OnClickBuy="OrderState.BuyMarketItem" />
+    <PreviewModal MarketItem="OrderState.Order?.MarketItem ?? null" UnturnedItem="OrderState.Order?.UnturnedItem ?? null" OnClickBuy="OrderState.BuyMarketItem" />
 }
 else
 {

@@ -12,12 +12,7 @@ namespace Marketplace.Client.Models.Filters.Orders
 
         public void Execute(ref List<UnturnedItem> data)
         {
-            data = data.OrderByDescending(x => x.ItemId).ToList();
-        }
-
-        public void Toggle()
-        {
-            Enabled = !Enabled;
+            data = data.OrderBy(x => x.ItemId).ToList();
         }
     }
 }
