@@ -40,6 +40,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         public async Task Initialize()
         {
             await AddSettingAsync(new Setting("IndexLayout", "Default", "Change a layout of home page"));
+            await AddSettingAsync(new Setting("ItemPageLayout", "Default", "Change a layout of item page"));
         }
 
         private async Task AddSettingAsync(Setting setting)

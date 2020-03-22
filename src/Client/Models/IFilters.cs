@@ -14,6 +14,8 @@ namespace Marketplace.Client.Models
         bool CanGoNext { get; }
         void PrevPage();
         void NextPage();
+        int DataCount { get; }
+        bool UseSearch { get; }
 
         IEnumerable<IToggleFilter<TData>> ToggleFilters { get; }
         IEnumerable<IOrderFilter<TData>> OrderFilters { get; }

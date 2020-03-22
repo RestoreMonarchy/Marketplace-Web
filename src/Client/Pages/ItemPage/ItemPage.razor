@@ -1,0 +1,34 @@
+﻿@page "/items/{itemId}"
+
+
+@if (LayoutSetting != null)
+{
+    if (LayoutSetting.SettingValue == "Default")
+    {
+        <ItemPageDefault ItemId="@ItemId" />
+    }
+    else
+    {
+        <h2>This page is disabled</h2>
+    }
+}
+else
+{
+    <ProgressBar />
+}
+
+
+@code {
+    [Parameter]
+    public string ItemId { get; set; }
+
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+
+    private Setting LayoutSetting { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/itempagelayout");
+    }
+}

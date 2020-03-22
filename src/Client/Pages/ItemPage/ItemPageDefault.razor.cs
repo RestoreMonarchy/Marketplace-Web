@@ -1,18 +1,14 @@
-﻿using Marketplace.Shared;
+﻿using Marketplace.Client.Models;
+using Marketplace.Client.Services;
+using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Marketplace.Client.Extensions;
-using CurrieTechnologies.Razor.SweetAlert2;
-using Microsoft.AspNetCore.Components.Authorization;
-using System.Collections.Generic;
-using System.Net;
-using Marketplace.Client.Services;
 
-namespace Marketplace.Client.Pages
+namespace Marketplace.Client.Pages.ItemPage
 {
-    public partial class ItemPage
+    public partial class ItemPageDefault
     {
         [Parameter]
         public string ItemId { get; set; }
@@ -22,12 +18,14 @@ namespace Marketplace.Client.Pages
         [Inject]
         public OrderState OrderState { get; set; }
 
+        private FiltersData<MarketItem> Data { get; set; }
         private UnturnedItem UnturnedItem { get; set; }
-        public List<MarketItem> PagedData { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             UnturnedItem = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{ItemId}");
+            UnturnedItem.MarketItems.ToList().ForEach(x => x.Item = UnturnedItem);
+            Data = new FiltersData<MarketItem>(UnturnedItem.MarketItems, 15, false);
         }
     }
 }

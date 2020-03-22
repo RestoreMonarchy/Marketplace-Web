@@ -25,6 +25,7 @@ namespace Marketplace.Client.Pages.Dashboard
         private int marketItemsCount;
 
         private Setting indexLayout;
+        private Setting itemPageLayout;
 
         protected override async Task OnInitializedAsync() 
         {
@@ -33,6 +34,7 @@ namespace Marketplace.Client.Pages.Dashboard
             Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
             
             indexLayout = Settings["IndexLayout"];
+            itemPageLayout = Settings["ItemPageLayout"];
 
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            

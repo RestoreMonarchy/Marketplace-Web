@@ -23,7 +23,7 @@ namespace Marketplace.Client.Pages.Index
         protected override async Task OnInitializedAsync()
         {
             Items = await HttpClient.GetJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
-            Data = new FiltersData<UnturnedItem>(Items, 20, new ShowOnlyOffersFilter(), new QuantityOrderFilter(), new ItemIdOrderFilter());
+            Data = new FiltersData<UnturnedItem>(Items, 20, true, new ShowOnlyOffersFilter(), new QuantityOrderFilter(), new ItemIdOrderFilter());
         }
     }
 }

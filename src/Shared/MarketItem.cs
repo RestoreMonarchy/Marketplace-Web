@@ -26,7 +26,7 @@ namespace Marketplace.Shared
         public byte[] Metadata { get; set; }
 
         [Searchable]
-        public string ItemName => Item.ItemName;
+        public string ItemName => Item?.ItemName ?? string.Empty;
 
         public decimal Price { get; set; }
         public string SellerId { get; set; }
