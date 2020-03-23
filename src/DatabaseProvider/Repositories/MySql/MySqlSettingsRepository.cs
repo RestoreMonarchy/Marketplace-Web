@@ -1,20 +1,19 @@
 ﻿using Dapper;
 using Marketplace.Shared;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Marketplace.DatabaseProvider.Repositories.Sql
+namespace Marketplace.DatabaseProvider.Repositories.MySql
 {
-    public class SqlSettingsRepository : ISettingsRepository
+    public class MySqlSettingsRepository : ISettingsRepository
     {
-        private readonly SqlConnection connection;
-
-        public SqlSettingsRepository(SqlConnection connection)
+        private readonly MySqlConnection connection;
+        public MySqlSettingsRepository(MySqlConnection connection)
         {
             this.connection = connection;
         }
@@ -39,11 +38,6 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task Initialize()
         {
-            const string sql = "CREATE TABLE Settings (SettingId VARCHAR(255) NOT NULL PRIMARY KEY, SettingValue VARCHAR(255) NULL, Help VARCHAR(1000) NULL);";
-            const string sql2 = "DELIMITER // CREATE PROCEDURE AddSetting(settingId VARCHAR(255), settingValue VARCHAR(255), help VARCHAR(1000)) " +
-                "BEGIN INSERT IGNORE INTO Settings(SettingId, SettingValue, Help) VALUES(settingId, settingValue, help); END // DELIMITER; ";
-            await connection.ExecuteAsync(sql);
-            await connection.ExecuteAsync(sql2);
             await AddSettingAsync(new Setting("IndexLayout", "Default", "Change a layout of home page"));
             await AddSettingAsync(new Setting("ItemPageLayout", "Default", "Change a layout of item page"));
         }
