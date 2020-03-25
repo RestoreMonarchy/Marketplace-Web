@@ -1,7 +1,4 @@
-﻿@page "/trunk"
-
-
-@if (Items != null)
+﻿@if (Items != null)
 {
     <nav class="nav nav-pills nav-justified" id="tab" role="tablist">
         <a class="nav-item nav-link active" id="shoppings-tab" data-toggle="pill" role="tab" aria-controls="shoppings" aria-selected="true" href="#shoppings">My Shoppings</a>
@@ -16,18 +13,18 @@
                     <li class="list-group-item dropdown">
                         <span class="badge badge-pill badge-primary">@item.Id</span>  <span class="font-weight-bold">@item.Item.ItemName</span>
                         <button class="btn btn-outline-primary btn-sm float-right" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
+                            <i class="fas fa-ellipsis-v"></i> 
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowClaim(item)">Claim</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowInfo(item)">Info</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => State.ShowClaim(item)">Claim</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => State.ShowInfoModalAsync(item)">Info</a>
                             <a class="dropdown-item disabled" href="javascript:void(0)">@item.SoldDate</a>
                         </div>
                     </li>
                 }
             </ul>
         </div>
-        <div class="tab-pane fade" id="listings" role="tabpanel" aria-labelledby="listings-tab">            
+        <div class="tab-pane fade" id="listings" role="tabpanel" aria-labelledby="listings-tab">
             <ul class="list-group">
                 @foreach (var item in sellingItems)
                 {
@@ -37,8 +34,8 @@
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => ChangePrice(item)">Change Price</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowInfo(item)">Info</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => State.ChangePrice(item)">Change Price</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => State.ShowInfoModalAsync(item)">Info</a>
                             <a class="dropdown-item disabled" href="javascript:void(0)">@item.CreateDate</a>
                         </div>
                     </li>
@@ -50,32 +47,35 @@
                 @foreach (var item in historyItems)
                 {
                     <li class="list-group-item dropdown">
-                        <span class="badge badge-pill badge-primary">@item.Id</span>  <span class="font-weight-bold">@item.Item.ItemName 
-                            @(item.SellerId == state.User.Identity.Name ? $"sold for ${item.Price}" : $"bought for ${item.Price}" )</span>
-                        <button class="btn btn-outline-primary btn-sm float-right" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="() => ShowInfo(item)">Info</a>
-                            <a class="dropdown-item disabled" href="javascript:void(0)">@item.SoldDate</a>
-                        </div>
-                    </li>
-                }
+                        <span class="badge badge-pill badge-primary">@item.Id</span>  <span class="font-weight-bold">
+                            @item.Item.ItemName
+                        @(item.SellerId == state.User.Identity.Name ? $"sold for ${item.Price}" : $"bought for ${item.Price}" )
+                    </span>
+                    <button class="btn btn-outline-primary btn-sm float-right" type="button" data-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="javascript:void(0)" @onclick="() => State.ShowInfoModalAsync(item)">Info</a>
+                        <a class="dropdown-item disabled" href="javascript:void(0)">@item.SoldDate</a>
+                    </div>
+                </li>
+            }
             </ul>
         </div>
     </div>
 
-    <PreviewModal MarketItem="infoItem" UnturnedItem="infoItem?.Item ?? null">
-        @if (infoItem.IsSold)
+    <PreviewModal MarketItem="State.InfoItem" UnturnedItem="State.InfoItem?.Item ?? null">
+        @if (State.InfoItem.IsSold)
         {
             <h3>Buyer Information</h3>
             <ul class="list-unstyled">
-                <li><b>Buyer:</b> @(infoItem.SellerId == state.User.Identity.Name ? "You" : infoItem.BuyerId)</li>
-                <li><b>Buy Date:</b> @infoItem.SoldDate</li>
+                <li><b>Buyer:</b> @(State.InfoItem.SellerId == state.User.Identity.Name ? "You" : State.InfoItem.BuyerId)</li>
+                <li><b>Buy Date:</b> @State.InfoItem.SoldDate</li>
             </ul>
         }
     </PreviewModal>
-} else
+}
+else
 {
     <ProgressBar />
 }

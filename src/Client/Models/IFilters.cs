@@ -1,8 +1,5 @@
 ﻿using Marketplace.Client.Models.Filters;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Marketplace.Client.Models
 {
@@ -16,6 +13,7 @@ namespace Marketplace.Client.Models
         void NextPage();
         int DataCount { get; }
         bool UseSearch { get; }
+        void RemoveFromOrigin(TData item);
 
         IEnumerable<IToggleFilter<TData>> ToggleFilters { get; }
         IEnumerable<IOrderFilter<TData>> OrderFilters { get; }

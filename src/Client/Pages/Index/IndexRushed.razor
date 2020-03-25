@@ -1,7 +1,6 @@
 ﻿@if (MarketItems != null)
 {    
     <DataList TData="MarketItem" Filters="FiltersData">
-        <h2 class="text-center">Most Recent Listings</h2>
         <ul class="list-group">
             @foreach (var market in FiltersData.FilteredData)
             {
@@ -12,7 +11,7 @@
                     </div>
                     <div>
                         <span class="font-weight-bold">$@market.Price</span>
-                        <button type="button" class="btn btn-primary" @onclick="() => OrderState.ShowPreviewModal(market)">
+                        <button type="button" class="btn btn-primary" @onclick="async () => await OrderState.ShowInfoModalAsync(market)">
                             More Info
                         </button>
                     </div>
@@ -21,7 +20,7 @@
         </ul>
     </DataList>
 
-    <PreviewModal UnturnedItem="OrderState.Order?.UnturnedItem ?? null" MarketItem="OrderState.Order?.MarketItem ?? null" OnClickBuy="OrderState.BuyMarketItem" />
+    <PreviewModal UnturnedItem="OrderState.InfoItem?.Item ?? null" MarketItem="OrderState.InfoItem" OnClickBuy="(m) => OrderState.BuyMarketItemAsync(m, FiltersData.RemoveFromOrigin)" />
 }
 else
 {

@@ -8,15 +8,15 @@ namespace Marketplace.Client.Models
 {
     public class FiltersData<TData> : IFilters<TData>
     {
-        private readonly IEnumerable<TData> originData;
+        private readonly List<TData> originData;
         public int PagesDefault { get; set; }
         public bool UseSearch { get; }
         public FiltersData(IEnumerable<TData> data, int pagesDefault = 0, bool useSearch = true, params IFilter[] filters)
         {
-            originData = data;
+            originData = data.ToList();
             PagesDefault = pagesDefault;
             UseSearch = useSearch;
-            DataCount = data.Count();
+            DataCount = originData.Count;
             foreach (var filter in filters)
             {
                 AttachFilter(filter);
@@ -30,7 +30,7 @@ namespace Marketplace.Client.Models
         {
             get
             {
-                List<TData> filterData = originData.ToList();
+                List<TData> filterData = originData;
 
                 if (UseSearch)
                     ApplySearch(filterData);
@@ -122,7 +122,17 @@ namespace Marketplace.Client.Models
                 ToggleFilters.Add(filter as IToggleFilter<TData>);
 
             if (filter as IOrderFilter<TData> != null)
+            {
+                if (filter.Enabled)
+                {
+                    if (CurrentOrderFilter == null)
+                        CurrentOrderFilter = filter as IOrderFilter<TData>;
+                    else
+                        filter.Enabled = false;
+                }
                 OrderFilters.Add(filter as IOrderFilter<TData>);
+            }
+                
         }
 
         private void ExecuteToggleFilters(List<TData> data)
@@ -151,6 +161,11 @@ namespace Marketplace.Client.Models
         {
             filter.Enabled = !filter.Enabled;
             CurrentPage = 1;
+        }
+
+        public void RemoveFromOrigin(TData item)
+        {
+            originData.Remove(item);
         }
     }
 }

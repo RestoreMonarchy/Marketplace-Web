@@ -97,7 +97,7 @@ namespace Marketplace.Server.Controllers
         }
 
         [Authorize]
-        [HttpGet("items")]
+        [HttpGet("trunk")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MarketItem>))]
         public async Task<IActionResult> GetMyMarketItemsAsync()
         {

@@ -5,7 +5,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">@UnturnedItem.ItemName</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -36,7 +36,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     @if (OnClickBuy.HasDelegate)
                     {
-                        <button type="button" @onclick="OnClickBuy.InvokeAsync" class="btn btn-primary">Buy for $@MarketItem.Price</button>
+                        <button type="button" @onclick="async () => await OnClickBuy.InvokeAsync(MarketItem)" class="btn btn-primary">Buy for $@MarketItem.Price</button>
                     }
                 </div>
             </div>
@@ -52,5 +52,5 @@
     [Parameter]
     public MarketItem MarketItem { get; set; }
     [Parameter]
-    public EventCallback OnClickBuy { get; set; }
+    public EventCallback<MarketItem> OnClickBuy { get; set; }
 }

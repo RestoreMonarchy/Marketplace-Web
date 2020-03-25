@@ -1,0 +1,30 @@
+﻿@page "/trunk"
+@attribute [Authorize]
+
+@if (LayoutSetting != null)
+{
+    if (LayoutSetting.SettingValue == "Rushed")
+    {
+        <h1>This is going to be rushed thingy</h1>
+    }
+    else
+    {
+        <TrunkPageDefault />
+    }
+}
+else
+{
+    <ProgressBar />
+}
+
+
+@code {
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+    private Setting LayoutSetting { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/trunklayout");
+    }
+} 

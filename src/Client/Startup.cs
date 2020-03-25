@@ -18,7 +18,7 @@ namespace Marketplace.Client
             services.AddSweetAlert2(options =>
             {
                 options.Theme = SweetAlertTheme.Bootstrap4;
-            });            
+            });
         }
 
         public void Configure(IComponentsApplicationBuilder app)
