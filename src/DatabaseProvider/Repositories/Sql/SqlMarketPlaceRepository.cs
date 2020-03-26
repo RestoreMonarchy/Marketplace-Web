@@ -56,23 +56,29 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task<IEnumerable<MarketItem>> GetMarketItemsAsync()
         {
-            const string sql = "SELECT * FROM dbo.MarketItems;";
+            const string sql = "SELECT m.Id, m.Metadata, m.Quality, m.Amount, m.Price, m.SellerId, m.CreateDate, m.IsSold, u.ItemId, u.ItemName, " +
+                "u.ItemDescription, u.ItemType, u.Amount FROM dbo.MarketItems m JOIN dbo.UnturnedItems u ON m.ItemId = u.ItemId WHERE m.IsSold = 0;";
 
-            return await connection.QueryAsync<MarketItem>(sql);
+            return await connection.QueryAsync<MarketItem, UnturnedItem, MarketItem>(sql, (m, u) => 
+            {
+                m.ItemId = u.ItemId;
+                m.Item = u;
+                return m;
+            }, splitOn: "ItemId");
         }
 
         public async Task<IEnumerable<MarketItem>> GetPlayerMarketItemsAsync(string playerId)
         {
-            const string sql = "SELECT m.*, u.ItemName, u.ItemType, u.ItemDescription, u.Amount, u.Icon FROM dbo.MarketItems m " +
-                            "LEFT JOIN dbo.UnturnedItems u ON m.ItemId = u.ItemId WHERE BuyerId = @playerId OR SellerId = @playerId;";
+            const string sql = "SELECT m.Id, m.Metadata, m.Quality, m.Amount, m.Price, m.SellerId, m.CreateDate, m.IsSold, m.BuyerId, m.SoldDate, m.IsClaimed, " +
+                "m.ClaimDate, u.ItemId, u.ItemName, u.ItemType, u.ItemDescription, u.Amount FROM dbo.MarketItems m " +
+                "LEFT JOIN dbo.UnturnedItems u ON m.ItemId = u.ItemId WHERE BuyerId = @playerId OR SellerId = @playerId;";
 
             return await connection.QueryAsync<MarketItem, UnturnedItem, MarketItem>(sql, (m, u) =>
             {
+                m.ItemId = u.ItemId;
                 m.Item = u;
-                m.Item.ItemId = m.ItemId;
                 return m;
-            }, new { playerId }, splitOn: "ItemName"); //Once again, this feels ugly
-
+            }, new { playerId }, splitOn: "ItemId");
         }
 
         public Task Initialize()

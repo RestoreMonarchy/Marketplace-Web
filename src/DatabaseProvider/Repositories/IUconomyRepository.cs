@@ -8,6 +8,7 @@ namespace Marketplace.DatabaseProvider.Repositories
     public interface IUconomyRepository : IRepository
     {
         Task<decimal> GetBalanceAsync(string id);
+        Task<decimal> GetTotalBalanceAsync();
         Task SetBalanceAsync(string id, decimal newBalance);
     }
 }

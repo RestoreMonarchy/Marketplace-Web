@@ -1,0 +1,61 @@
+﻿@typeparam TData
+
+    <div class="input-group mb-3">
+        @if (Filters.UseSearch)
+        {
+            <input type="text" @bind-value="Filters.SearchString" @bind-value:event="oninput" class="form-control" placeholder="ID or Name">
+        }
+        @if (Filters.ToggleFilters.Count() != 0)
+        {
+            <div class="dropdown">
+                <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
+                    <i class="fas fa-filter"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @foreach (var filter in Filters.ToggleFilters)
+                    {
+                        <a class="dropdown-item" href="javascript:void(0)" @onclick="() => Filters.ToggleFilter(filter)"><i class="fas fa-toggle-@(filter.Enabled ? "on" : "off")"></i> @filter.Text</a>
+                    }
+                </div>
+            </div>
+        }
+        @if (Filters.OrderFilters.Count() != 0)
+        {
+            <div class="dropdown">
+                <button class="btn btn-secondary ml-2" type="button" data-toggle="dropdown">
+                    Order By
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @foreach (var filter in Filters.OrderFilters)
+                    {
+                        <a class="dropdown-item @(filter.Enabled ? "active" : "")" href="javascript:void(0)" @onclick="() => Filters.ChangeOrderFilter(filter)">@filter.Text</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+@ChildContent
+
+@if ((Filters?.DataCount ?? 0) > 0)
+{
+    <nav class="mt-2">
+        <ul class="pagination justify-content-end">
+            <li class="page-item @(Filters.CanGoPrev ? "" : "disabled")">
+                <a class="page-link" @onclick="Filters.PrevPage" href="javascript:void(0)" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="javascript:void(0)">@Filters.CurrentPage</a></li>
+            <li class="page-item @(Filters.CanGoNext ? "" : "disabled")">
+                <a class="page-link" @onclick="Filters.NextPage" href="javascript:void(0)">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+
+@code {
+    [Parameter]
+    public IFilters<TData> Filters { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+} 

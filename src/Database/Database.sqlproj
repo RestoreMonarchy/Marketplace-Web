@@ -57,9 +57,12 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="Procedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\UnturnedItems.sql" />
     <Build Include="Tables\MarketItems.sql" />
+    <Build Include="Tables\Settings.sql" />
+    <Build Include="Procedures\AddSetting.sql" />
   </ItemGroup>
 </Project>

@@ -15,6 +15,5 @@ namespace Marketplace.DatabaseProvider.Repositories
         Task ChangePriceMarketItemAsync(int id, decimal price);
         Task<IEnumerable<MarketItem>> GetPlayerMarketItemsAsync(string playerId);
         Task ClaimMarketItemAsync(int id);
-
     }
 }

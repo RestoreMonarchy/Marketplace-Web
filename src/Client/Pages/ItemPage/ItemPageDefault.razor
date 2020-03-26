@@ -1,0 +1,34 @@
+﻿@if (Data != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-lg-5 text-center">
+            <img src="/api/unturneditems/@ItemId/icon" style="max-width: 400px;">
+            <h2 class="font-weight-bold">@UnturnedItem.ItemName</h2>
+            <p>@UnturnedItem.ItemDescription</p>
+        </div>
+        <div class="col-lg-7">
+            <DataList TData="MarketItem" Filters="Data">
+                <ul class="list-group">
+                    @foreach (var market in Data.FilteredData)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @UnturnedItem.ItemName <b>$@market.Price</b>
+                            <button type="button" class="btn btn-primary" @onclick="async () => await OrderState.ShowInfoModalAsync(market)">
+                                More Info
+                            </button>
+                        </li>
+                    }
+                </ul>
+                @if (Data.DataCount == 0)
+                {
+                    <h3 class="text-center">No listings</h3>
+                }
+            </DataList>
+        </div>
+    </div>
+    <PreviewModal UnturnedItem="OrderState.InfoItem?.Item ?? null" MarketItem="OrderState.InfoItem" OnClickBuy="(m) => OrderState.BuyMarketItemAsync(m, Data.RemoveFromOrigin)" />
+}
+else
+{
+    <ProgressBar />
+}

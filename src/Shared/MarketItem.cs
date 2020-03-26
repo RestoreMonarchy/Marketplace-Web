@@ -17,13 +17,16 @@ namespace Marketplace.Shared
             SellerId = sellerId;
         }
 
+        [Searchable]
         public int Id { get; set; }
+        [Searchable]
         public int ItemId { get; set; }
         public byte Quality { get; set; }
         public byte Amount { get; set; }
         public byte[] Metadata { get; set; }
 
-        public ItemInfo ItemInfo => ItemInfo.Create(ItemId, Quality, Amount, Metadata); //Due to this being the db model we can't use this as the storage afaik
+        [Searchable]
+        public string ItemName => Item?.ItemName ?? string.Empty;
 
         public decimal Price { get; set; }
         public string SellerId { get; set; }

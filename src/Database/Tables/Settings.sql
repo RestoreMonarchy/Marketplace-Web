@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[Settings]
+(
+	SettingId VARCHAR(255) NOT NULL PRIMARY KEY,
+	SettingValue VARCHAR(255) NULL,
+	Help VARCHAR(1000) NULL	
+)

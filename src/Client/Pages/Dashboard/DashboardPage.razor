@@ -1,0 +1,60 @@
+﻿@page "/dashboard"
+<div class="row">
+    <div class="col-4">
+        <div class="card text-white bg-primary mb-3 text-center" style="max-width: 18rem;">
+            <div class="card-header">Unturned Items</div>
+            <div class="card-body ">
+                <h5 class="card-title">@unturnedItemsCount</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-white bg-primary mb-3 text-center" style="max-width: 18rem;">
+            <div class="card-header">Active Market Items</div>
+            <div class="card-body">
+                <h5 class="card-title">@marketItemsCount</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card text-white bg-primary mb-3 text-center" style="max-width: 18rem;">
+            <div class="card-header">Total Uconomy Balance</div>
+            <div class="card-body">
+                <h5 class="card-title">$@TotalBalance</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Settings != null)
+{
+    <div class="row">
+        <div class="col">
+            <h2>Layout Settings</h2>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("IndexLayout"))" Model="indexLayout" class="form-inline">
+                <label class="my-1 mr-2">Index Layout</label>
+                <InputSelect @bind-Value="indexLayout.SettingValue" class="custom-select my-1 mr-sm-2">
+                    <option value="Default">Default</option>
+                    <option value="Rushed">Rushed</option>
+                </InputSelect>
+                <button type="submit" class="btn btn-primary mb-2">Save</button>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("ItemPageLayout"))" Model="itemPageLayout" class="form-inline">
+                <label class="my-1 mr-2">Item Page Layout</label>
+                <InputSelect @bind-Value="itemPageLayout.SettingValue" class="custom-select my-1 mr-sm-2">
+                    <option value="Default">Default</option>
+                    <option value="None">None</option>
+                </InputSelect>
+                <button type="submit" class="btn btn-primary mb-2">Save</button>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("TrunkLayout"))" Model="trunkLayout" class="form-inline">
+                <label class="my-1 mr-2">Item Page Layout</label>
+                <InputSelect @bind-Value="trunkLayout.SettingValue" class="custom-select my-1 mr-sm-2">
+                    <option value="Default">Default</option>
+                    <option value="Rushed">Rushed</option>
+                </InputSelect>
+                <button type="submit" class="btn btn-primary mb-2">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}

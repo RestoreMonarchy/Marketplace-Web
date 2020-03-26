@@ -35,5 +35,10 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             return Task.CompletedTask;
         }
 
+        public async Task<decimal> GetTotalBalanceAsync()
+        {
+            const string sql = "SELECT SUM(balance) AS total FROM uconomy;";
+            return await connection.ExecuteScalarAsync<decimal>(sql);
+        }
     }
 }

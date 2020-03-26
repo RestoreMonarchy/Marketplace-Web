@@ -1,0 +1,56 @@
+﻿<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        @if (UnturnedItem != null && MarketItem != null)
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@UnturnedItem.ItemName</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (UnturnedItem.ItemType == EItemType.GUN)
+                    {
+                        <GunSummary GunId="MarketItem.ItemId" Metadata="MarketItem.Metadata" />
+                    }
+                    <h3>Listing Info</h3>
+                    <ul class="list-unstyled">
+                        <li><b>Seller:</b> @MarketItem.SellerId</li>
+                        <li><b>Price:</b> $@MarketItem.Price</li>
+                        <li><b>Quality:</b> @MarketItem.Quality</li>
+
+                        @if (UnturnedItem.ItemType == EItemType.FUEL)
+                        {
+                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(MarketItem.Metadata, 0)</li>
+                        }
+                        @if (UnturnedItem.ItemType == EItemType.MAGAZINE)
+                        {
+                            <li><b>Magazine:</b> @MarketItem.Amount/@UnturnedItem.Amount</li>
+                        }
+
+                    </ul>
+                    @ChildContent
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    @if (OnClickBuy.HasDelegate)
+                    {
+                        <button type="button" @onclick="async () => await OnClickBuy.InvokeAsync(MarketItem)" class="btn btn-primary">Buy for $@MarketItem.Price</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public UnturnedItem UnturnedItem { get; set; }
+    [Parameter]
+    public MarketItem MarketItem { get; set; }
+    [Parameter]
+    public EventCallback<MarketItem> OnClickBuy { get; set; }
+}
