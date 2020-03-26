@@ -13,7 +13,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await HttpClient.GetAsync($"http://steamcommunity.com/profiles/{SteamId}/?xml=1");
+        var response = await HttpClient.GetAsync($"https://steamcommunity.com/profiles/{SteamId}/?xml=1");
 
         XmlDocument doc = new XmlDocument();
         doc.LoadXml(await response.Content.ReadAsStringAsync());
