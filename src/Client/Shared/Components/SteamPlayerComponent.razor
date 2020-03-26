@@ -1,0 +1,23 @@
+﻿@using System.Xml;
+
+<img src="@IconUrl" width="35" height="35" class="rounded-circle" /> @Name
+
+@code {
+    [Parameter]
+    public string SteamId { get; set; }
+    [Inject]
+    private HttpClient HttpClient { get; set; }
+
+    public string Name { get; set; }
+    public string IconUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await HttpClient.GetAsync($"http://steamcommunity.com/profiles/{SteamId}/?xml=1");
+
+        XmlDocument doc = new XmlDocument();
+        doc.LoadXml(await response.Content.ReadAsStringAsync());
+        Name = doc["profile"]?["steamID"]?.InnerText ?? string.Empty;
+        IconUrl = doc["profile"]?["avatarFull"]?.InnerText ?? string.Empty;
+    }
+}
