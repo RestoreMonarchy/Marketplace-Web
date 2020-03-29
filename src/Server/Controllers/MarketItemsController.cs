@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using Marketplace.DatabaseProvider.Extensions;
 using Microsoft.AspNetCore.Http;
+using System.Net;
+using System.IO;
 
 namespace Marketplace.Server.Controllers
 {
@@ -17,26 +19,22 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class MarketItemsController : ControllerBase
     {
-        private readonly IConfiguration configuration;
-        private readonly IMarketPlaceRepository marketPlaceRepository;
+        private readonly IMarketItemsRepository marketPlaceRepository;
         private readonly IUconomyRepository uconomyRepository;
 
-        public MarketItemsController(IConfiguration configuration, IMarketPlaceRepository marketPlaceRepository, IUconomyRepository uconomyRepository)
+        public MarketItemsController(IMarketItemsRepository marketPlaceRepository, IUconomyRepository uconomyRepository)
         {
-            this.configuration = configuration;
             this.marketPlaceRepository = marketPlaceRepository;
             this.uconomyRepository = uconomyRepository;
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MarketItem>))]
         public async Task<IActionResult> GetMarketItemsAsync()
         {
             return Ok(await marketPlaceRepository.GetMarketItemsAsync());
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketItem))]
         public async Task<IActionResult> GetMarketItemAsync(int id)
         {
             return Ok(await marketPlaceRepository.GetMarketItemAsync(id));
@@ -44,32 +42,52 @@ namespace Marketplace.Server.Controllers
 
         [Authorize]
         [HttpPatch("{id}")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketItem))]
-        public async Task<IActionResult> ChangePriceMarketItemAsync(int id, [FromQuery] decimal price) //I think price should be in the body but I wanna hear what you think about that
+        public async Task<IActionResult> ChangePriceMarketItemAsync(int id) 
         {
-            MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
-            if (marketItem.IsSold)
+            string content;
+            using (var reader = new StreamReader(Request.Body))
+            {
+                content = await reader.ReadToEndAsync();
+            }
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("contents: " + content);
+            System.Console.WriteLine();
+
+            if (!decimal.TryParse(content, out decimal price))
+            {
                 return BadRequest();
+            }
+            System.Console.WriteLine();
+            System.Console.WriteLine($"price is {price}");
+            System.Console.WriteLine();
 
-            if (marketItem.SellerId != User.Identity.Name)
-                return Unauthorized();
+            switch (await marketPlaceRepository.ChangePriceMarketItemAsync(id, User.Identity.Name, price))
+            {
+                case 0:
+                    return Ok();
+                case 1:
+                    return BadRequest();
+                case 2:
+                    return Unauthorized();
+            }
 
-
-            await marketPlaceRepository.ChangePriceMarketItemAsync(id, price);
-            marketItem.Price = price;
-
-            return Ok(marketItem);
-
+            return BadRequest();
         }
 
         [ApiKeyAuth]
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MarketItem))]
-        public async Task<IActionResult> PostMarketItemAsync([FromBody] MarketItem marketItem)
+        public async Task<IActionResult> SellMarketItemAsync([FromBody] MarketItem marketItem)
         {
-            return Ok(await marketPlaceRepository.AddMarketItemAsync(marketItem));
+            switch (await marketPlaceRepository.SellMarketItemAsync(marketItem))
+            {
+                case 0:
+                    return Ok();
+                case 1:
+                    return StatusCode(StatusCodes.Status409Conflict);
+            }
+
+            return BadRequest();
         }
 
         [Authorize]
@@ -77,28 +95,31 @@ namespace Marketplace.Server.Controllers
         public async Task<IActionResult> BuyMarketItemAsync(int id)
         {
             decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
-            MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
-            if (item == null)
-                return NotFound();
-            if (item.IsSold)
-                return BadRequest();
-            if (balance < item.Price)
-                return BadRequest();
 
-            if (item.SellerId == User.Identity.Name)
-                return Unauthorized();
+            switch (await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name, balance))
+            {
+                case 0:
+                    MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
+                    await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
+                    await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
+                    return Ok();
+                case 1:                    
+                    return NotFound();
+                case 2:
+                    return Unauthorized();
+                case 3:
+                    return NoContent();
+                case 4:
+                    return BadRequest();
+                case 5:
+                    return StatusCode(StatusCodes.Status409Conflict);
+            }
 
-
-            await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
-            await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
-            await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name);
-            return Ok();
-
+            return BadRequest();
         }
 
         [Authorize]
         [HttpGet("trunk")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MarketItem>))]
         public async Task<IActionResult> GetMyMarketItemsAsync()
         {
             return Ok(await marketPlaceRepository.GetPlayerMarketItemsAsync(User.Identity.Name));
@@ -128,7 +149,6 @@ namespace Marketplace.Server.Controllers
 
         [Authorize]
         [HttpGet("balance")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(decimal))]
         public async Task<IActionResult> GetMyBalanceAsync()
         {
             return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
@@ -136,7 +156,6 @@ namespace Marketplace.Server.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("balance/total")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(decimal))]
         public async Task<IActionResult> GetTotalBalanceAsync()
         {
             return Ok(await uconomyRepository.GetTotalBalanceAsync());

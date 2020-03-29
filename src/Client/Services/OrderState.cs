@@ -44,22 +44,40 @@ namespace Marketplace.Client.Services
         {            
             if (!(await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.Identity.IsAuthenticated)
             {
-                await Swal.FireAsync("Purchase Error", $"You have to sign in to be able to buy!", SweetAlertIcon.Error);
+                await Swal.FireAsync("Unauthorized", $"You have to sign in to be able to buy!", SweetAlertIcon.Error);
                 return;
             }
 
             var response = await HttpClient.PostAsync($"api/marketitems/{marketItem.Id}/buy", null);
-            if (response.StatusCode == HttpStatusCode.BadRequest)
+            
+            switch (response.StatusCode)
             {
-                await Swal.FireAsync("Purchase Error", "The item has already been sold or you can't afford it!", SweetAlertIcon.Error);
-                return;
+                case HttpStatusCode.NotFound:
+                    await Swal.FireAsync("Not Found", "The item you were trying to buy could not be found", SweetAlertIcon.Error);
+                    break;
+                case HttpStatusCode.Unauthorized:
+                    await Swal.FireAsync("Unauthorized", "You are the seller of this item", SweetAlertIcon.Error);
+                    break;
+                case HttpStatusCode.NoContent:
+                    await Swal.FireAsync("No Content", "The item you are trying to buy was already sold", SweetAlertIcon.Error);
+                    break;
+                case HttpStatusCode.BadRequest:
+                    await Swal.FireAsync("Bad Request", "You cannot afford buying this item", SweetAlertIcon.Error);
+                    break;
+                case HttpStatusCode.Conflict:
+                    await Swal.FireAsync("Conflict", "You have already reached the maximum number of active shoppings", SweetAlertIcon.Error);
+                    break;
             }
 
-            if (onSuccessfullBuy != null)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                onSuccessfullBuy.Invoke(marketItem);
+                if (onSuccessfullBuy != null)
+                {
+                    onSuccessfullBuy.Invoke(marketItem);
+                }
+                await Swal.FireAsync("OK", $"You successfully bought {marketItem.ItemName}({marketItem.ItemId}) for ${marketItem.Price}!", SweetAlertIcon.Success);
             }
-            await Swal.FireAsync("Purchase Success", $"You successfully bought {marketItem.ItemName}({marketItem.ItemId}) for ${marketItem.Price}!", SweetAlertIcon.Success);
+            
             await CloseInfoModalAsync();
         }
 
@@ -71,6 +89,7 @@ namespace Marketplace.Client.Services
                 Text = $"Input new price for listing {item.Id} [{item.ItemName}]",
                 Icon = SweetAlertIcon.Warning,
                 Input = SweetAlertInputType.Number,
+                //InputPlaceholder = item.Price.ToString(),
                 ShowCancelButton = true,
                 ConfirmButtonText = "Submit",
                 ShowLoaderOnConfirm = true,
@@ -78,14 +97,16 @@ namespace Marketplace.Client.Services
             {
                 var result = swalTask.Result;
                 if (!string.IsNullOrEmpty(result.Value) && decimal.TryParse(result.Value, out decimal price))
-                {
+                {   
+                    var msg = new HttpRequestMessage(new HttpMethod("PATCH"), $"api/marketitems/{item.Id}");
+                    msg.Content = new StringContent(price.ToString());
+                    var response = await HttpClient.SendAsync(msg);
                     item.Price = price;
-                    await HttpClient.SendAsync(new HttpRequestMessage(new HttpMethod("PATCH"), $"api/marketitems/{item.Id}?price={price}"));
-                    await Swal.FireAsync("Price Changed", $"Successfully changed the price of listing {item.Id} [{item.ItemName}] to {item.Price}!", SweetAlertIcon.Success);
+                    await Swal.FireAsync("Success", $"Successfully changed the price of listing {item.Id} [{item.ItemName}] to {price}!", SweetAlertIcon.Success);
                 }
                 else
                 {
-                    await Swal.FireAsync("Canceled", $"Changing price for listing {item.Id} canceled.", SweetAlertIcon.Error);
+                    await Swal.FireAsync("Cancel", $"Changing price for listing {item.Id} canceled.", SweetAlertIcon.Error);
                 }
             });
         }

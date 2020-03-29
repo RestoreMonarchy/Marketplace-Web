@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories
 {
-    public interface IUnturnedItemAssetsRepository : IRepository
+    public interface IUnturnedItemsRepository : IRepository
     {
         Task AddUnturnedItemAsync(UnturnedItem item);
         Task SetIconAsync(ushort itemId, Stream iconData);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.MySql
 {
-    public sealed class MySqlUnturnedItemAssetsRepository : IUnturnedItemAssetsRepository
+    public sealed class MySqlUnturnedItemAssetsRepository : IUnturnedItemsRepository
     {
         private readonly MySqlConnection connection;
 

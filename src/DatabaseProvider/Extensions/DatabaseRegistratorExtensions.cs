@@ -16,15 +16,15 @@ namespace Marketplace.DatabaseProvider.Extensions
         {
             source.AddTransient<SqlConnection>(c => new SqlConnection(connectionString));
             source.AddTransient<ISettingsRepository, SqlSettingsRepository>();
-            source.AddTransient<IMarketPlaceRepository, SqlMarketPlaceRepository>();
-            source.AddTransient<IUnturnedItemAssetsRepository, SqlUnturnedItemAssetsRepository>();
+            source.AddTransient<IMarketItemsRepository, SqlMarketPlaceRepository>();
+            source.AddTransient<IUnturnedItemsRepository, SqlUnturnedItemAssetsRepository>();
         }
 
         public static void AddMarketplaceMySql(this IServiceCollection source, string connectionString)
         {
             source.AddTransient<MySqlConnection>(c => new MySqlConnection(connectionString));
-            source.AddTransient<IMarketPlaceRepository, MySqlMarketPlaceRepository>();
-            source.AddTransient<IUnturnedItemAssetsRepository, MySqlUnturnedItemAssetsRepository>();
+            source.AddTransient<IMarketItemsRepository, MySqlMarketPlaceRepository>();
+            source.AddTransient<IUnturnedItemsRepository, MySqlUnturnedItemAssetsRepository>();
         }
 
         public static void AddUconomyMySql(this IServiceCollection source, string connectionString)

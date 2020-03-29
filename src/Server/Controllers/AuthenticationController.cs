@@ -3,8 +3,6 @@ using Marketplace.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
 
 namespace Marketplace.Server.Controllers
 {
@@ -12,13 +10,6 @@ namespace Marketplace.Server.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-
-        public AuthenticationController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         [HttpGet]        
         public UserInfo GetUser()
         {

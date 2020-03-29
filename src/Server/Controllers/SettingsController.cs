@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketplace.Server.Controllers
@@ -20,7 +16,7 @@ namespace Marketplace.Server.Controllers
             this.settingsRepository = settingsRepository;
         }
 
-        [HttpGet("{settingId}")]
+        [HttpGet("{settingId}")] 
         public async Task<IActionResult> GetSettingAsync(string settingId)
         {
             return Ok(await settingsRepository.GetSettingAsync(settingId));

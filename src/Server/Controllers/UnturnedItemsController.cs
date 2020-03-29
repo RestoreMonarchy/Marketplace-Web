@@ -13,9 +13,9 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UnturnedItemsController : ControllerBase
     {
-        private readonly IUnturnedItemAssetsRepository unturnedItemAssetsRepository;
+        private readonly IUnturnedItemsRepository unturnedItemAssetsRepository;
 
-        public UnturnedItemsController(IUnturnedItemAssetsRepository unturnedItemAssetsRepository)
+        public UnturnedItemsController(IUnturnedItemsRepository unturnedItemAssetsRepository)
         {
             this.unturnedItemAssetsRepository = unturnedItemAssetsRepository;
         }
