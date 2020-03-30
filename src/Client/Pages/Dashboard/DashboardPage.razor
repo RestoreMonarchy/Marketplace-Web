@@ -48,7 +48,7 @@
                 <button type="submit" class="btn btn-primary mb-2">Save</button>
             </EditForm>
             <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("TrunkLayout"))" Model="trunkLayout" class="form-inline">
-                <label class="my-1 mr-2">Item Page Layout</label>
+                <label class="my-1 mr-2">Trunk Layout Layout</label>
                 <InputSelect @bind-Value="trunkLayout.SettingValue" class="custom-select my-1 mr-sm-2">
                     <option value="Default">Default</option>
                     <option value="Rushed">Rushed</option>

@@ -1,10 +1,8 @@
 ﻿using Dapper;
 using Marketplace.Shared;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql

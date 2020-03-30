@@ -13,9 +13,16 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/trunk">Trunk</a>
             </li>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                </Authorized>
+            </AuthorizeView>            
         </ul>
         <AuthorizeView>
-            <Authorized>
+            <Authorized>                
                 <span class="navbar-text">
                     Balance: <b>@Balance</b>
                 </span>
