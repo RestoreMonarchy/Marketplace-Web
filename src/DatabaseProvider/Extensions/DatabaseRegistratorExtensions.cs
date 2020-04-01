@@ -3,10 +3,7 @@ using Marketplace.DatabaseProvider.Repositories.MySql;
 using Marketplace.DatabaseProvider.Repositories.Sql;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
 
 namespace Marketplace.DatabaseProvider.Extensions
 {
@@ -18,6 +15,7 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<ISettingsRepository, SqlSettingsRepository>();
             source.AddTransient<IMarketItemsRepository, SqlMarketPlaceRepository>();
             source.AddTransient<IUnturnedItemsRepository, SqlUnturnedItemAssetsRepository>();
+            source.AddTransient<IServersRepository, SqlServersRepository>();
         }
 
         public static void AddMarketplaceMySql(this IServiceCollection source, string connectionString)

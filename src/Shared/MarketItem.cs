@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Marketplace.Shared.Attributes;
+using System;
 
 namespace Marketplace.Shared
 {

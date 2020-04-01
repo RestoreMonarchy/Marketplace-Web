@@ -1,5 +1,5 @@
 ﻿using Marketplace.Client.Models.Filters;
-using Marketplace.Shared;
+using Marketplace.Shared.Attributes;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;

@@ -15,11 +15,19 @@
             </li>
             <AuthorizeView Roles="Admin">
                 <Authorized>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class="nav-link" href="javascript:void(0)" data-toggle="dropdown">Dashboard</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/dashboard">Main</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/dashboard/servers">Servers</a>
+                                <a class="dropdown-item" href="/dashboard/products">Products</a>
+                            </div>
+                        </div>                        
                     </li>
                 </Authorized>
-            </AuthorizeView>            
+            </AuthorizeView>
         </ul>
         <AuthorizeView>
             <Authorized>                

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Marketplace.Shared
+namespace Marketplace.Shared.Attributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
     public class SearchableAttribute : Attribute

@@ -67,5 +67,9 @@
     <Build Include="Procedures\BuyMarketItem.sql" />
     <Build Include="Procedures\SellMarketItem.sql" />
     <Build Include="Procedures\ChangePriceMarketItem.sql" />
+    <Build Include="Tables\Servers.sql" />
+    <Build Include="Tables\Products.sql" />
+    <Build Include="Tables\ProductServers.sql" />
+    <Build Include="Tables\ProductTransactions.sql" />
   </ItemGroup>
 </Project>

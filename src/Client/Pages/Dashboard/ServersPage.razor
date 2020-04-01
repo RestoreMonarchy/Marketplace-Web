@@ -1,0 +1,43 @@
+﻿@page "/dashboard/servers"
+
+@if (Servers != null)
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">IP</th>
+                    <th scope="col">Port</th>
+                    <th scope="col">Enabled</th>
+                    <th scope="col">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var server in Servers)
+                {
+                    <tr>
+                        <th scope="row">@server.Id</th>
+                        <td>@server.ServerName</td>
+                        <td>@server.ServerIP</td>
+                        <td>@server.ServerPort</td>
+                        <td>@server.Enabled</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary" type="button" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await DeleteServerAsync(server)">Delete</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await ToggleServerAsync(server)">Toggle</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <CreateServerModal OnServerCreated="Servers.Add" />
+}
