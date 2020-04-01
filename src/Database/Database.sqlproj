@@ -64,5 +64,8 @@
     <Build Include="Tables\MarketItems.sql" />
     <Build Include="Tables\Settings.sql" />
     <Build Include="Procedures\AddSetting.sql" />
+    <Build Include="Procedures\BuyMarketItem.sql" />
+    <Build Include="Procedures\SellMarketItem.sql" />
+    <Build Include="Procedures\ChangePriceMarketItem.sql" />
   </ItemGroup>
 </Project>

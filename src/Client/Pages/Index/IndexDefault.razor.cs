@@ -16,13 +16,13 @@ namespace Marketplace.Client.Pages.Index
         [Inject]
         private HttpClient HttpClient { get; set; }
 
-        private IEnumerable<UnturnedItem> Items { get; set; }
+        private ICollection<UnturnedItem> Items { get; set; }
 
         public FiltersData<UnturnedItem> Data { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            Items = await HttpClient.GetJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
+            Items = await HttpClient.GetJsonAsync<ICollection<UnturnedItem>>("api/unturneditems");
             Data = new FiltersData<UnturnedItem>(Items, 20, true, new ShowOnlyOffersFilter(), new QuantityOrderFilter(), new ItemIdOrderFilter());
         }
     }

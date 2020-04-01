@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Extensions;
 using Marketplace.DatabaseProvider.Repositories;
 using MySql.Data.MySqlClient;
+using Marketplace.Server.Services;
 
 namespace Marketplace.Server
 {
@@ -29,14 +30,16 @@ namespace Marketplace.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<SettingsService>();
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/signin";
                     options.LogoutPath = "/signout";
+                    options.AccessDeniedPath = "/";
                     options.Events.OnValidatePrincipal = (arg) =>
                     {
-                        string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37); //Magic number, not good, what does 37 mean? Make a constant for it.
+                        string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
                         List<Claim> claims = new List<Claim>();
                         claims.Add(new Claim(ClaimTypes.Name, steamId));
                         if (configuration.GetSection("Admins").Get<string[]>().Any(x=> x == steamId))
@@ -50,9 +53,9 @@ namespace Marketplace.Server
                 }).AddSteam();
 
             services.AddLogging();
-
-
-            services.AddMvc();
+            services.AddAuthorizationCore();
+            services.AddControllers();
+            //services.AddMvc();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
@@ -100,8 +103,8 @@ namespace Marketplace.Server
             });
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemAssetsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<IMarketPlaceRepository>().Initialize).Wait();
+                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemsRepository>().Initialize).Wait();
+                Task.Run(scope.ServiceProvider.GetService<IMarketItemsRepository>().Initialize).Wait();
                 Task.Run(scope.ServiceProvider.GetService<ISettingsRepository>().Initialize).Wait();
             }
         }

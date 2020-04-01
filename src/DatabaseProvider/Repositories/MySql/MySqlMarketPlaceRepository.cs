@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.MySql
 {
-    public class MySqlMarketPlaceRepository : IMarketPlaceRepository
+    public class MySqlMarketPlaceRepository : IMarketItemsRepository
     {
         private readonly MySqlConnection connection;
 
@@ -17,7 +17,7 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             this.connection = connection;
         }
 
-        public async Task<int> AddMarketItemAsync(MarketItem marketItem)
+        public async Task<int> SellMarketItemAsync(MarketItem marketItem)
         {
             const string sql = "INSERT INTO MarketItems (ItemId, Quality, Amount, Metadata, Price, SellerId) " +
                 "VALUES (@SellingItem.ItemId, @Quality, @Amount, @Metadata, @Price, @SellerId);";
@@ -25,11 +25,16 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             return await connection.ExecuteScalarAsync<int>(sql, marketItem);
         }
 
-        public async Task BuyMarketItemAsync(int id, string buyerId)
-        {
-            const string sql = "UPDATE MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = NOW() WHERE Id = @id;";
+        //public async Task BuyMarketItemAsync(int id, string buyerId)
+        //{
+        //    const string sql = "UPDATE MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = NOW() WHERE Id = @id;";
 
-            await connection.ExecuteAsync(sql, new { id, buyerId });
+        //    await connection.ExecuteAsync(sql, new { id, buyerId });
+        //}
+
+        public Task<int> BuyMarketItemAsync(int id, string buyerId, decimal balance)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task ChangePriceMarketItemAsync(int id, decimal price)
@@ -83,6 +88,16 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
                 "CreateDate DATETIME NOT NULL DEFAULT NOW(), IsSold BIT NOT NULL DEFAULT 0, BuyerId VARCHAR(255) NULL, SoldDate DATETIME NULL, IsClaimed BIT NOT NULL DEFAULT 0, " +
                 "ClaimDate DATETIME NULL, CONSTRAINT FK_MarketItems_ItemID FOREIGN KEY(ItemId) REFERENCES UnturnedItems(ItemId));";
             await connection.ExecuteAsync(sql).ConfigureAwait(false);
+        }
+
+        public Task BuyMarketItemAsync(int id, string buyerId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price)
+        {
+            throw new NotImplementedException();
         }
     }
 }

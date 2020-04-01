@@ -1,14 +1,13 @@
 ﻿using Dapper;
 using Marketplace.Shared;
-using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql
 {
-    public sealed class SqlMarketPlaceRepository : IMarketPlaceRepository
+    public sealed class SqlMarketPlaceRepository : IMarketItemsRepository
     {
         private readonly SqlConnection connection;
 
@@ -17,26 +16,47 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             this.connection = connection;
         }
 
-        public async Task<int> AddMarketItemAsync(MarketItem marketItem)
+        public async Task<int> SellMarketItemAsync(MarketItem marketItem)
         {
-            const string sql = "INSERT INTO dbo.MarketItems (ItemId, Quality, Amount, Metadata, Price, SellerId) " +
-                "VALUES (@ItemId, @Quality, @Amount, @Metadata, @Price, @SellerId);";
+            var p = new DynamicParameters();
+            p.Add("@ItemId", marketItem.ItemId);
+            p.Add("@Metadata", marketItem.Metadata);
+            p.Add("@Quality", marketItem.Quality);
+            p.Add("@Amount", marketItem.Amount);
+            p.Add("@Price", marketItem.Price);
+            p.Add("@SellerId", marketItem.SellerId);
+            p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            await connection.ExecuteAsync("SellMarketItem", p, commandType: CommandType.StoredProcedure);
+            return p.Get<int>("@returnValue");
+        }
 
-            return await connection.ExecuteScalarAsync<int>(sql, marketItem);
+        public async Task<int> BuyMarketItemAsync(int id, string buyerId, decimal balance)
+        {
+            var p = new DynamicParameters();
+            p.Add("@Id", id);
+            p.Add("@BuyerId", buyerId);
+            p.Add("@Balance", balance);
+            p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            await connection.ExecuteAsync("BuyMarketItem", p, commandType: CommandType.StoredProcedure);
+            return p.Get<int>("@returnValue");
         }
 
         public async Task BuyMarketItemAsync(int id, string buyerId)
-        {
+        {            
             const string sql = "UPDATE dbo.MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = SYSDATETIME() WHERE Id = @id;";
 
             await connection.ExecuteAsync(sql, new { id, buyerId });
         }
 
-        public async Task ChangePriceMarketItemAsync(int id, decimal price)
+        public async Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price)
         {
-            const string sql = "UPDATE dbo.MarketItems SET Price = @price WHERE Id = @id;";
-
-            await connection.ExecuteAsync(sql, new { id, price });
+            var p = new DynamicParameters();
+            p.Add("@Id", id);
+            p.Add("@ChangerId", playerId);
+            p.Add("@Price", price);
+            p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            await connection.ExecuteAsync("ChangePriceMarketItem", p, commandType: CommandType.StoredProcedure);
+            return p.Get<int>("@returnValue");
 
         }
 

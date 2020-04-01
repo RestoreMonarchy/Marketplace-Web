@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql
 {
-    public sealed class SqlUnturnedItemAssetsRepository : IUnturnedItemAssetsRepository
+    public sealed class SqlUnturnedItemAssetsRepository : IUnturnedItemsRepository
     {
         private readonly SqlConnection connection;
 

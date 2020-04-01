@@ -8,10 +8,10 @@ namespace Marketplace.Client.Models
 {
     public class FiltersData<TData> : IFilters<TData>
     {
-        private readonly List<TData> originData;
+        private readonly ICollection<TData> originData;
         public int PagesDefault { get; set; }
         public bool UseSearch { get; }
-        public FiltersData(IEnumerable<TData> data, int pagesDefault = 0, bool useSearch = true, params IFilter[] filters)
+        public FiltersData(ICollection<TData> data, int pagesDefault = 0, bool useSearch = true, params IFilter[] filters)
         {
             originData = data.ToList();
             PagesDefault = pagesDefault;
@@ -30,7 +30,7 @@ namespace Marketplace.Client.Models
         {
             get
             {
-                List<TData> filterData = originData;
+                List<TData> filterData = originData.ToList();
 
                 if (UseSearch)
                     ApplySearch(filterData);
@@ -51,7 +51,7 @@ namespace Marketplace.Client.Models
         }
 
         private void ApplySearch(List<TData> data)
-        {            
+        {
             if (string.IsNullOrEmpty(SearchString))
                 return;
 
