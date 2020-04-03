@@ -4,7 +4,7 @@
 	Title NVARCHAR(255) NOT NULL,
 	Description NVARCHAR(2555) NOT NULL,
 	Price DECIMAL(9, 2) NOT NULL,
-	ExecuteCommands VARCHAR(1000) NOT NULL,
+	ExecuteCommands NVARCHAR(MAX) NOT NULL,
 	Icon VARBINARY(MAX) NULL,
 	MaxPurchases INT NOT NULL CONSTRAINT DF_Products_MaxPurchases DEFAULT 0,
 	Expires BIT NOT NULL CONSTRAINT DF_Products_Expires DEFAULT 0,

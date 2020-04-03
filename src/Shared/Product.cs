@@ -15,5 +15,7 @@ namespace Marketplace.Shared
         public int MaxPurchases { get; set; }
         public bool Expires { get; set; }
         public bool Enabled { get; set; }
+
+        public virtual List<Server> Servers { get; set; }
     }
 }

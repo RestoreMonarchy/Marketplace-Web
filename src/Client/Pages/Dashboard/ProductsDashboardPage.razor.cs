@@ -1,5 +1,4 @@
-﻿using CurrieTechnologies.Razor.SweetAlert2;
-using Marketplace.Shared;
+﻿using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -13,8 +12,6 @@ namespace Marketplace.Client.Pages.Dashboard
     {
         [Inject]
         private HttpClient HttpClient { get; set; }
-        [Inject]
-        public SweetAlertService Swal { get; set; }
 
         private List<Product> Products { get; set; }
 
@@ -22,5 +19,12 @@ namespace Marketplace.Client.Pages.Dashboard
         {
             Products = await HttpClient.GetJsonAsync<List<Product>>("api/products");
         }
+
+        public async Task DeleteProductAsync(Product product)
+        {
+            await HttpClient.DeleteAsync($"api/products/{product.Id}");
+            Products.Remove(product);
+        }
+
     }
 }

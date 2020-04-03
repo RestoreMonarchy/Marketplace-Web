@@ -1,0 +1,128 @@
+﻿<button class="btn btn-lg btn-primary" @onclick="ToggleModalAsync">Create New Product</button>
+
+<div class="modal fade" id="@nameof(CreateProductModal)" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <EditForm Model="Product" OnValidSubmit="SubmitAsync">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Server</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <InputText @bind-Value="Product.Title" class="form-control" placeholder="#1 Restore Monarchy" />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <InputTextArea @bind-Value="Product.Description" class="form-control" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Price</label>
+                            <InputNumber @bind-Value="Product.Price" class="form-control" />
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Max Purchases</label>
+                            <InputNumber @bind-Value="Product.MaxPurchases" class="form-control" />
+                        </div>
+                    </div>
+
+                    @* Servers *@
+                    <br />
+                    <label>Selected Servers</label>
+                    @foreach (var server in Product.Servers)
+                    {
+                        <a href="javascript:void(0)" class="badge badge-primary" @onclick="() => Product.Servers.Remove(server)">@server.ServerName</a>
+                    }
+
+
+                    <label>Available Servers</label>
+                    @if (Servers != null)
+                    {
+                        @foreach (var server in Servers.Where(x => !Product.Servers.Contains(x)))
+                        {
+                            <a href="javascript:void(0)" class="badge badge-secondary" @onclick="() => Product.Servers.Add(server)">@server.ServerName</a>
+                        }
+                    }
+
+                    @* Execute Commands *@
+                    <br />
+                    <label>Available Servers</label>
+                    <ul class="list-group">
+                        @foreach (var command in Commands)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @command.CommandType
+                                <div>
+                                    <button class="btn btn-primary" @onclick="() => CommandModal.EditCommand(command)"><i class="fas fa-pen"></i></button>
+                                    <button class="btn btn-danger" @onclick="() => Commands.Remove(command)"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <button type="button" class="btn btn-primary" @onclick="CommandModal.CreateCommand"><i class="fas fa-plus"></i></button>
+
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="Product.Expires" class="form-check-input" />
+                            <label class="form-check-label">Expires</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="Product.Enabled" class="form-check-input" />
+                            <label class="form-check-label">Enabled</label>
+                        </div>
+                    </div>
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create Server</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<ExecuteCommandModal @ref="CommandModal" @bind-Commands="Commands" />
+
+@code {
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+    [Inject]
+    public HttpClient HttpClient { get; set; }
+
+    public ExecuteCommandModal CommandModal { get; set; }
+
+    [Parameter]
+    public EventCallback<Product> OnProductCreated { get; set; }
+
+    public Product Product { get; set; } = new Product() { Expires = false, Enabled = true, Servers = new List<Server>() };
+
+    private List<ExecuteCommand> Commands { get; set; } = new List<ExecuteCommand>();
+
+    public List<Server> Servers { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Servers = await HttpClient.GetJsonAsync<List<Server>>("api/servers");
+    }
+
+    public async Task ToggleModalAsync()
+    {
+        await JsRuntime.ToggleModalAsync(nameof(CreateProductModal));
+    }
+
+    public async Task SubmitAsync()
+    {
+        var product = await HttpClient.PostJsonAsync<Product>("api/products", Product);
+        await OnProductCreated.InvokeAsync(product);
+        Product = new Product() { Expires = false, Enabled = true, Servers = new List<Server>() };
+    }
+}

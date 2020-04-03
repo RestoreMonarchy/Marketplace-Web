@@ -71,5 +71,7 @@
     <Build Include="Tables\Products.sql" />
     <Build Include="Tables\ProductServers.sql" />
     <Build Include="Tables\ProductTransactions.sql" />
+    <Build Include="Procedures\GetProducts.sql" />
+    <Build Include="Procedures\CreateProduct.sql" />
   </ItemGroup>
 </Project>
