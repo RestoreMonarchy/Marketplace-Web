@@ -9,6 +9,5 @@ namespace Marketplace.DatabaseProvider.Repositories
         Task<IEnumerable<Product>> GetProductsAsync();
         Task<int> CreateProductAsync(Product product);
         Task UpdateProductAsync(Product product);
-        Task DeleteProductAsync(int productId);
     }
 }

@@ -29,7 +29,7 @@
                                     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await DeleteProductAsync(product)">Delete</a>
+                                    @*<a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await UpdateProductAsync(product)">Update</a>*@
                                 </div>
                             </div>
                         </td>
@@ -39,5 +39,5 @@
         </table>
     </div>
 
-    <CreateProductModal OnProductCreated="Products.Add" />
+    @*<CreateProductModal @ref="" OnProductCreated="Products.Add" />*@
 }

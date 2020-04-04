@@ -17,6 +17,7 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<IUnturnedItemsRepository, SqlUnturnedItemAssetsRepository>();
             source.AddTransient<IServersRepository, SqlServersRepository>();
             source.AddTransient<IProductsRepository, SqlProductsRepository>();
+            source.AddTransient<ICommandsRepository, SqlCommandsRepository>();
         }
 
         public static void AddMarketplaceMySql(this IServiceCollection source, string connectionString)

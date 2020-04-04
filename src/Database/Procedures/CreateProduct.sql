@@ -2,12 +2,11 @@
 	@Title NVARCHAR(255),
 	@Description NVARCHAR(2555),
 	@Price DECIMAL(9,2),
-	@ExecuteCommands NVARCHAR(MAX),
 	@Icon VARBINARY(MAX),
 	@MaxPurchases INT,
-	@Expires BIT,
-	@Enabled BIT,
-	@Servers VARCHAR(255)
+	@Enabled BIT,	
+	@Servers VARCHAR(255),
+	@Commands VARCHAR(255)
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -17,8 +16,8 @@ BEGIN
 
 	BEGIN TRAN;
 	
-	INSERT INTO dbo.Products (Title, Description, Price, ExecuteCommands, Icon, MaxPurchases, Expires, Enabled) 
-	VALUES (@Title, @Description, @Price, @ExecuteCommands, @Icon, @MaxPurchases, @Expires, @Enabled);
+	INSERT INTO dbo.Products (Title, Description, Price, Icon, MaxPurchases, Enabled) 
+	VALUES (@Title, @Description, @Price, @Icon, @MaxPurchases, @Enabled);
 
 	SET @productId = SCOPE_IDENTITY();
 
@@ -27,6 +26,13 @@ BEGIN
 		[value],
 		@productId
 	FROM STRING_SPLIT(@Servers, ',');
+
+	INSERT INTO dbo.ProductCommands (CommandId, ProductId)
+	SELECT
+		[value],
+		@productId
+	FROM STRING_SPLIT(@Commands, ',');
+
 	COMMIT;
 	RETURN @productId;
 END;

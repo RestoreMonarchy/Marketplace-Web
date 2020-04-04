@@ -1,0 +1,45 @@
+﻿@page "/dashboard/commands"
+
+@if (Commands != null)
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Expires</th>
+                    <th scope="col">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var command in Commands)
+                {
+                <tr>
+                    <th scope="row">@command.Id</th>
+                    <td>@command.CommandName</td>
+                    <td>@command.Expires</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary" type="button" data-toggle="dropdown">
+                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await UpdateCommandAsync(command)">Update</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button class="btn btn-primary" @onclick="CreateCommandAsync">Create Command</button>
+    <CommandModal @ref="FormModal" OnCommandCreated="OnCommandCreated" OnCommandUpdated="OnCommandUpdated" />
+}
+else
+{
+    <ProgressBar />
+}
+

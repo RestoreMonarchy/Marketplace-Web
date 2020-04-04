@@ -18,20 +18,17 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
-            List<Product> products = new List<Product>();
-            await connection.QueryAsync<Product, Server, Product>("dbo.GetProducts", 
-                (p, s) => 
-                {
-                    var product = products.FirstOrDefault(x => x.Id == p.Id);
-                    if (product == null)
-                    {
-                        product = p;
-                        products.Add(product);                        
-                        product.Servers = new List<Server>();
-                    }
-                    product.Servers.Add(s);
-                    return p;
-                }, commandType: CommandType.StoredProcedure);
+            const string sqlAllProducts = "SELECT * FROM dbo.Products;";
+            const string sqlProductServers = "SELECT s.* FROM dbo.ProductServers ps JOIN dbo.Servers s ON ps.ServerId = s.Id WHERE ps.ProductId = @Id;";
+            const string sqlProductCommands = "SELECT c.* FROM dbo.ProductCommands pc JOIN dbo.Commands c ON pc.CommandId = c.Id WHERE pc.ProductId = @Id ORDER BY c.Id;";
+
+            var products = await connection.QueryAsync<Product>(sqlAllProducts);
+            foreach (var product in products)
+            {
+                product.Servers = await connection.QueryAsync<Server>(sqlProductServers, new { product.Id });
+                product.Commands = await connection.QueryAsync<Command>(sqlProductCommands, new { product.Id });
+            }
+
             return products;
         }
 
@@ -46,6 +43,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@Expires", product.Expires);
             p.Add("@Enabled", product.Enabled);
             p.Add("@Servers", string.Join(",", product.Servers.Select(x => x.Id)));
+            p.Add("@Commands", string.Join(",", product.Commands.Select(x => x.Id)));
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
             await connection.ExecuteAsync("dbo.CreateProduct", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
@@ -53,13 +51,18 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task UpdateProductAsync(Product product)
         {
-            
-        }
-
-        public async Task DeleteProductAsync(int productId)
-        {
-            const string sql = "DELETE FROM dbo.Products WHERE Id = @productId;";
-            await connection.ExecuteAsync(sql, new { productId });
+            var p = new DynamicParameters();
+            p.Add("@Id", product.Id);
+            p.Add("@Title", product.Title);
+            p.Add("@Description", product.Description);
+            p.Add("@Price", product.Price);
+            p.Add("@ExecuteCommands", product.ExecuteCommands);
+            p.Add("@Icon", product.Icon);
+            p.Add("@Expires", product.Expires);
+            p.Add("@Enabled", product.Enabled);
+            p.Add("@Servers", string.Join(",", product.Servers.Select(x => x.Id)));
+            p.Add("@Commands", string.Join(",", product.Commands.Select(x => x.Id)));
+            await connection.ExecuteAsync("dbo.CreateProduct", p, commandType: CommandType.StoredProcedure);            
         }
     }
 }

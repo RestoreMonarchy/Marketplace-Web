@@ -16,6 +16,7 @@ namespace Marketplace.Shared
         public bool Expires { get; set; }
         public bool Enabled { get; set; }
 
-        public virtual List<Server> Servers { get; set; }
+        public virtual IEnumerable<Server> Servers { get; set; }
+        public virtual IEnumerable<Command> Commands { get; set; }
     }
 }

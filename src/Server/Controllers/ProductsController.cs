@@ -36,18 +36,10 @@ namespace Marketplace.Server.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPatch]
-        public async Task<IActionResult> PatchProductAsync([FromBody] Product product)
+        [HttpPut]
+        public async Task<IActionResult> PutProductAsync([FromBody] Product product)
         {
             await productsRepository.UpdateProductAsync(product);
-            return Ok();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{productId}")]
-        public async Task<IActionResult> DeleteProductAsync(int productId)
-        {
-            await productsRepository.DeleteProductAsync(productId);
             return Ok();
         }
     }
