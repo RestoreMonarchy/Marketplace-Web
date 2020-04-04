@@ -1,14 +1,14 @@
 ﻿using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
 {
+    [Authorize(Roles = "Admin")]
     public partial class ProductsDashboardPage
     {
         [Inject]

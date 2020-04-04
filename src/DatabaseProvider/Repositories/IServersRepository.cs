@@ -1,7 +1,5 @@
 ﻿using Marketplace.Shared;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories
@@ -10,9 +8,7 @@ namespace Marketplace.DatabaseProvider.Repositories
     {
         Task<IEnumerable<Server>> GetServersAsync();
         Task<Server> GetServerAsync(int serverId);
-        Task<int> AddServerAsync(Server server);
-        Task ToggleServerAsync(int serverId);
-        Task DeleteServerAsync(int serverId);
+        Task<int> CreateServerAsync(Server server);
         Task UpdateServerAsync(Server server);
     }
 }

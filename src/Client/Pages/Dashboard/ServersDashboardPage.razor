@@ -29,8 +29,7 @@
                                     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await DeleteServerAsync(server)">Delete</a>
-                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await ToggleServerAsync(server)">Toggle</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await UpdateServerAsync(server)">Edit</a>
                                 </div>
                             </div>
                         </td>
@@ -39,5 +38,10 @@
             </tbody>
         </table>
     </div>
-    <CreateServerModal OnServerCreated="Servers.Add" />
+    <button class="btn btn-primary" @onclick="CreateServerAsync">Add Server</button>
+    <ServerModal @ref="FormModal" OnServerUpdated="OnServerUpdated" OnServerCreated="OnServerCreated" />
+}
+else
+{
+    <ProgressBar />
 }

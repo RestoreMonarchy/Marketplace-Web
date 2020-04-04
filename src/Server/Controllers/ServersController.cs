@@ -31,29 +31,16 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostServerAsync([FromBody] Shared.Server server)
         {
-            server.Id = await serversRepository.AddServerAsync(server);
-            return Ok(server);
+            int serverId = await serversRepository.CreateServerAsync(server);
+            if (serverId == 0)
+                return BadRequest();
+            else
+                return Ok(serverId);
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{serverId}")]
-        public async Task<IActionResult> DeleteServerAsync(int serverId)
-        {
-            await serversRepository.DeleteServerAsync(serverId);
-            return Ok();
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPut("{serverId}")]
-        public async Task<IActionResult> PutServerAsync(int serverId)
-        {
-            await serversRepository.ToggleServerAsync(serverId);
-            return Ok();
-        }
-        
-        [Authorize(Roles = "Admin")]
-        [HttpPatch]
-        public async Task<IActionResult> PatchServerAsync([FromBody] Shared.Server server)
+        [HttpPut]
+        public async Task<IActionResult> PutServerAsync([FromBody] Shared.Server server)
         {
             await serversRepository.UpdateServerAsync(server);
             return Ok();
