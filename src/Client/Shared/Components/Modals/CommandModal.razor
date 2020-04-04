@@ -4,7 +4,7 @@
         <div class="modal-content">
             <EditForm Model="ModelCommand" OnValidSubmit="SubmitAsync">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Create Server</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Command Modal</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -68,13 +68,10 @@
 
 
 @code {
-    [Parameter]
-    public EventCallback<List<Command>> CommandsChanged { get; set; }
-
     [Inject]
     public IJSRuntime JsRuntime { get; set; }
 
-    private Command ModelCommand { get; set; }
+    private Command ModelCommand { get; set; } = new Command();
 
     [Parameter]
     public EventCallback<Command> OnCommandCreated { get; set; }

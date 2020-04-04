@@ -25,8 +25,8 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             var products = await connection.QueryAsync<Product>(sqlAllProducts);
             foreach (var product in products)
             {
-                product.Servers = await connection.QueryAsync<Server>(sqlProductServers, new { product.Id });
-                product.Commands = await connection.QueryAsync<Command>(sqlProductCommands, new { product.Id });
+                product.Servers = await connection.QueryAsync<Server>(sqlProductServers, new { product.Id }) as List<Server>;
+                product.Commands = await connection.QueryAsync<Command>(sqlProductCommands, new { product.Id }) as List<Command>;
             }
 
             return products;
@@ -38,9 +38,8 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@Title", product.Title);
             p.Add("@Description", product.Description);
             p.Add("@Price", product.Price);
-            p.Add("@ExecuteCommands", product.ExecuteCommands);
-            p.Add("@Icon", product.Icon);
-            p.Add("@Expires", product.Expires);
+            p.Add("@Icon", product.Icon, dbType: DbType.Binary);
+            p.Add("@MaxPurchases", product.MaxPurchases);
             p.Add("@Enabled", product.Enabled);
             p.Add("@Servers", string.Join(",", product.Servers.Select(x => x.Id)));
             p.Add("@Commands", string.Join(",", product.Commands.Select(x => x.Id)));
@@ -56,13 +55,12 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@Title", product.Title);
             p.Add("@Description", product.Description);
             p.Add("@Price", product.Price);
-            p.Add("@ExecuteCommands", product.ExecuteCommands);
-            p.Add("@Icon", product.Icon);
-            p.Add("@Expires", product.Expires);
+            p.Add("@Icon", product.Icon, dbType: DbType.Binary);
+            p.Add("@MaxPurchases", product.MaxPurchases);
             p.Add("@Enabled", product.Enabled);
             p.Add("@Servers", string.Join(",", product.Servers.Select(x => x.Id)));
             p.Add("@Commands", string.Join(",", product.Commands.Select(x => x.Id)));
-            await connection.ExecuteAsync("dbo.CreateProduct", p, commandType: CommandType.StoredProcedure);            
+            await connection.ExecuteAsync("dbo.UpdateProduct", p, commandType: CommandType.StoredProcedure);            
         }
     }
 }

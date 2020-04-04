@@ -10,7 +10,6 @@ namespace Marketplace.Server.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        // Product, ProductTransactions, ProductServers
         private readonly IProductsRepository productsRepository;
 
         public ProductsController(IProductsRepository productsRepository)

@@ -9,7 +9,6 @@
                     <th scope="col">ID</th>
                     <th scope="col">Title</th>
                     <th scope="col">Price</th>
-                    <th scope="col">Expires</th>
                     <th scope="col">Enabled</th>
                     <th scope="col">Options</th>
                 </tr>
@@ -21,7 +20,6 @@
                         <th scope="row">@product.Id</th>
                         <td>@product.Title</td>
                         <td>@product.Price</td>
-                        <td>@product.Expires</td>
                         <td>@product.Enabled</td>
                         <td>
                             <div class="dropdown">
@@ -29,7 +27,7 @@
                                     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    @*<a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await UpdateProductAsync(product)">Update</a>*@
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="async () => await UpdateProductAsync(product)">Edit</a>
                                 </div>
                             </div>
                         </td>
@@ -39,5 +37,10 @@
         </table>
     </div>
 
-    @*<CreateProductModal @ref="" OnProductCreated="Products.Add" />*@
+    <button class="btn btn-primary" @onclick="CreateProductAsync">Create Prouct</button>
+    <ProductModal @ref="FormModal" OnProductCreated="OnProductCreatedAsync" OnProductUpdated="OnProductUpdatedAsync" Servers="Servers" Commands="Commands" />
+}
+else
+{
+    <ProgressBar />
 }
