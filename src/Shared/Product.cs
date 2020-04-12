@@ -24,6 +24,6 @@ namespace Marketplace.Shared
         [MinLength(1)]
         public virtual List<Server> Servers { get; set; }
         [MinLength(1)]
-        public virtual List<Command> Commands { get; set; }
+        public virtual List<Command> Commands { get; set; }  
     }
 }

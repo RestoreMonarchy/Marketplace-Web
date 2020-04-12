@@ -13,7 +13,7 @@ namespace Marketplace.DatabaseProvider.Extensions
         {
             source.AddTransient<SqlConnection>(c => new SqlConnection(connectionString));
             source.AddTransient<ISettingsRepository, SqlSettingsRepository>();
-            source.AddTransient<IMarketItemsRepository, SqlMarketPlaceRepository>();
+            source.AddTransient<IMarketItemsRepository, SqlMarketItemsRepository>();
             source.AddTransient<IUnturnedItemsRepository, SqlUnturnedItemAssetsRepository>();
             source.AddTransient<IServersRepository, SqlServersRepository>();
             source.AddTransient<IProductsRepository, SqlProductsRepository>();

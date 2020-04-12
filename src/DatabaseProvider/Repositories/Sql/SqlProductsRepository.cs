@@ -62,5 +62,45 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@Commands", string.Join(",", product.Commands.Select(x => x.Id)));
             await connection.ExecuteAsync("dbo.UpdateProduct", p, commandType: CommandType.StoredProcedure);            
         }
+
+        public async Task<int> BuyProductAsync(int productId, int serverId, string buyerId, string buyerName, decimal balance)
+        {
+            var p = new DynamicParameters();
+            p.Add("@ProductId", productId);
+            p.Add("@ServerId", serverId);
+            p.Add("@BuyerId", buyerId);            
+            p.Add("@Balance", balance);
+            p.Add("@PlayerName", buyerName);
+            p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
+            await connection.ExecuteAsync("BuyProduct", p, commandType: CommandType.StoredProcedure);
+            return p.Get<int>("@returnValue");
+        }
+
+        public async Task<IEnumerable<ProductTransaction>> GetProductTransactionsAsync(int top)
+        {
+            const string sql = "SELECT TOP(@top) t.*, p.Id, p.Title, p.Description, p.Price, p.MaxPurchases, p.Enabled, s.* " +
+                "FROM dbo.ProductTransactions t LEFT JOIN dbo.Products p ON t.ProductId = p.Id LEFT JOIN dbo.Servers s ON t.ServerId = s.Id;";
+            return await connection.QueryAsync<ProductTransaction, Product, Server, ProductTransaction>(sql, (t, p, s) => 
+            {
+                t.Product = p;
+                t.Server = s;
+                return t;
+            }, new { top });
+        }
+
+        public async Task<IEnumerable<ProductTransaction>> GetServerProductTransactionsAsync(int serverId)
+        {
+            return (await connection.QueryAsync<ProductTransaction, Product, Command, ProductTransaction>("dbo.GetServerProductTransactions",
+              (t, p, c) =>
+              {
+                  if (t.Product == null)
+                    t.Product = p;
+
+                  if (t.Product.Commands == null)
+                      t.Product.Commands = new List<Command>();
+                  t.Product.Commands.Add(c);
+                  return t;
+              }, new { serverId }, commandType: CommandType.StoredProcedure)).GroupBy(x => x.Id).Select(x => x.First());
+        }
     }
 }

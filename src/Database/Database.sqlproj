@@ -75,6 +75,8 @@
     <Build Include="Tables\Commands.sql" />
     <Build Include="Tables\ProductCommands.sql" />
     <Build Include="Procedures\UpdateProduct.sql" />
+    <Build Include="Procedures\BuyProduct.sql" />
+    <Build Include="Procedures\GetServerProductTransactions.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Database.publish.xml" />

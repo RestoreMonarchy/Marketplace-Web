@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql
 {
-    public sealed class SqlMarketPlaceRepository : IMarketItemsRepository
+    public sealed class SqlMarketItemsRepository : IMarketItemsRepository
     {
         private readonly SqlConnection connection;
 
-        public SqlMarketPlaceRepository(SqlConnection connection)
+        public SqlMarketItemsRepository(SqlConnection connection)
         {
             this.connection = connection;
         }
@@ -39,13 +39,6 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
             await connection.ExecuteAsync("BuyMarketItem", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
-        }
-
-        public async Task BuyMarketItemAsync(int id, string buyerId)
-        {            
-            const string sql = "UPDATE dbo.MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = SYSDATETIME() WHERE Id = @id;";
-
-            await connection.ExecuteAsync(sql, new { id, buyerId });
         }
 
         public async Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price)
