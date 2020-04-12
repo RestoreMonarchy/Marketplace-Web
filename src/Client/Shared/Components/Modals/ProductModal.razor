@@ -1,0 +1,138 @@
+﻿
+<div class="modal fade" id="@nameof(ProductModal)" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="ModelProduct" OnValidSubmit="SubmitAsync">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Product Modal</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <InputText @bind-Value="ModelProduct.Title" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <InputTextArea @bind-Value="ModelProduct.Description" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Price</label>
+                        <InputNumber @bind-Value="ModelProduct.Price" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Max Purchases</label>
+                        <InputNumber @bind-Value="ModelProduct.MaxPurchases" class="form-control" />
+                    </div>
+
+                    <!-- Servers -->
+
+                    <h4 class="mt-2">Servers</h4>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label>Selected</label><br />
+                            @foreach (var server in ModelProduct.Servers)
+                            {
+                                <a href="javascript:void(0)" class="badge badge-primary" @onclick="() => ModelProduct.Servers.Remove(server)">@server.ServerName</a>
+                            }
+                        </div>
+                        <div class="col-6">
+                            <label>Available</label><br />
+                            @if (Servers != null)
+                            {
+                                @foreach (var server in Servers.Where(x => !ModelProduct.Servers.Exists(y => y.Id == x.Id)))
+                                {
+                                    <a href="javascript:void(0)" class="badge badge-secondary" @onclick="() => ModelProduct.Servers.Add(server)">@server.ServerName</a>
+                                }
+                            }
+                        </div>                        
+                    </div>
+
+                    <!-- Commands -->
+
+                    <h4>Commands</h4>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label>Selected</label><br />
+                            @foreach (var command in ModelProduct.Commands)
+                            {
+                                <a href="javascript:void(0)" class="badge badge-success" @onclick="() => ModelProduct.Commands.Remove(command)">@command.CommandName</a>
+                            }
+                        </div>
+                        <div class="col-6">
+                            <label>Available</label><br />
+                            @if (Commands != null)
+                            {
+                                @foreach (var command in Commands.Where(x => !ModelProduct.Commands.Exists(y => y.Id == x.Id)))
+                                {
+                                    <a href="javascript:void(0)" class="badge badge-secondary" @onclick="() => ModelProduct.Commands.Add(command)">@command.CommandName</a>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="ModelProduct.Enabled" class="form-check-input" />
+                            <label class="form-check-label">Enabled</label>
+                        </div>
+                    </div>
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public List<Server> Servers { get; set; }
+    [Parameter]
+    public List<Command> Commands { get; set; }
+
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    private Product ModelProduct { get; set; } = new Product() { Enabled = true, Servers = new List<Server>(), Commands = new List<Command>() };
+
+    [Parameter]
+    public EventCallback<Product> OnProductCreated { get; set; }
+    [Parameter]
+    public EventCallback<Product> OnProductUpdated { get; set; }
+
+    public bool IsUpdate { get; set; }
+
+    public async Task CreateProductAsync()
+    {
+        ModelProduct = new Product() { Enabled = true, Servers = new List<Server>(), Commands = new List<Command>() };
+        IsUpdate = false;
+        await JsRuntime.ToggleModalAsync(nameof(ProductModal));
+    }
+
+    public async Task UpdateProductAsync(Product command)
+    {
+        ModelProduct = command;
+        IsUpdate = true;
+        await JsRuntime.ToggleModalAsync(nameof(ProductModal));
+    }
+
+    public async Task SubmitAsync()
+    {
+        if (!IsUpdate)
+            await OnProductCreated.InvokeAsync(ModelProduct);
+        else
+            await OnProductUpdated.InvokeAsync(ModelProduct);
+
+        await JsRuntime.ToggleModalAsync(nameof(ProductModal));
+    }
+}

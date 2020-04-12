@@ -16,6 +16,7 @@ using Marketplace.DatabaseProvider.Extensions;
 using Marketplace.DatabaseProvider.Repositories;
 using MySql.Data.MySqlClient;
 using Marketplace.Server.Services;
+using SteamWebAPI2.Utilities;
 
 namespace Marketplace.Server
 {
@@ -30,7 +31,6 @@ namespace Marketplace.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<SettingsService>();
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
                 .AddCookie(options =>
                 {
@@ -74,6 +74,9 @@ namespace Marketplace.Server
             }
             services.AddUconomyMySql(configuration.GetConnectionString("ServersDatabase"));
             services.AddMemoryCache();
+
+            services.AddTransient(s => new SteamWebInterfaceFactory(configuration["SteamDevKey"]));
+            services.AddTransient<SteamService>();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.

@@ -10,7 +10,6 @@ namespace Marketplace.DatabaseProvider.Repositories
         Task<MarketItem> GetMarketItemAsync(int id);
         Task<int> SellMarketItemAsync(MarketItem marketItem);
         Task<int> BuyMarketItemAsync(int id, string buyerId, decimal balance);
-        Task BuyMarketItemAsync(int id, string buyerId);
         Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price);
         Task<IEnumerable<MarketItem>> GetPlayerMarketItemsAsync(string playerId);
         Task ClaimMarketItemAsync(int id);

@@ -42,6 +42,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await AddSettingAsync(new Setting("IndexLayout", "Default", "Change a layout of home page"));
             await AddSettingAsync(new Setting("ItemPageLayout", "Default", "Change a layout of item page"));
             await AddSettingAsync(new Setting("TrunkLayout", "Default", "Change a layout of trunk page"));
+            await AddSettingAsync(new Setting("ProductsLayout", "Default", "Change a layout of products page"));
         }
 
         private async Task AddSettingAsync(Setting setting)

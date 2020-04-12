@@ -1,0 +1,106 @@
+﻿
+<div class="modal fade" id="@nameof(CommandModal)" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="ModelCommand" OnValidSubmit="SubmitAsync">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Command Modal</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <InputText @bind-Value="ModelCommand.CommandName" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Help</label>
+                        <InputTextArea @bind-Value="ModelCommand.CommandHelp" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label>Command</label>
+                        <InputText @bind-Value="ModelCommand.CommandText" class="form-control" />
+                        <small class="form-text text-muted">
+                            Available variables: {PlayerId}, {PlayerName}
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="ModelCommand.Expires" class="form-check-input" />
+                            <label class="form-check-label">Expires</label>
+                        </div>
+                    </div>
+
+                    @if (ModelCommand.Expires)
+                    {
+                        <div class="form-group">
+                            <label>Expire Time (in seconds)</label>
+                            <InputNumber @bind-Value="ModelCommand.ExpireTime" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Expire Command</label>
+                            <InputText @bind-Value="ModelCommand.ExpireCommand" class="form-control" />
+                            <small class="form-text text-muted">
+                                Available variables: {PlayerId}, {PlayerName}
+                            </small>
+                        </div>
+                    }
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="ModelCommand.ExecuteOnBuyerJoinServer" class="form-check-input" />
+                            <label class="form-check-label">Execute On Buyer Join Server</label>
+                        </div>
+                    </div>
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    private Command ModelCommand { get; set; } = new Command();
+
+    [Parameter]
+    public EventCallback<Command> OnCommandCreated { get; set; }
+    [Parameter]
+    public EventCallback<Command> OnCommandUpdated { get; set; }
+
+    public bool IsUpdate { get; set; }
+
+    public async Task CreateCommandAsync()
+    {
+        ModelCommand = new Command() { Expires = false, ExecuteOnBuyerJoinServer = false };
+        IsUpdate = false;
+        await JsRuntime.ToggleModalAsync(nameof(CommandModal));
+    }
+
+    public async Task UpdateCommandAsync(Command command)
+    {
+        ModelCommand = command;
+        IsUpdate = true;
+        await JsRuntime.ToggleModalAsync(nameof(CommandModal));
+    }
+
+    public async Task SubmitAsync()
+    {
+        if (!IsUpdate)
+            await OnCommandCreated.InvokeAsync(ModelCommand);
+        else
+            await OnCommandUpdated.InvokeAsync(ModelCommand);
+
+        await JsRuntime.ToggleModalAsync(nameof(CommandModal));
+    }
+}

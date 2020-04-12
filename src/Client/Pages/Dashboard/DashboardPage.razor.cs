@@ -14,9 +14,10 @@ namespace Marketplace.Client.Pages.Dashboard
     public partial class DashboardPage
     {
         [Inject]
-        public HttpClient HttpClient { get; set; }
+        private HttpClient HttpClient { get; set; }
         [Inject]
-        public SweetAlertService Swal { get; set; }
+        private SweetAlertService Swal { get; set; }
+
         private List<UnturnedItem> UnturnedItems { get; set; }
         private decimal TotalBalance { get; set; }
         private Dictionary<string, Setting> Settings { get; set; }
@@ -27,6 +28,7 @@ namespace Marketplace.Client.Pages.Dashboard
         private Setting indexLayout;
         private Setting itemPageLayout;
         private Setting trunkLayout;
+        private Setting productsLayout;
 
         protected override async Task OnInitializedAsync() 
         {
@@ -37,6 +39,7 @@ namespace Marketplace.Client.Pages.Dashboard
             indexLayout = Settings["IndexLayout"];
             itemPageLayout = Settings["ItemPageLayout"];
             trunkLayout = Settings["TrunkLayout"];
+            productsLayout = Settings["ProductsLayout"];
 
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            
