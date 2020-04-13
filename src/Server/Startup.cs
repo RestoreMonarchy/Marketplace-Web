@@ -77,7 +77,7 @@ namespace Marketplace.Server
             services.AddMemoryCache();
 
             services.AddTransient(s => new SteamWebInterfaceFactory(configuration["SteamDevKey"]));
-            services.AddTransient<SteamService>();
+            services.AddTransient<ISteamService, SteamService>();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.

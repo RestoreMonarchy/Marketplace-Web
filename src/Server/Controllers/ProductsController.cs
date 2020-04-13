@@ -18,9 +18,9 @@ namespace Marketplace.Server.Controllers
     {
         private readonly IProductsRepository productsRepository;
         private readonly IUconomyRepository uconomyRepository;
-        private readonly SteamService steamService;
+        private readonly ISteamService steamService;
 
-        public ProductsController(IProductsRepository productsRepository, IUconomyRepository uconomyRepository, SteamService steamService)
+        public ProductsController(IProductsRepository productsRepository, IUconomyRepository uconomyRepository, ISteamService steamService)
         {
             this.productsRepository = productsRepository;
             this.uconomyRepository = uconomyRepository;
