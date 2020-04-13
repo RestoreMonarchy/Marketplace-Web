@@ -83,14 +83,14 @@ namespace Marketplace.Server.Controllers
 
         [ApiKeyAuth]
         [HttpGet("Server")]
-        public async Task<IActionResult> GetServerProductTransactionsAsync([FromQuery] int serverId)
+        public async Task<IActionResult> GetServerTransactionsAsync([FromQuery] int serverId)
         {
             if (serverId == 0)
                 return BadRequest();
 
             try
             {
-                return Ok(await productsRepository.GetServerProductTransactionsAsync(serverId));
+                return Ok(await productsRepository.GetServerTransactionsAsync(serverId));
             } catch
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);

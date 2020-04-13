@@ -15,13 +15,13 @@ BEGIN
 	AND ServerId = @ServerId;
 
 	SELECT
-		t.Id,
+		t.Id AS TransactionId,
 		t.PlayerId,
 		t.PlayerName,
-		t.CreateDate,
-		p.Id,
-		p.Title,
-		p.Price,
+		t.CreateDate AS TransactionCreateDate,
+		p.Id AS ProductId,
+		p.Title AS ProductTitle,
+		p.Price AS ProductPrice,
 		c.Id,
 		c.CommandName,
 		c.CommandText,

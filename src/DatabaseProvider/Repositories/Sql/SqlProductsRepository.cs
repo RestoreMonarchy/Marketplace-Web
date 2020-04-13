@@ -88,19 +88,23 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             }, new { top });
         }
 
-        public async Task<IEnumerable<ProductTransaction>> GetServerProductTransactionsAsync(int serverId)
+        public async Task<IEnumerable<ServerTransaction>> GetServerTransactionsAsync(int serverId)
         {
-            return (await connection.QueryAsync<ProductTransaction, Product, Command, ProductTransaction>("dbo.GetServerProductTransactions",
-              (t, p, c) =>
+            List<ServerTransaction> transactions = new List<ServerTransaction>();
+            await connection.QueryAsync<ServerTransaction, ServerTransaction.Command, ServerTransaction>("dbo.GetServerProductTransactions",
+              (t, c) =>
               {
-                  if (t.Product == null)
-                    t.Product = p;
-
-                  if (t.Product.Commands == null)
-                      t.Product.Commands = new List<Command>();
-                  t.Product.Commands.Add(c);
-                  return t;
-              }, new { serverId }, commandType: CommandType.StoredProcedure)).GroupBy(x => x.Id).Select(x => x.First());
+                  var tran = transactions.FirstOrDefault(x => x.TransactionId == t.TransactionId);
+                  if (tran == null)
+                  {
+                      tran = t;
+                      tran.Commands = new List<ServerTransaction.Command>();
+                      transactions.Add(tran);
+                  }
+                  tran.Commands.Add(c);
+                  return null;
+              }, new { serverId }, commandType: CommandType.StoredProcedure);
+            return transactions;
         }
     }
 }
