@@ -107,9 +107,9 @@ namespace Marketplace.Server
             });
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<IMarketItemsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<ISettingsRepository>().Initialize).Wait();
+                scope.ServiceProvider.GetService<IUnturnedItemsRepository>().Initialize()?.GetAwaiter().GetResult();
+                scope.ServiceProvider.GetService<IMarketItemsRepository>().Initialize()?.GetAwaiter().GetResult();
+                scope.ServiceProvider.GetService<ISettingsRepository>().Initialize()?.GetAwaiter().GetResult()
             }
         }
     }
