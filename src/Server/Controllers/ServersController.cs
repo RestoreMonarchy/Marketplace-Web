@@ -1,4 +1,5 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace Marketplace.Server.Controllers
             return Ok(await serversRepository.GetServerAsync(serverId));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPost]
         public async Task<IActionResult> PostServerAsync([FromBody] Shared.Server server)
         {
@@ -38,7 +39,7 @@ namespace Marketplace.Server.Controllers
                 return Ok(serverId);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPut]
         public async Task<IActionResult> PutServerAsync([FromBody] Shared.Server server)
         {

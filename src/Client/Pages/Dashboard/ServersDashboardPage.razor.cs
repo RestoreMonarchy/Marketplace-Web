@@ -1,5 +1,6 @@
 ﻿using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = RoleConstants.AdminRoleId)]
     public partial class ServersDashboardPage
     {
         [Inject]

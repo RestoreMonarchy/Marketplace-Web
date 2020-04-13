@@ -12,6 +12,7 @@ using Marketplace.DatabaseProvider.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.IO;
+using Marketplace.Shared.Constants;
 
 namespace Marketplace.Server.Controllers
 {
@@ -154,7 +155,7 @@ namespace Marketplace.Server.Controllers
             return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpGet("balance/total")]
         public async Task<IActionResult> GetTotalBalanceAsync()
         {

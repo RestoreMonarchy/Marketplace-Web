@@ -2,6 +2,7 @@
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Services;
 using Marketplace.Shared;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace Marketplace.Server.Controllers
             return Ok(await productsRepository.GetProductsAsync());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPost]
         public async Task<IActionResult> PostProductAsync([FromBody] Product product)
         {
@@ -43,7 +44,7 @@ namespace Marketplace.Server.Controllers
                 return Ok(productId);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPut]
         public async Task<IActionResult> PutProductAsync([FromBody] Product product)
         {

@@ -17,6 +17,7 @@ using Marketplace.DatabaseProvider.Repositories;
 using MySql.Data.MySqlClient;
 using Marketplace.Server.Services;
 using SteamWebAPI2.Utilities;
+using Marketplace.Shared.Constants;
 
 namespace Marketplace.Server
 {
@@ -43,9 +44,9 @@ namespace Marketplace.Server
                         List<Claim> claims = new List<Claim>();
                         claims.Add(new Claim(ClaimTypes.Name, steamId));
                         if (configuration.GetSection("Admins").Get<string[]>().Any(x=> x == steamId))
-                            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                            claims.Add(new Claim(ClaimTypes.Role, RoleConstants.AdminRoleId));
                         else
-                            claims.Add(new Claim(ClaimTypes.Role, "Guest"));
+                            claims.Add(new Claim(ClaimTypes.Role, RoleConstants.GuestRoleId));
 
                         arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
                         return Task.CompletedTask;

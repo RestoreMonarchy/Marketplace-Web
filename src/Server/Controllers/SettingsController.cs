@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,7 @@ namespace Marketplace.Server.Controllers
             return Ok(await settingsRepository.GetSettingAsync(settingId));
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPut("{settingId}")]
         public async Task<IActionResult> UpdateSettingAsync(string settingId, [FromBody] Setting setting)
         {
@@ -30,7 +31,7 @@ namespace Marketplace.Server.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpGet]
         public async Task<IActionResult> GetSettingsAsync()
         {

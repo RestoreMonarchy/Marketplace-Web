@@ -1,6 +1,7 @@
 ﻿
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -27,7 +28,7 @@ namespace Marketplace.Server.Controllers
             return Ok(await commandsRepository.GetCommandsAsync());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPost]
         public async Task<IActionResult> PostCommandAsync([FromBody] Command command)
         {
@@ -38,7 +39,7 @@ namespace Marketplace.Server.Controllers
                 return Ok(commandId);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPut]
         public async Task<IActionResult> PutCommandAsync([FromBody] Command command)
         {
