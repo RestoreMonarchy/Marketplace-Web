@@ -78,7 +78,7 @@ namespace Marketplace.Server
 
             services.AddTransient(s => new SteamWebInterfaceFactory(configuration["SteamDevKey"]));
             services.AddTransient<ISteamService, SteamService>();
-
+            services.AddHttpClient();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
@@ -114,3 +114,4 @@ namespace Marketplace.Server
         }
     }
 }
+
