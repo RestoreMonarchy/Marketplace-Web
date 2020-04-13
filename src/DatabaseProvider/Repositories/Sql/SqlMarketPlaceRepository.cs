@@ -26,7 +26,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@Price", marketItem.Price);
             p.Add("@SellerId", marketItem.SellerId);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
-            await connection.ExecuteAsync("SellMarketItem", p, commandType: CommandType.StoredProcedure);
+            await connection.ExecuteAsync("dbo.SellMarketItem", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
         }
 
@@ -37,7 +37,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@BuyerId", buyerId);
             p.Add("@Balance", balance);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
-            await connection.ExecuteAsync("BuyMarketItem", p, commandType: CommandType.StoredProcedure);
+            await connection.ExecuteAsync("dbo.BuyMarketItem", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
         }
 
@@ -48,7 +48,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             p.Add("@ChangerId", playerId);
             p.Add("@Price", price);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
-            await connection.ExecuteAsync("ChangePriceMarketItem", p, commandType: CommandType.StoredProcedure);
+            await connection.ExecuteAsync("dbo.ChangePriceMarketItem", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
 
         }

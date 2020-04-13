@@ -2,7 +2,7 @@
 AS
 BEGIN
 
-	DECLARE @sellerId INT, @isSold BIT, @price DECIMAL(9,2);
+	DECLARE @sellerId VARCHAR(255), @isSold BIT, @price DECIMAL(9,2);
 	DECLARE @maxActiveShoppings INT = 2147483647;
 
 	SELECT 
