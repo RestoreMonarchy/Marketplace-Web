@@ -88,13 +88,7 @@ namespace Marketplace.Server.Controllers
             if (serverId == 0)
                 return BadRequest();
 
-            try
-            {
-                return Ok(await productsRepository.GetServerTransactionsAsync(serverId));
-            } catch
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            return Ok(await productsRepository.GetServerTransactionsAsync(serverId));
         }
     }
 }
