@@ -15,6 +15,7 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
         {
             this.connection = connection;
         }
+
         public Task<decimal> GetBalanceAsync(string id)
         {
             const string sql = "SELECT balance FROM uconomy WHERE steamId = @id;";
@@ -31,7 +32,6 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
         }
         public Task Initialize()
         {
-            //throw new NotImplementedException(); TODO: ?
             return Task.CompletedTask;
         }
 

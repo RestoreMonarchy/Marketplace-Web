@@ -106,5 +106,10 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
               }, new { serverId }, commandType: CommandType.StoredProcedure);
             return transactions;
         }
+
+        public Task Initialize()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -20,16 +20,9 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<ICommandsRepository, SqlCommandsRepository>();
         }
 
-        public static void AddMarketplaceMySql(this IServiceCollection source, string connectionString)
-        {
-            source.AddTransient<MySqlConnection>(c => new MySqlConnection(connectionString));
-            source.AddTransient<IMarketItemsRepository, MySqlMarketPlaceRepository>();
-            source.AddTransient<IUnturnedItemsRepository, MySqlUnturnedItemAssetsRepository>();
-        }
-
         public static void AddUconomyMySql(this IServiceCollection source, string connectionString)
         {
-            source.AddTransient<IUconomyRepository>(c => new MySqlUconomyRepository(new MySqlConnection(connectionString)));
+            source.AddTransient<IUconomyRepository, MySqlUconomyRepository>();
         }
     }
 }

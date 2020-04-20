@@ -30,16 +30,17 @@ namespace Marketplace.Client.Pages.Dashboard
         private Setting itemPageLayout;
         private Setting trunkLayout;
         private Setting productsLayout;
-        private Setting uconomyConnectionString;
-        private Setting admins;
+        private Setting steamDevKey;
+        private Setting uconomyConnectionString;        
         private Setting apiKey;
+        private Setting admins;
         private string adminValue = string.Empty;
         private List<string> adminList;
 
         protected override async Task OnInitializedAsync() 
         {
             UnturnedItems = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
-            TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/marketitems/balance/total");
+            TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/uconomy/total");
             Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
             
             indexLayout = Settings["IndexLayout"];
@@ -47,9 +48,10 @@ namespace Marketplace.Client.Pages.Dashboard
             trunkLayout = Settings["TrunkLayout"];
             productsLayout = Settings["ProductsLayout"];
             uconomyConnectionString = Settings["UconomyConnectionString"];
+            steamDevKey = Settings["SteamDevKey"];
+            apiKey = Settings["APIKey"];
             admins = Settings["Admins"];
             adminList = admins.SettingValue.Split(',').ToList();
-            apiKey = Settings["APIKey"];
 
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            

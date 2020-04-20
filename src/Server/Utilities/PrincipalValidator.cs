@@ -1,4 +1,4 @@
-﻿using Marketplace.DatabaseProvider.Repositories;
+﻿using Marketplace.Server.Services;
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +20,8 @@ namespace Marketplace.Server.Utilities
             List<Claim> claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, steamId));
 
-            var settingsRepository = context.HttpContext.RequestServices.GetRequiredService<ISettingsRepository>();
-            var admins = (await settingsRepository.GetSettingAsync("Admins")).SettingValue.Split(',');
+            var settingService = context.HttpContext.RequestServices.GetRequiredService<ISettingService>();
+            var admins = (await settingService.GetSettingAsync("Admins")).SettingValue.Split(',');
             
             if (admins.Contains(steamId) || Environment.GetEnvironmentVariable("ADMIN_STEAMID") == steamId)
                 claims.Add(new Claim(ClaimTypes.Role, RoleConstants.AdminRoleId));

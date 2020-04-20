@@ -33,5 +33,10 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
                 "ExpireTime = @ExpireTime, ExpireCommand = @ExpireCommand, ExecuteOnBuyerJoinServer = @ExecuteOnBuyerJoinServer WHERE Id = @Id;";
             await connection.ExecuteAsync(sql, command);
         }
+
+        public Task Initialize()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

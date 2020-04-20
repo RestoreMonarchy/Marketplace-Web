@@ -25,10 +25,10 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await connection.ExecuteAsync(sql, setting);
         }
 
-        public async Task<Setting> GetSettingAsync(string settingId)
+        public async Task<Setting> GetSettingAsync(string settingId, bool isAdmin = false)
         {
-            const string sql = "SELECT SettingId, SettingValue, Help FROM dbo.Settings WHERE SettingId = @settingId;";
-            return (await connection.QueryAsync<Setting>(sql, new { settingId })).FirstOrDefault();
+            const string sql = "SELECT SettingId, SettingValue, Help FROM dbo.Settings WHERE SettingId = @settingId AND IsAdmin = @isAdmin;";
+            return (await connection.QueryAsync<Setting>(sql, new { settingId, isAdmin })).FirstOrDefault();
         }
 
         public async Task<IEnumerable<Setting>> GetSettingsAsync()
@@ -39,10 +39,12 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task Initialize()
         {
-            await AddSettingAsync(new Setting("APIKey", Guid.NewGuid().ToString("N"), "API Key for your website access"));
+            await AddSettingAsync(new Setting("APIKey", Guid.NewGuid().ToString("N"), "API Key for your website access", true));
             await AddSettingAsync(new Setting("UconomyConnectionString", "Server=127.0.0.1;Database=unturned;Uid=root;Password=Password123;", 
-                "Connection string to uconomy database"));
-            await AddSettingAsync(new Setting("Admins", Environment.GetEnvironmentVariable("ADMIN_STEAMID"), "Steam64IDs of admins seperated by comma ','"));
+                "Connection string to uconomy database", true));
+            await AddSettingAsync(new Setting("Admins", Environment.GetEnvironmentVariable("ADMIN_STEAMID"), 
+                "Steam64IDs of admins seperated by comma ','"));
+            await AddSettingAsync(new Setting("SteamDevKey", Environment.GetEnvironmentVariable("STEAM_DEVKEY"), "Steam API dev key", true));
             await AddSettingAsync(new Setting("IndexLayout", "Default", "Change a layout of home page"));
             await AddSettingAsync(new Setting("ItemPageLayout", "Default", "Change a layout of item page"));
             await AddSettingAsync(new Setting("TrunkLayout", "Default", "Change a layout of trunk page"));

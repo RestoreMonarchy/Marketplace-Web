@@ -41,5 +41,10 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             const string sql = "UPDATE dbo.Servers SET ServerName = @ServerName, ServerIP = @ServerIP, ServerPort = @ServerPort WHERE Id = @Id;";
             await connection.ExecuteAsync(sql, server);
         }
+
+        public Task Initialize()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

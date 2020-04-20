@@ -1,16 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Marketplace.ApiKeyAuthentication;
-using Marketplace.DatabaseProvider;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
 using Marketplace.DatabaseProvider.Extensions;
 using Microsoft.AspNetCore.Http;
-using System.Net;
 using System.IO;
 using Marketplace.Shared.Constants;
 
@@ -51,17 +46,10 @@ namespace Marketplace.Server.Controllers
                 content = await reader.ReadToEndAsync();
             }
 
-            System.Console.WriteLine();
-            System.Console.WriteLine("contents: " + content);
-            System.Console.WriteLine();
-
             if (!decimal.TryParse(content, out decimal price))
             {
                 return BadRequest();
             }
-            System.Console.WriteLine();
-            System.Console.WriteLine($"price is {price}");
-            System.Console.WriteLine();
 
             switch (await marketPlaceRepository.ChangePriceMarketItemAsync(id, User.Identity.Name, price))
             {
@@ -146,20 +134,6 @@ namespace Marketplace.Server.Controllers
 
             await marketPlaceRepository.ClaimMarketItemAsync(id);
             return Ok(marketItem);
-        }
-
-        [Authorize]
-        [HttpGet("balance")]
-        public async Task<IActionResult> GetMyBalanceAsync()
-        {
-            return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
-        }
-
-        [Authorize(Roles = RoleConstants.AdminRoleId)]
-        [HttpGet("balance/total")]
-        public async Task<IActionResult> GetTotalBalanceAsync()
-        {
-            return Ok(await uconomyRepository.GetTotalBalanceAsync());
         }
     }
 }

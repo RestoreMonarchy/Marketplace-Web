@@ -73,7 +73,7 @@
     {
         if (authState.User.Identity.IsAuthenticated)
         {
-            Balance = await HttpClient.GetJsonAsync<decimal>("api/marketitems/balance");
+            Balance = await HttpClient.GetJsonAsync<decimal>("api/uconomy");
             StateHasChanged();
         }
     }

@@ -38,6 +38,13 @@
                 <button class="btn btn-secondary" @onclick="GenerateApiKey">Generate New</button>
             </div>            
         </EditForm>
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("SteamDevKey"))" Model="steamDevKey">
+            <div class="form-group">
+                <label>Steam Dev Key</label>
+                <InputText class="form-control" @bind-Value="steamDevKey.SettingValue" />
+                <small class="form-text text-muted">@steamDevKey.Help</small>
+            </div>            
+        </EditForm>
         <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="uconomyConnectionString">
             <div class="form-group">
                 <label>Uconomy Connection String</label>

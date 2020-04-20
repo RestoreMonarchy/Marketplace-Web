@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Server.Services;
 using Marketplace.Shared;
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
@@ -11,23 +12,23 @@ namespace Marketplace.Server.Controllers
     [ApiController]
     public class SettingsController : ControllerBase
     {
-        private readonly ISettingsRepository settingsRepository;
-        public SettingsController(ISettingsRepository settingsRepository)
+        private readonly ISettingService settingService;
+        public SettingsController(ISettingService settingService)
         {
-            this.settingsRepository = settingsRepository;
+            this.settingService = settingService;
         }
 
         [HttpGet("{settingId}")] 
         public async Task<IActionResult> GetSettingAsync(string settingId)
         {
-            return Ok(await settingsRepository.GetSettingAsync(settingId));
+            return Ok(await settingService.GetSettingAsync(settingId));
         }
 
         [Authorize(Roles = RoleConstants.AdminRoleId)]
         [HttpPut("{settingId}")]
         public async Task<IActionResult> UpdateSettingAsync(string settingId, [FromBody] Setting setting)
         {
-            await settingsRepository.UpdateSettingValueAsync(settingId, setting.SettingValue);
+            await settingService.UpdateSettingAsync(setting.SettingId, setting.SettingValue);
             return Ok();
         }
 
@@ -35,7 +36,7 @@ namespace Marketplace.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsAsync()
         {
-            return Ok(await settingsRepository.GetSettingsAsync());
+            return Ok(await settingService.GetSettingsAsync());
         }
     }
 }

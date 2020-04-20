@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories
 {
-    public interface IProductsRepository
+    public interface IProductsRepository : IRepository
     {
         Task<IEnumerable<Product>> GetProductsAsync();
         Task<int> CreateProductAsync(Product product);
