@@ -24,9 +24,10 @@ namespace Marketplace.Server.Health
                 await connection.ExecuteScalarAsync("SELECT 1");
                 return HealthCheckResult.Healthy();
             }
-            catch (SqlException)
+            catch (SqlException e)
             {
-                return HealthCheckResult.Unhealthy();
+                return HealthCheckResult.Unhealthy("Connection string is invalid or not provided. " +
+                    "Restart your docker container with valid MSSQL_CONNECTION_STRING env variable", e);
             }
         }
     }

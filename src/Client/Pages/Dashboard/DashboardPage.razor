@@ -43,6 +43,7 @@
                 <label>Steam Dev Key</label>
                 <InputText class="form-control" @bind-Value="steamDevKey.SettingValue" />
                 <small class="form-text text-muted">@steamDevKey.Help</small>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>            
         </EditForm>
         <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="uconomyConnectionString">

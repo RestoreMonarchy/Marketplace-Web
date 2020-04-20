@@ -39,11 +39,7 @@ namespace Marketplace.Server
                     options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
                 }).AddSteam();
 
-
-            services.AddLogging(options =>
-            {
-                
-            });
+            services.AddLogging();
             services.AddAuthorizationCore();
             services.AddControllers();
             services.AddMvc();
@@ -54,19 +50,17 @@ namespace Marketplace.Server
                     new[] { "application/octet-stream" });
             });
 
-            services.AddMarketplaceSql(configuration.GetConnectionString("MsSql"));
+            services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
 
-            services.AddUconomyMySql(configuration.GetConnectionString("ServersDatabase"));
+            services.AddUconomyMySql();
             services.AddMemoryCache();
 
-            services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().GetSettingAsync("SteamDevKey")
+            services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().GetSettingAsync("SteamDevKey", true)
                 .GetAwaiter().GetResult().SettingValue));
 
-            services.AddScoped(c => 
+            services.AddScoped(c =>
             {
-                var service = c.GetService<ISettingService>();
-                Console.WriteLine($"service null? {service == null}");
-                return new MySqlConnection(c.GetService<ISettingService>().GetSettingAsync("UconomyConnectionString")
+                return new MySqlConnection(c.GetService<ISettingService>().GetSettingAsync("UconomyConnectionString", true)
                     .GetAwaiter().GetResult().SettingValue);
             });
 
@@ -74,8 +68,8 @@ namespace Marketplace.Server
             services.AddSingleton<ISettingService, SettingService>();
             services.AddHttpClient();
 
-
             services.AddHealthChecks()
+                .AddCheck<SteamWebAPIHealthCheck>("Steam Web API")
                 .AddCheck<UconomyDatabaseHealthCheck>("Uconomy")
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase");
 

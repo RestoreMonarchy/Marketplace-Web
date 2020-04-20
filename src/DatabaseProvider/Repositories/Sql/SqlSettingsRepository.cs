@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql
@@ -27,13 +26,13 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
 
         public async Task<Setting> GetSettingAsync(string settingId, bool isAdmin = false)
         {
-            const string sql = "SELECT SettingId, SettingValue, Help FROM dbo.Settings WHERE SettingId = @settingId AND IsAdmin = @isAdmin;";
+            const string sql = "SELECT * FROM dbo.Settings WHERE SettingId = @settingId AND IsAdmin = @isAdmin;";
             return (await connection.QueryAsync<Setting>(sql, new { settingId, isAdmin })).FirstOrDefault();
         }
 
         public async Task<IEnumerable<Setting>> GetSettingsAsync()
         {
-            const string sql = "SELECT SettingId, SettingValue, Help FROM dbo.Settings;";
+            const string sql = "SELECT * FROM dbo.Settings;";
             return await connection.QueryAsync<Setting>(sql);
         }
 

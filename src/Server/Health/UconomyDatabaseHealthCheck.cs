@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Dapper;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,11 +14,18 @@ namespace Marketplace.Server.Health
             this.connection = connection;
         }
 
-        public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            if (!connection.Ping())
-                return Task.FromResult(HealthCheckResult.Degraded());
-            return Task.FromResult(HealthCheckResult.Healthy());
+            try
+            {
+                await connection.ExecuteScalarAsync("SELECT 1");
+                return HealthCheckResult.Healthy();
+
+            } catch (MySqlException e)
+            {
+                return HealthCheckResult.Unhealthy("Failed to connect to Uconomy MySQL server. " +
+                        "Sign in with admin and edit Uconomy Connection String in Dashboard page", e);
+            }
         }
     }
 }

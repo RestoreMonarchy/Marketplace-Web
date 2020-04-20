@@ -27,8 +27,7 @@ namespace Marketplace.Server.Services
         {
             await settingsRepository.UpdateSettingValueAsync(settingId, settingValue);
             memoryCache.Remove(CacheKeys.SettingId(settingId));
-
-
+            memoryCache.Remove(CacheKeys.SettingsId);
         }
 
         public async ValueTask<IEnumerable<Setting>> GetSettingsAsync()
@@ -40,12 +39,12 @@ namespace Marketplace.Server.Services
             });
         }
 
-        public async ValueTask<Setting> GetSettingAsync(string settingId)
+        public async ValueTask<Setting> GetSettingAsync(string settingId, bool isAdmin = false)
         {
             return await memoryCache.GetOrCreateAsync(CacheKeys.SettingId(settingId), async (entry) => 
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-                return (await settingsRepository.GetSettingAsync(settingId));
+                return await settingsRepository.GetSettingAsync(settingId, isAdmin);
             });
         }
     }
