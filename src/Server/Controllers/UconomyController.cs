@@ -2,6 +2,7 @@
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -12,9 +13,11 @@ namespace Marketplace.Server.Controllers
     public class UconomyController : ControllerBase
     {
         private readonly IUconomyRepository uconomyRepository;
-        public UconomyController(IUconomyRepository uconomyRepository)
+        private readonly ILogger<UconomyController> logger;
+        public UconomyController(IUconomyRepository uconomyRepository, ILogger<UconomyController> logger)
         {
             this.uconomyRepository = uconomyRepository;
+            this.logger = logger;
         }
 
         [Authorize]
@@ -27,7 +30,7 @@ namespace Marketplace.Server.Controllers
             } catch (Exception e)
             {
                 // TODO: Use logger instead here too
-                Console.WriteLine(e);
+                LogUconomyConnectionError(e);
                 return Ok(0);
             }            
         }
@@ -41,9 +44,14 @@ namespace Marketplace.Server.Controllers
                 return Ok(await uconomyRepository.GetTotalBalanceAsync());
             } catch (Exception e)
             {
-                Console.WriteLine(e);
+                LogUconomyConnectionError(e);
                 return Ok(0);
             }            
+        }
+
+        private void LogUconomyConnectionError(Exception e)
+        {
+            logger.LogError("Error occured while communicating with uconomy database: {ex}", e);
         }
     }
 }

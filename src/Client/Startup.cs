@@ -13,6 +13,7 @@ namespace Marketplace.Client
         {
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, SteamAuthenticationStateProvider>();
+            services.AddScoped<IHealthStateProvider, HealthStateProvider>();
             services.AddScoped<OrderState>();
 
             services.AddSweetAlert2(options =>

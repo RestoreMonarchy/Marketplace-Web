@@ -14,6 +14,8 @@ using Marketplace.Server.Services;
 using SteamWebAPI2.Utilities;
 using Marketplace.Server.Utilities;
 using MySql.Data.MySqlClient;
+using Marketplace.Server.Health;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace Marketplace.Server
 {
@@ -37,7 +39,11 @@ namespace Marketplace.Server
                     options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
                 }).AddSteam();
 
-            services.AddLogging();
+
+            services.AddLogging(options =>
+            {
+                
+            });
             services.AddAuthorizationCore();
             services.AddControllers();
             services.AddMvc();
@@ -53,17 +59,25 @@ namespace Marketplace.Server
             services.AddUconomyMySql(configuration.GetConnectionString("ServersDatabase"));
             services.AddMemoryCache();
 
-            services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().SteamDevKey));
-            services.AddTransient(c => 
+            services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().GetSettingAsync("SteamDevKey")
+                .GetAwaiter().GetResult().SettingValue));
+
+            services.AddScoped(c => 
             {
                 var service = c.GetService<ISettingService>();
                 Console.WriteLine($"service null? {service == null}");
-                return new MySqlConnection(c.GetService<ISettingService>().MySqlConnectionString);
+                return new MySqlConnection(c.GetService<ISettingService>().GetSettingAsync("UconomyConnectionString")
+                    .GetAwaiter().GetResult().SettingValue);
             });
 
             services.AddTransient<ISteamService, SteamService>();
             services.AddSingleton<ISettingService, SettingService>();
             services.AddHttpClient();
+
+
+            services.AddHealthChecks()
+                .AddCheck<UconomyDatabaseHealthCheck>("Uconomy")
+                .AddCheck<MainDatabaseHealthCheck>("MainDatabase");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
@@ -90,6 +104,12 @@ namespace Marketplace.Server
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    Predicate = (check) => true,
+                    ResponseWriter = HealthCheckHelpers.WriteResponses
+                });
             });
             using (var scope = app.ApplicationServices.CreateScope())
             {                

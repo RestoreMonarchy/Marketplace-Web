@@ -20,7 +20,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "MSSQL_CONNECTION_STRING": "Server=BIGBLACK\\SQLEXPRESS;Database=Marketplace;Trusted_Connection=True;",
+        "MSSQL_CONNECTION_STRING": "\"Server=myServerAddress;Database=myDataBase;User Id=AdamAdam;Password=bnL4j&6q;",
         "ADMIN_STEAMID": "76561198285897058"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"

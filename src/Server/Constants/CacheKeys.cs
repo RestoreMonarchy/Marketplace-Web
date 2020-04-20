@@ -8,6 +8,7 @@ namespace Marketplace.Server.Constants
 {
     public static class CacheKeys
     {
+        public static string SettingsId => "Settings";
         public static string SteamNicknameId(string steamId) => $"SteamNickname_{steamId}";
         public static string SettingId(string settingId) => $"Setting_{settingId}";
     }

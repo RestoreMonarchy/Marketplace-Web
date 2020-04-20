@@ -2,6 +2,7 @@
 using Marketplace.Server.Constants;
 using Marketplace.Shared;
 using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,35 +18,33 @@ namespace Marketplace.Server.Services
             this.memoryCache = memoryCache;
         }
 
-        public string MySqlConnectionString { get; private set; }
-
-        public string SteamDevKey { get; private set; }
-
-        public string APIKey { get; private set; }
-
-        public async Task InitializeAsync()
+        public Task InitializeAsync()
         {
-            MySqlConnectionString = (await settingsRepository.GetSettingAsync("UconomyConnectionString", true)).SettingValue;
-            SteamDevKey = (await settingsRepository.GetSettingAsync("SteamDevKey", true)).SettingValue;
-            APIKey = (await settingsRepository.GetSettingAsync("APIKey", true)).SettingValue;
+            return Task.CompletedTask;
         }
 
         public async Task UpdateSettingAsync(string settingId, string settingValue)
         {
             await settingsRepository.UpdateSettingValueAsync(settingId, settingValue);
             memoryCache.Remove(CacheKeys.SettingId(settingId));
-            await InitializeAsync();
+
+
         }
 
-        public async Task<IEnumerable<Setting>> GetSettingsAsync()
+        public async ValueTask<IEnumerable<Setting>> GetSettingsAsync()
         {
-            return await settingsRepository.GetSettingsAsync();
+            return await memoryCache.GetOrCreateAsync(CacheKeys.SettingsId, async (entry) =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return await settingsRepository.GetSettingsAsync();
+            });
         }
 
-        public async Task<Setting> GetSettingAsync(string settingId)
+        public async ValueTask<Setting> GetSettingAsync(string settingId)
         {
             return await memoryCache.GetOrCreateAsync(CacheKeys.SettingId(settingId), async (entry) => 
             {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
                 return (await settingsRepository.GetSettingAsync(settingId));
             });
         }
