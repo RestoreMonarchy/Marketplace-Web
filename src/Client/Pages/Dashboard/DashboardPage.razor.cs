@@ -30,6 +30,11 @@ namespace Marketplace.Client.Pages.Dashboard
         private Setting itemPageLayout;
         private Setting trunkLayout;
         private Setting productsLayout;
+        private Setting uconomyConnectionString;
+        private Setting admins;
+        private Setting apiKey;
+        private string adminValue = string.Empty;
+        private List<string> adminList;
 
         protected override async Task OnInitializedAsync() 
         {
@@ -41,6 +46,10 @@ namespace Marketplace.Client.Pages.Dashboard
             itemPageLayout = Settings["ItemPageLayout"];
             trunkLayout = Settings["TrunkLayout"];
             productsLayout = Settings["ProductsLayout"];
+            uconomyConnectionString = Settings["UconomyConnectionString"];
+            admins = Settings["Admins"];
+            adminList = admins.SettingValue.Split(',').ToList();
+            apiKey = Settings["APIKey"];
 
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            
@@ -56,6 +65,24 @@ namespace Marketplace.Client.Pages.Dashboard
                 ShowConfirmButton = false,
                 Timer = 1000
             });
-        }        
+        }
+        
+        public void GenerateApiKey()
+        {
+            apiKey.SettingValue = Guid.NewGuid().ToString("N");
+        }
+
+        public void AddAdmin()
+        {
+            adminList.Add(adminValue);
+            admins.SettingValue = string.Join(",", adminList);
+        }
+
+        public async Task RemoveAdmin(string admin)
+        {
+            adminList.Remove(admin);
+            admins.SettingValue = string.Join(",", adminList);
+            await UpdateSettingAsync("Admins");
+        }
     }
 }

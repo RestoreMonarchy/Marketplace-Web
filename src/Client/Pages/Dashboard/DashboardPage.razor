@@ -28,6 +28,38 @@
 
 @if (Settings != null)
 {
+    <div>
+        <h2>General Settings</h2>
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("APIKey"))" Model="apiKey">
+            <div class="form-group">
+                <label>API Key</label>
+                <InputText class="form-control" @bind-Value="apiKey.SettingValue" readonly />
+                <small class="form-text text-muted">@apiKey.Help</small>
+                <button class="btn btn-secondary" @onclick="GenerateApiKey">Generate New</button>
+            </div>            
+        </EditForm>
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="uconomyConnectionString">
+            <div class="form-group">
+                <label>Uconomy Connection String</label>
+                <InputText class="form-control" @bind-Value="uconomyConnectionString.SettingValue" />
+                <small class="form-text text-muted">@uconomyConnectionString.Help</small>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>            
+        </EditForm>
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("Admins"))" Model="admins">
+            <div class="form-group">
+                <label>Admins</label>
+                @foreach (var admin in adminList)
+                {
+                    <button class="badge badge-primary" @onclick="() => RemoveAdmin(admin)">@admin</button>
+                }
+                <InputText class="form-control" @bind-Value="adminValue" />
+                <small class="form-text text-muted">@admins.Help</small>
+                <button @onclick="AddAdmin" class="btn btn-primary">Add</button>
+            </div>
+        </EditForm>
+    </div>
+    
     <div class="row">
         <div class="col">
             <h2>Layout Settings</h2>
@@ -64,5 +96,6 @@
                 <button type="submit" class="btn btn-primary mb-2">Save</button>
             </EditForm>
         </div>
+
     </div>
 }

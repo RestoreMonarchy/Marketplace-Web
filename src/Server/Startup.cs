@@ -1,4 +1,3 @@
-using Marketplace.DatabaseProvider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,17 +6,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Extensions;
 using Marketplace.DatabaseProvider.Repositories;
-using MySql.Data.MySqlClient;
 using Marketplace.Server.Services;
 using SteamWebAPI2.Utilities;
-using Marketplace.Shared.Constants;
+using Marketplace.Server.Utilities;
 
 namespace Marketplace.Server
 {
@@ -38,25 +33,14 @@ namespace Marketplace.Server
                     options.LoginPath = "/signin";
                     options.LogoutPath = "/signout";
                     options.AccessDeniedPath = "/";
-                    options.Events.OnValidatePrincipal = (arg) =>
-                    {
-                        string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
-                        List<Claim> claims = new List<Claim>();
-                        claims.Add(new Claim(ClaimTypes.Name, steamId));
-                        if (configuration.GetSection("Admins").Get<string[]>().Any(x=> x == steamId))
-                            claims.Add(new Claim(ClaimTypes.Role, RoleConstants.AdminRoleId));
-                        else
-                            claims.Add(new Claim(ClaimTypes.Role, RoleConstants.GuestRoleId));
-
-                        arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
-                        return Task.CompletedTask;
-                    };
+                    options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
                 }).AddSteam();
 
             services.AddLogging();
             services.AddAuthorizationCore();
             services.AddControllers();
-            //services.AddMvc();
+            services.AddMvc();
+
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
