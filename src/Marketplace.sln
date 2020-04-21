@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marketplace.Shared", "Share
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marketplace.DatabaseProvider", "DatabaseProvider\Marketplace.DatabaseProvider.csproj", "{A7E1EEEE-E759-48E7-97D4-AF9BCD704AD1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marketplace.ApiKeyAuthentication", "ApiKeyAuthentication\Marketplace.ApiKeyAuthentication.csproj", "{F87749F0-A091-427A-A3BC-F2AF993CAEAF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,10 +41,6 @@ Global
 		{A7E1EEEE-E759-48E7-97D4-AF9BCD704AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7E1EEEE-E759-48E7-97D4-AF9BCD704AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7E1EEEE-E759-48E7-97D4-AF9BCD704AD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F87749F0-A091-427A-A3BC-F2AF993CAEAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F87749F0-A091-427A-A3BC-F2AF993CAEAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F87749F0-A091-427A-A3BC-F2AF993CAEAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F87749F0-A091-427A-A3BC-F2AF993CAEAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

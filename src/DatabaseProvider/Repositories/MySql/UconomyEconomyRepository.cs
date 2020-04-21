@@ -1,17 +1,15 @@
 ﻿using Dapper;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.MySql
 {
-    public sealed class MySqlUconomyRepository : IUconomyRepository
+    public sealed class UconomyEconomyRepository : IEconomyRepository
     {
         private readonly MySqlConnection connection;
 
-        public MySqlUconomyRepository(MySqlConnection connection)
+        public UconomyEconomyRepository(MySqlConnection connection)
         {
             this.connection = connection;
         }
@@ -23,11 +21,13 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
             return connection.ExecuteScalarAsync<decimal>(sql, new { id });
         }
 
-        public async Task SetBalanceAsync(string id, decimal newBalance)
+        public async Task IncrementBalanceAsync(string id, decimal amount, DateTime? date = null)
         {
+            if (date == null)
+                date = DateTime.UtcNow;
             const string sql = "UPDATE uconomy SET balance = @newBalance, lastUpdated = @date WHERE steamId = @id;";
 
-            await connection.ExecuteAsync(sql, new { newBalance, date = DateTime.Now, id });
+            await connection.ExecuteAsync(sql, new { amount, date, id });
 
         }
         public Task Initialize()
@@ -39,6 +39,14 @@ namespace Marketplace.DatabaseProvider.Repositories.MySql
         {
             const string sql = "SELECT SUM(balance) AS total FROM uconomy;";
             return await connection.ExecuteScalarAsync<decimal>(sql);
+        }
+
+        public async Task PayAsync(string senderId, string receiverId, decimal amount)
+        {
+            DateTime date = DateTime.UtcNow;
+
+            await IncrementBalanceAsync(senderId, -amount, date);
+            await IncrementBalanceAsync(receiverId, amount, date);
         }
     }
 }

@@ -19,10 +19,5 @@ namespace Marketplace.DatabaseProvider.Extensions
             source.AddTransient<IProductsRepository, SqlProductsRepository>();
             source.AddTransient<ICommandsRepository, SqlCommandsRepository>();
         }
-
-        public static void AddUconomyMySql(this IServiceCollection source)
-        {
-            source.AddTransient<IUconomyRepository, MySqlUconomyRepository>();
-        }
     }
 }

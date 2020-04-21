@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Server.Filters;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

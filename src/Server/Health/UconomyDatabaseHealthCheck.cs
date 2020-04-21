@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Marketplace.Server.Health
 {
-    public class UconomyDatabaseHealthCheck : IHealthCheck
+    public class EconomyDatabaseHealthCheck : IHealthCheck
     {
         private readonly MySqlConnection connection;
-        public UconomyDatabaseHealthCheck(MySqlConnection connection)
+        public EconomyDatabaseHealthCheck(MySqlConnection connection)
         {
             this.connection = connection;
         }

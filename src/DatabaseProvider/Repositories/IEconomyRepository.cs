@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories
 {
-    public interface IUconomyRepository : IRepository
+    public interface IEconomyRepository : IRepository
     {
         Task<decimal> GetBalanceAsync(string id);
         Task<decimal> GetTotalBalanceAsync();
-        Task SetBalanceAsync(string id, decimal newBalance);
+        Task PayAsync(string senderId, string receiverId, decimal amount);
+        Task IncrementBalanceAsync(string id, decimal amount, DateTime? date = null);
     }
 }

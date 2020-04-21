@@ -39,6 +39,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         public async Task Initialize()
         {
             await AddSettingAsync(new Setting("APIKey", Guid.NewGuid().ToString("N"), "API Key for your website access", true));
+            await AddSettingAsync(new Setting("EconomyProvider", "Uconomy", "Economy provider plugin you're using on your server", true));
             await AddSettingAsync(new Setting("UconomyConnectionString", "Server=127.0.0.1;Database=unturned;Uid=root;Password=Password123;", 
                 "Connection string to uconomy database", true));
             await AddSettingAsync(new Setting("Admins", Environment.GetEnvironmentVariable("ADMIN_STEAMID"), 

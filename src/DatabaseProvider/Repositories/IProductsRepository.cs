@@ -6,6 +6,7 @@ namespace Marketplace.DatabaseProvider.Repositories
 {
     public interface IProductsRepository : IRepository
     {
+        Task<decimal> GetProductPriceAsync(int productId);
         Task<IEnumerable<Product>> GetProductsAsync();
         Task<int> CreateProductAsync(Product product);
         Task UpdateProductAsync(Product product);

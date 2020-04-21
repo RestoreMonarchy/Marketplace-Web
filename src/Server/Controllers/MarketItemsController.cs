@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Marketplace.ApiKeyAuthentication;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +7,7 @@ using Marketplace.DatabaseProvider.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Marketplace.Shared.Constants;
+using Marketplace.Server.Filters;
 
 namespace Marketplace.Server.Controllers
 {
@@ -16,12 +16,12 @@ namespace Marketplace.Server.Controllers
     public class MarketItemsController : ControllerBase
     {
         private readonly IMarketItemsRepository marketPlaceRepository;
-        private readonly IUconomyRepository uconomyRepository;
+        private readonly IEconomyRepository economyRepository;
 
-        public MarketItemsController(IMarketItemsRepository marketPlaceRepository, IUconomyRepository uconomyRepository)
+        public MarketItemsController(IMarketItemsRepository marketPlaceRepository, IEconomyRepository economyRepository)
         {
             this.marketPlaceRepository = marketPlaceRepository;
-            this.uconomyRepository = uconomyRepository;
+            this.economyRepository = economyRepository;
         }
 
         [HttpGet]
@@ -83,14 +83,13 @@ namespace Marketplace.Server.Controllers
         [HttpPost("{id}/buy")]
         public async Task<IActionResult> BuyMarketItemAsync(int id)
         {
-            decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
+            decimal balance = await economyRepository.GetBalanceAsync(User.Identity.Name);
 
             switch (await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name, balance))
             {
                 case 0:
                     MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
-                    await uconomyRepository.IncreaseBalance(User.Identity.Name, item.Price * -1);
-                    await uconomyRepository.IncreaseBalance(item.SellerId, item.Price);
+                    await economyRepository.PayAsync(User.Identity.Name, item.SellerId, item.Price);
                     return Ok();
                 case 1:                    
                     return NotFound();
@@ -130,7 +129,6 @@ namespace Marketplace.Server.Controllers
 
             if (marketItem.IsClaimed)
                 return BadRequest();
-
 
             await marketPlaceRepository.ClaimMarketItemAsync(id);
             return Ok(marketItem);

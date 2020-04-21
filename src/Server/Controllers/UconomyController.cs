@@ -12,9 +12,9 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class UconomyController : ControllerBase
     {
-        private readonly IUconomyRepository uconomyRepository;
+        private readonly IEconomyRepository uconomyRepository;
         private readonly ILogger<UconomyController> logger;
-        public UconomyController(IUconomyRepository uconomyRepository, ILogger<UconomyController> logger)
+        public UconomyController(IEconomyRepository uconomyRepository, ILogger<UconomyController> logger)
         {
             this.uconomyRepository = uconomyRepository;
             this.logger = logger;

@@ -1,5 +1,5 @@
-﻿using Marketplace.ApiKeyAuthentication;
-using Marketplace.DatabaseProvider.Repositories;
+﻿using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Server.Filters;
 using Marketplace.Server.Services;
 using Marketplace.Shared;
 using Marketplace.Shared.Constants;
@@ -17,10 +17,10 @@ namespace Marketplace.Server.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductsRepository productsRepository;
-        private readonly IUconomyRepository uconomyRepository;
+        private readonly IEconomyRepository uconomyRepository;
         private readonly ISteamService steamService;
 
-        public ProductsController(IProductsRepository productsRepository, IUconomyRepository uconomyRepository, ISteamService steamService)
+        public ProductsController(IProductsRepository productsRepository, IEconomyRepository uconomyRepository, ISteamService steamService)
         {
             this.productsRepository = productsRepository;
             this.uconomyRepository = uconomyRepository;
@@ -63,6 +63,8 @@ namespace Marketplace.Server.Controllers
             switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name, playerName, balance))
             {
                 case 0:
+                    var price = await productsRepository.GetProductPriceAsync(productId);
+                    await uconomyRepository.IncrementBalanceAsync(User.Identity.Name, -price);
                     return Ok();
                 case 1:
                     return NotFound();

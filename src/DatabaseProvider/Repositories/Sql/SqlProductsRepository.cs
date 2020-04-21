@@ -16,6 +16,12 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             this.connection = connection;
         }
 
+        public async Task<decimal> GetProductPriceAsync(int productId)
+        {
+            const string sql = "SELECT Price FROM dbo.Products WHERE Id = @productId;";
+            return (await connection.QueryAsync<decimal>(sql, new { productId })).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<Product>> GetProductsAsync()
         {
             const string sqlAllProducts = "SELECT * FROM dbo.Products;";

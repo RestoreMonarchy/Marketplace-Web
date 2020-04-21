@@ -16,6 +16,7 @@ using Marketplace.Server.Utilities;
 using MySql.Data.MySqlClient;
 using Marketplace.Server.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Marketplace.DatabaseProvider.Repositories.MySql;
 
 namespace Marketplace.Server
 {
@@ -52,7 +53,16 @@ namespace Marketplace.Server
 
             services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
 
-            services.AddUconomyMySql();
+            services.AddTransient<IEconomyRepository>(c => 
+            {
+                switch (c.GetService<ISettingService>().GetSettingAsync("EconomyProvider", true).GetAwaiter().GetResult().SettingValue)
+                {
+                    case "AviEconomy":
+                        return new AviEconomyRepository(c.GetRequiredService<MySqlConnection>());   
+                }
+                return new UconomyEconomyRepository(c.GetRequiredService<MySqlConnection>());
+            });
+
             services.AddMemoryCache();
 
             services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().GetSettingAsync("SteamDevKey", true)
@@ -68,10 +78,10 @@ namespace Marketplace.Server
             services.AddSingleton<ISettingService, SettingService>();
             services.AddHttpClient();
 
-            services.AddHealthChecks()
-                .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI")
-                .AddCheck<UconomyDatabaseHealthCheck>("Uconomy")
-                .AddCheck<MainDatabaseHealthCheck>("MainDatabase");
+            services.AddHealthChecks()                
+                .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
+                .AddCheck<EconomyDatabaseHealthCheck>("Economy")
+                .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.

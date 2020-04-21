@@ -46,24 +46,31 @@
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>            
         </EditForm>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="uconomyConnectionString">
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("EconomyProvider"))" Model="economyProvider">
             <div class="form-group">
-                <label>Uconomy Connection String</label>
-                <InputText class="form-control" @bind-Value="uconomyConnectionString.SettingValue" />
-                <small class="form-text text-muted">@uconomyConnectionString.Help</small>
+                <label>Economy Provider</label>
+                <InputSelect @bind-Value="economyProvider.SettingValue" class="custom-select my-1 mr-sm-2">
+                    <option value="Uconomy">Uconomy</option>
+                    <option value="AviEconomy">AviEconomy</option>
+                </InputSelect>
+                <small class="form-text text-muted">@economyProvider.Help</small>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>            
+        </EditForm>
+        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="economyConnectionString">
+            <div class="form-group">
+                <label>Economy Connection String</label>
+                <InputText class="form-control" @bind-Value="economyConnectionString.SettingValue" />
+                <small class="form-text text-muted">@economyConnectionString.Help</small>
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>            
         </EditForm>
         <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("Admins"))" Model="admins">
             <div class="form-group">
                 <label>Admins</label>
-                @foreach (var admin in adminList)
-                {
-                    <button class="badge badge-primary" @onclick="() => RemoveAdmin(admin)">@admin</button>
-                }
-                <InputText class="form-control" @bind-Value="adminValue" />
+                <InputText class="form-control" @bind-Value="admins.SettingValue" />
                 <small class="form-text text-muted">@admins.Help</small>
-                <button @onclick="AddAdmin" class="btn btn-primary">Add</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </EditForm>
     </div>

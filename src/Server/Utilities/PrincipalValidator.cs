@@ -23,7 +23,7 @@ namespace Marketplace.Server.Utilities
             var settingService = context.HttpContext.RequestServices.GetRequiredService<ISettingService>();
             var admins = (await settingService.GetSettingAsync("Admins")).SettingValue.Split(',');
             
-            if (admins.Contains(steamId) || Environment.GetEnvironmentVariable("ADMIN_STEAMID") == steamId)
+            if (Environment.GetEnvironmentVariable("ADMIN_STEAMID") == steamId || admins.Contains(steamId))
                 claims.Add(new Claim(ClaimTypes.Role, RoleConstants.AdminRoleId));
             else
                 claims.Add(new Claim(ClaimTypes.Role, RoleConstants.GuestRoleId));
