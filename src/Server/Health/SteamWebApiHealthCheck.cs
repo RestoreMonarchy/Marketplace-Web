@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Marketplace.Server.Health
 {
-    public class SteamWebAPIHealthCheck : IHealthCheck
+    public class SteamWebApiHealthCheck : IHealthCheck
     {
         private readonly ISettingService settingService;
         private readonly IHttpClientFactory httpClientFactory;
-        public SteamWebAPIHealthCheck(ISettingService settingService, IHttpClientFactory httpClientFactory)
+        public SteamWebApiHealthCheck(ISettingService settingService, IHttpClientFactory httpClientFactory)
         {
             this.settingService = settingService;
             this.httpClientFactory = httpClientFactory;
