@@ -69,7 +69,7 @@ namespace Marketplace.Server
             services.AddHttpClient();
 
             services.AddHealthChecks()
-                .AddCheck<SteamWebApiHealthCheck>("Steam Web API")
+                .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI")
                 .AddCheck<UconomyDatabaseHealthCheck>("Uconomy")
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase");
 
