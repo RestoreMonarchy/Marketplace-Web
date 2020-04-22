@@ -17,6 +17,7 @@ using MySql.Data.MySqlClient;
 using Marketplace.Server.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Marketplace.DatabaseProvider.Repositories.MySql;
+using Marketplace.Server.Settings;
 
 namespace Marketplace.Server
 {
@@ -82,10 +83,16 @@ namespace Marketplace.Server
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
                 .AddCheck<EconomyDatabaseHealthCheck>("Economy")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
+            AddSettingWatchers(services);
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
+        }
+
+        private void AddSettingWatchers(IServiceCollection services)
+        {
+            services.AddScoped<ISettingWatcher, EconomyTypeSettingWatcher>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
