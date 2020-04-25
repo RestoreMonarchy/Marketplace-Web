@@ -25,7 +25,6 @@ namespace Marketplace.Server.Health
             {
                 var factory = new SteamWebInterfaceFactory((await settingService.GetSettingAsync("SteamDevKey", true)).SettingValue);
                 var news = factory.CreateSteamWebInterface<ISteamNews>(httpClientFactory.CreateClient());
-                await news.GetNewsForAppAsync(304930, count: 1);
                 return HealthCheckResult.Healthy();
             } catch (Exception e)
             {

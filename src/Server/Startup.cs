@@ -2,34 +2,22 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Linq;
 using System.Reflection;
 using Marketplace.DatabaseProvider.Extensions;
-using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Services;
-using SteamWebAPI2.Utilities;
 using Marketplace.Server.Utilities;
-using MySql.Data.MySqlClient;
 using Marketplace.Server.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Marketplace.DatabaseProvider.Repositories.MySql;
-using Marketplace.Server.Settings;
+using Marketplace.Server.Extensions;
 
 namespace Marketplace.Server
 {
     public class Startup
     {
-        private readonly IConfiguration configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
@@ -53,47 +41,22 @@ namespace Marketplace.Server
             });
 
             services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
-
-
+            services.AddEconomyServices();
 
             services.AddMemoryCache();
-
-            services.AddTransient(c => new SteamWebInterfaceFactory(c.GetService<ISettingService>().GetSettingAsync("SteamDevKey", true)
-                .GetAwaiter().GetResult().SettingValue));
-
-            services.AddScoped(c =>
-            {
-                return new MySqlConnection(c.GetService<ISettingService>().GetSettingAsync("UconomyConnectionString", true)
-                    .GetAwaiter().GetResult().SettingValue);
-            });
-
-            services.AddTransient<ISteamService, SteamService>();
-            services.AddSingleton<ISettingService, SettingService>();
             services.AddHttpClient();
+
+            services.AddSingleton<ISettingService, SettingService>();
+            services.AddTransient<ISteamService, SteamService>();
 
             services.AddHealthChecks()                
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
                 .AddCheck<EconomyDatabaseHealthCheck>("Economy")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
-            AddSettingWatchers(services);
-
-            using(var scope = services.BuildServiceProvider().CreateScope())
-            {
-                var economyProviderName = scope.ServiceProvider.GetService<ISettingService>().GetSettingAsync("EconomyProvider", true).GetAwaiter().GetResult().SettingValue;
-                var type = IEconomyRepositoryExtensions.ParseEconomyProviderType(economyProviderName);
-
-                services.AddTransient(typeof(IEconomyRepository), type); //This shit will need to be cleaned up someday
-
-            }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
-        }
-
-        private void AddSettingWatchers(IServiceCollection services)
-        {
-            services.AddScoped<ISettingWatcher, EconomyTypeSettingWatcher>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -123,17 +86,11 @@ namespace Marketplace.Server
                     ResponseWriter = HealthCheckHelpers.WriteResponses
                 });
             });
+
             using (var scope = app.ApplicationServices.CreateScope())
-            {                
-                scope.ServiceProvider.GetService<IUnturnedItemsRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<IMarketItemsRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<ISettingsRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<IServersRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<ICommandsRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<IProductsRepository>().Initialize()?.GetAwaiter().GetResult();
-                scope.ServiceProvider.GetService<ISettingService>().InitializeAsync()?.GetAwaiter().GetResult();
+            {
+                scope.InitializeRepositories();
             }
         }
     }
 }
-

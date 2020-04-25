@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 
 namespace Marketplace.Server
 {
@@ -13,10 +12,7 @@ namespace Marketplace.Server
 
         public static IWebHost BuildWebHost(string[] args) 
         {
-            var configuration = new ConfigurationBuilder().AddCommandLine(args).Build();
-
             return WebHost.CreateDefaultBuilder(args)
-                .UseConfiguration(configuration)
                 .UseStartup<Startup>()
                 .Build();
         }            

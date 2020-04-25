@@ -6,7 +6,6 @@ namespace Marketplace.Server.Services
 {
     public interface ISettingService
     {
-        Task InitializeAsync();
         ValueTask<Setting> GetSettingAsync(string settingId, bool isAdmin = false);
         Task UpdateSettingAsync(string settingId, string settingValue);
         ValueTask<IEnumerable<Setting>> GetSettingsAsync();
