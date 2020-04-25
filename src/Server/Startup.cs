@@ -54,15 +54,7 @@ namespace Marketplace.Server
 
             services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
 
-            services.AddTransient<IEconomyRepository>(c => 
-            {
-                switch (c.GetService<ISettingService>().GetSettingAsync("EconomyProvider", true).GetAwaiter().GetResult().SettingValue)
-                {
-                    case "AviEconomy":
-                        return new AviEconomyRepository(c.GetRequiredService<MySqlConnection>());   
-                }
-                return new UconomyEconomyRepository(c.GetRequiredService<MySqlConnection>());
-            });
+
 
             services.AddMemoryCache();
 
@@ -84,6 +76,15 @@ namespace Marketplace.Server
                 .AddCheck<EconomyDatabaseHealthCheck>("Economy")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
             AddSettingWatchers(services);
+
+            using(var scope = services.BuildServiceProvider().CreateScope())
+            {
+                var economyProviderName = scope.ServiceProvider.GetService<ISettingService>().GetSettingAsync("EconomyProvider", true).GetAwaiter().GetResult().SettingValue;
+                var type = IEconomyRepositoryExtensions.ParseEconomyProviderType(economyProviderName);
+
+                services.AddTransient(typeof(IEconomyRepository), type); //This shit will need to be cleaned up someday
+
+            }
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
