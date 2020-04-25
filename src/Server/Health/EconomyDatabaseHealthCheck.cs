@@ -19,22 +19,22 @@ namespace Marketplace.Server.Health
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
+            var providerSetting = await settingService.GetSettingAsync("EconomyProvider", true);
             try
-            {
-                var providerSetting = await settingService.GetSettingAsync("EconomyProvider", true);
-                string sql = "";
+            {   
+                string sql;
                 if (providerSetting.SettingValue == "AviEconomy")
-
+                    sql = "SELECT TOP 1 * FROM bankaccount;";
                 else
-                    
+                    sql = "SELECT TOP 1 * FROM uconomy;";
 
-                await connection.ExecuteScalarAsync("SELECT 1");
+                await connection.ExecuteScalarAsync(sql);
                 return HealthCheckResult.Healthy();
 
             } catch (MySqlException e)
-            {
-                return HealthCheckResult.Unhealthy("Failed to connect to Uconomy MySQL server. " +
-                        "Sign in with admin and edit Uconomy Connection String in Dashboard page", e);
+            {                
+                return HealthCheckResult.Unhealthy($"Failed to fetch data from {providerSetting.SettingValue} table." +
+                        "Sign in with admin and edit EconomyConnectionString in Dashboard page", e);
             }
         }
     }
