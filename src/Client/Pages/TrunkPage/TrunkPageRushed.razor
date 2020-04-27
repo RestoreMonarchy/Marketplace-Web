@@ -1,0 +1,53 @@
+﻿@if (Items != null)
+{
+    <nav class="nav nav-pills nav-justified" role="tablist">
+        <a class="nav-item nav-link active" id="shoppings-tab" data-toggle="pill" role="tab" href="#shoppings">My Shoppings</a>
+        <a class="nav-item nav-link" id="listings-tab" data-toggle="pill" role="tab" href="#listings">My Active Listings</a>
+        <a class="nav-item nav-link" id="history-tab" data-toggle="pill" role="tab" href="#history">My History</a>
+    </nav>
+    <div class="tab-content mt-4">
+        <div class="tab-pane fade show active" id="shoppings" role="tabpanel">
+            <ul class="list-group">
+                @foreach (var item in shoppings)
+                {
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col">
+                                <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 45px;">
+                            </div>
+                            <div class="col-8">
+                                <span class="font-weight-bold align-middle">@item.ItemName</span>
+                            </div>
+                            <div class="col dropdown">
+                                <button class="btn btn-outline-primary btn-sm float-right" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="javascript:void(0)">Claim</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="() => Modal.PreviewMarketItemAsync(item)">Info</a>
+                                    <a class="dropdown-item disabled" href="javascript:void(0)">@item.SoldDate</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="tab-pane fade" id="listings" role="tabpanel">
+
+        </div>
+        <div class="tab-pane fade" id="history" role="tabpanel">
+
+        </div>
+    </div>
+}
+
+
+
+
+<MarketItemModal @ref="Modal" />
+
+@code {
+
+}

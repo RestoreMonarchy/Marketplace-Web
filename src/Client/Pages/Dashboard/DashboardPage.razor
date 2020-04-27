@@ -20,61 +20,66 @@
         <div class="card text-white bg-primary mb-3 text-center" style="max-width: 18rem;">
             <div class="card-header">Total Uconomy Balance</div>
             <div class="card-body">
-                <h5 class="card-title">$@TotalBalance</h5>
+                <h5 class="card-title">@TotalBalance.ToString("C")</h5>
             </div>
         </div>
     </div>
 </div>
 
+
 @if (Settings != null)
 {
-    <div>
-        <h2>General Settings</h2>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("APIKey"))" Model="apiKey">
-            <div class="form-group">
-                <label>API Key</label>
-                <InputText class="form-control" @bind-Value="apiKey.SettingValue" readonly />
-                <small class="form-text text-muted">@apiKey.Help</small>
-                <button class="btn btn-secondary" @onclick="GenerateApiKey">Generate New</button>
-            </div>            
-        </EditForm>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("SteamDevKey"))" Model="steamDevKey">
-            <div class="form-group">
-                <label>Steam Dev Key</label>
-                <InputText class="form-control" @bind-Value="steamDevKey.SettingValue" />
-                <small class="form-text text-muted">@steamDevKey.Help</small>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>            
-        </EditForm>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("EconomyProvider"))" Model="economyProvider">
-            <div class="form-group">
-                <label>Economy Provider</label>
-                <InputSelect @bind-Value="economyProvider.SettingValue" class="custom-select my-1 mr-sm-2">
-                    <option value="Uconomy">Uconomy</option>
-                    <option value="AviEconomy">AviEconomy</option>
-                </InputSelect>
-                <small class="form-text text-muted">@economyProvider.Help</small>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>            
-        </EditForm>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="economyConnectionString">
-            <div class="form-group">
-                <label>Economy Connection String</label>
-                <InputText class="form-control" @bind-Value="economyConnectionString.SettingValue" />
-                <small class="form-text text-muted">@economyConnectionString.Help</small>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>            
-        </EditForm>
-        <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("Admins"))" Model="admins">
-            <div class="form-group">
-                <label>Admins</label>
-                <InputText class="form-control" @bind-Value="admins.SettingValue" />
-                <small class="form-text text-muted">@admins.Help</small>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </div>
-        </EditForm>
-    </div>
-    
+    if (isGlobalAdmin)
+    {
+        <div>
+            <h2>General Settings</h2>
+            <p><small>These settings may only be accessed and changed by global website admin</small></p>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("APIKey"))" Model="apiKey">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <InputText class="form-control" @bind-Value="apiKey.SettingValue" readonly />
+                    <small class="form-text text-muted">@apiKey.Help</small>
+                    <button class="btn btn-secondary" @onclick="GenerateApiKey">Generate New</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("SteamDevKey"))" Model="steamDevKey">
+                <div class="form-group">
+                    <label>Steam Dev Key</label>
+                    <InputText class="form-control" @bind-Value="steamDevKey.SettingValue" />
+                    <small class="form-text text-muted">@steamDevKey.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("EconomyProvider"))" Model="economyProvider">
+                <div class="form-group">
+                    <label>Economy Provider</label>
+                    <InputSelect @bind-Value="economyProvider.SettingValue" class="custom-select my-1 mr-sm-2">
+                        <option value="Uconomy">Uconomy</option>
+                        <option value="AviEconomy">AviEconomy</option>
+                    </InputSelect>
+                    <small class="form-text text-muted">@economyProvider.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("UconomyConnectionString"))" Model="economyConnectionString">
+                <div class="form-group">
+                    <label>Economy Connection String</label>
+                    <InputText class="form-control" @bind-Value="economyConnectionString.SettingValue" />
+                    <small class="form-text text-muted">@economyConnectionString.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("Admins"))" Model="admins">
+                <div class="form-group">
+                    <label>Admins</label>
+                    <InputText class="form-control" @bind-Value="admins.SettingValue" />
+                    <small class="form-text text-muted">@admins.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
     <div class="row">
         <div class="col">
             <h2>Layout Settings</h2>

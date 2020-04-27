@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Marketplace.Server.Filters
@@ -25,7 +22,7 @@ namespace Marketplace.Server.Filters
             var settingService = context.HttpContext.RequestServices.GetRequiredService<ISettingService>();
             var apiKey = await settingService.GetSettingAsync("APIKey", true);
 
-            if (!apiKey.Equals(potentialApiKey))
+            if (!apiKey.SettingValue.Equals(potentialApiKey))
             {
                 Console.WriteLine($"Authorization failed for key {potentialApiKey}");
                 context.Result = new UnauthorizedResult();

@@ -3,6 +3,7 @@ using Marketplace.Shared;
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,8 @@ namespace Marketplace.Client.Pages.Dashboard
         private HttpClient HttpClient { get; set; }
         [Inject]
         private SweetAlertService Swal { get; set; }
+        [Inject]
+        private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
         private List<UnturnedItem> UnturnedItems { get; set; }
         private decimal TotalBalance { get; set; }
@@ -30,27 +33,37 @@ namespace Marketplace.Client.Pages.Dashboard
         private Setting itemPageLayout;
         private Setting trunkLayout;
         private Setting productsLayout;
+
         private Setting steamDevKey;
         private Setting economyConnectionString;        
         private Setting apiKey;
         private Setting admins;
         private Setting economyProvider;
 
+        private bool isGlobalAdmin;
+
         protected override async Task OnInitializedAsync() 
         {
             UnturnedItems = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
             TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/uconomy/total");
             Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
-            
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            isGlobalAdmin = bool.Parse(authState.User.FindFirst("IsGlobalAdmin").Value);
+
+            if (isGlobalAdmin)
+            {
+                economyConnectionString = Settings["UconomyConnectionString"];
+                steamDevKey = Settings["SteamDevKey"];
+                apiKey = Settings["APIKey"];
+                admins = Settings["Admins"];
+                economyProvider = Settings["EconomyProvider"];
+            }
+
             indexLayout = Settings["IndexLayout"];
             itemPageLayout = Settings["ItemPageLayout"];
             trunkLayout = Settings["TrunkLayout"];
             productsLayout = Settings["ProductsLayout"];
-            economyConnectionString = Settings["UconomyConnectionString"];
-            steamDevKey = Settings["SteamDevKey"];
-            apiKey = Settings["APIKey"];
-            admins = Settings["Admins"];
-            economyProvider = Settings["EconomyProvider"];
 
             unturnedItemsCount = UnturnedItems.Count;
             marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Services;
 using Marketplace.Shared;
@@ -36,7 +38,11 @@ namespace Marketplace.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettingsAsync()
         {
-            return Ok(await settingService.GetSettingsAsync());
+            var settings = await settingService.GetSettingsAsync();
+            if (Environment.GetEnvironmentVariable("ADMIN_STEAMID") == User.Identity.Name)
+                return Ok(settings);
+            else
+                return Ok(settings.Where(x => !x.IsAdmin));            
         }
     }
 }

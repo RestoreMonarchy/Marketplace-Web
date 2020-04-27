@@ -1,0 +1,67 @@
+﻿<div class="modal fade" id="@nameof(MarketItemModal)" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @if (MarketItem != null)
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title">@MarketItem.ItemName</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><b>@MarketItem.ItemName</b></p>
+                    @if (MarketItem.Item.ItemType == EItemType.FUEL)
+                    {
+                        <p><b>Fuel:</b> @BitConverterExtras.GetUshort(MarketItem.Metadata, 0)</p>
+                    } else if (MarketItem.Item.ItemType == EItemType.MAGAZINE)
+                    {
+                        <p><b>Magazine:</b> @MarketItem.Amount/@MarketItem.Item.Amount</p>
+                    } else if (MarketItem.Item.ItemType == EItemType.GUN)
+                    {
+                        <GunSummary GunId="MarketItem.ItemId" Metadata="MarketItem.Metadata" />
+                    }
+
+                    <h3>Listing Info</h3>
+                    <ul class="list-unstyled">
+                        <li><b>Seller:</b> @MarketItem.SellerId</li>
+                        <li><b>Price:</b> @MarketItem.Price.ToString("C")</li>
+                        <li><b>Quality:</b> @MarketItem.Quality</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    @if (OnMarketItemBuy.HasDelegate)
+                    {
+                        <button @onclick="BuyMarketItemAsync" class="btn btn-primary">Buy</button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    [Parameter]
+    public EventCallback<MarketItem> OnMarketItemBuy { get; set; }
+
+    public MarketItem MarketItem { get; set; }
+
+    public async Task PreviewMarketItemAsync(MarketItem marketItem)
+    {
+        MarketItem = marketItem;
+        await JsRuntime.ToggleModalAsync(nameof(MarketItemModal));
+    }
+
+    public async Task BuyMarketItemAsync()
+    {
+        await OnMarketItemBuy.InvokeAsync(MarketItem);
+        await JsRuntime.ToggleModalAsync(nameof(MarketItemModal));
+    }
+}

@@ -1,5 +1,4 @@
-﻿<h3>Gun State</h3>
-<ul class="list-unstyled">
+﻿<ul class="list-unstyled">
     <li><b>Sight:</b> @(Sight != null ? Sight.ItemName : "none")</li>
     <li><b>Tactical:</b> @(Tactical != null ? Tactical.ItemName : "none")</li>
     <li><b>Grip:</b> @(Grip != null ? Grip.ItemName : "none")</li>
@@ -9,9 +8,6 @@
 
 
 @code {
-
-
-
     [Parameter]
     public int GunId { get; set; }
 

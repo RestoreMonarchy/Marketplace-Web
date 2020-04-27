@@ -25,11 +25,12 @@ namespace Marketplace.Client.Providers
             ClaimsIdentity steamIdentity;
 
             if (userInfo.IsAuthenticated)
-            {
+            {                
                 steamIdentity = new ClaimsIdentity(new List<Claim>()
                 {
                     new Claim(ClaimTypes.Name, userInfo.SteamId),
-                    new Claim(ClaimTypes.Role, userInfo.Role)
+                    new Claim(ClaimTypes.Role, userInfo.Role),
+                    new Claim("IsGlobalAdmin", userInfo.IsGlobalAdmin.ToString())
                 }, "SteamAuth");
             }
             else

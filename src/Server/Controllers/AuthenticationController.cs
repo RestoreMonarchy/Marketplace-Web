@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -19,7 +20,8 @@ namespace Marketplace.Server.Controllers
                 {
                     SteamId = User.Identity.Name,
                     Role = User.FindFirst(ClaimTypes.Role).Value,                    
-                    IsAuthenticated = true
+                    IsAuthenticated = true,
+                    IsGlobalAdmin = Environment.GetEnvironmentVariable("ADMIN_STEAMID") == User.Identity.Name
                 };
             }
             else
