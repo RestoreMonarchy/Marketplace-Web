@@ -23,6 +23,7 @@ namespace Marketplace.Client.Models
             }
         }
 
+        private string previousSearchString = string.Empty;
         public string SearchString { get; set; } = string.Empty;
         public int DataCount { get; set; }
 
@@ -32,8 +33,12 @@ namespace Marketplace.Client.Models
             {
                 List<TData> filterData = originData.ToList();
 
-                if (UseSearch)
+                if (UseSearch && previousSearchString != SearchString)
+                {
+                    previousSearchString = SearchString;
                     ApplySearch(filterData);
+                    CurrentPage = 1;
+                }
 
                 ExecuteToggleFilters(filterData);
                 if (CurrentOrderFilter != null) 
@@ -87,7 +92,7 @@ namespace Marketplace.Client.Models
         {
             PagesCount = data.Count / PagesDefault + (data.Count % PagesDefault > 0 ? 1 : 0);
             CanGoPrev = CurrentPage > 1;
-            CanGoNext = CurrentPage < PagesCount;                
+            CanGoNext = CurrentPage < PagesCount;
         }
 
         private void ApplyPagination(ref List<TData> data)
@@ -141,7 +146,7 @@ namespace Marketplace.Client.Models
             {
                 if (filter.Enabled)
                 {
-                    filter.Execute(data);                    
+                    filter.Execute(data);
                 }                    
             }
         }

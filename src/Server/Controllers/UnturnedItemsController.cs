@@ -41,8 +41,7 @@ namespace Marketplace.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> SetIconAsync([FromRoute] ushort itemId, [FromBody] UnturnedItem item)
         {
-            using var stream = new MemoryStream(item.Icon);
-            await unturnedItemAssetsRepository.SetIconAsync(itemId, stream); //Mabye
+            await unturnedItemAssetsRepository.SetIconAsync(itemId, item.Icon);
             return Ok();
         }
 

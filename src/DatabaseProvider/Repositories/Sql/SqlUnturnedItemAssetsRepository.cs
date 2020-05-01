@@ -19,12 +19,11 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         }
 
 
-        public async Task SetIconAsync(ushort itemId, Stream iconData)
+        public async Task SetIconAsync(ushort itemId, byte[] iconData)
         {
             const string sql = "UPDATE dbo.UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
 
             await connection.ExecuteAsync(sql, new { iconData, itemId = (int)itemId });
-
         }
 
         public async Task AddUnturnedItemAsync(UnturnedItem item)

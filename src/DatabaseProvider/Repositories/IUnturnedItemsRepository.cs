@@ -10,7 +10,7 @@ namespace Marketplace.DatabaseProvider.Repositories
     public interface IUnturnedItemsRepository : IRepository
     {
         Task AddUnturnedItemAsync(UnturnedItem item);
-        Task SetIconAsync(ushort itemId, Stream iconData);
+        Task SetIconAsync(ushort itemId, byte[] iconData);
         Task<IEnumerable<UnturnedItem>> GetUnturnedItemsAsync();
         Task<Stream> GetItemIconAsync(ushort itemId);
         Task<IEnumerable<UnturnedItem>> GetUnturnedItemsIdsAsync();
