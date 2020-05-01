@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net.WebSockets;
 
 namespace Marketplace.Shared
 {
@@ -14,5 +15,8 @@ namespace Marketplace.Shared
         [Required]        
         public int? ServerPort { get; set; }
         public bool Enabled { get; set; }
+
+        public virtual WebSocket WebSocket { get; set; }
+        public virtual bool IsOnline => WebSocket?.CloseStatus.HasValue ?? false;
     }
 }

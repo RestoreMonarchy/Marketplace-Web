@@ -38,7 +38,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         {
             const string sql = "SELECT Icon FROM dbo.UnturnedItems WHERE ItemId = @itemId;";
 
-            return (await connection.QueryAsync<byte[]>(sql, new { itemId })).FirstOrDefault();
+            return (await connection.QueryAsync<byte[]>(sql, new { itemId }))?.FirstOrDefault() ?? null;
         }
 
         public async Task<UnturnedItem> GetUnturnedItemAsync(int itemId)

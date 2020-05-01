@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Filters;

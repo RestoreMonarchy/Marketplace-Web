@@ -13,6 +13,7 @@ using Marketplace.Server.Utilities;
 using Marketplace.Server.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Marketplace.Server.Extensions;
+using Marketplace.Server.Middlewares;
 
 namespace Marketplace.Server
 {
@@ -46,7 +47,9 @@ namespace Marketplace.Server
             services.AddMemoryCache();
             services.AddHttpClient();
 
+            services.AddSingleton<ServersService>();
             services.AddSingleton<ISettingService, SettingService>();
+            services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
             services.AddTransient<ISteamService, SteamService>();
 
             services.AddHealthChecks()                
@@ -74,6 +77,9 @@ namespace Marketplace.Server
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
+
+            app.UseWebSockets();
+            app.UseMiddleware<WebSocketsMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
