@@ -45,7 +45,7 @@ namespace Marketplace.Client.Models
                     CurrentOrderFilter.Execute(ref filterData);              
 
                 if (PagesDefault != 0)
-                {                    
+                {
                     UpdatePagesState(filterData);
                     ApplyPagination(ref filterData);
                 }
@@ -136,8 +136,7 @@ namespace Marketplace.Client.Models
                         filter.Enabled = false;
                 }
                 OrderFilters.Add(filter as IOrderFilter<TData>);
-            }
-                
+            }                
         }
 
         private void ExecuteToggleFilters(List<TData> data)

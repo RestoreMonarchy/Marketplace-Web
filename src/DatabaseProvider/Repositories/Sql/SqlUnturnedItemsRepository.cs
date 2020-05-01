@@ -4,27 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Marketplace.DatabaseProvider.Repositories.Sql
 {
-    public sealed class SqlUnturnedItemAssetsRepository : IUnturnedItemsRepository
+    public sealed class SqlUnturnedItemsRepository : IUnturnedItemsRepository
     {
         private readonly SqlConnection connection;
 
-        public SqlUnturnedItemAssetsRepository(SqlConnection connection)
+        public SqlUnturnedItemsRepository(SqlConnection connection)
         {
             this.connection = connection;
-        }
-
-
-        public async Task SetIconAsync(ushort itemId, byte[] iconData)
-        {
-            const string sql = "UPDATE dbo.UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
-
-            await connection.ExecuteAsync(sql, new { iconData, itemId = (int)itemId });
-        }
+        }  
 
         public async Task AddUnturnedItemAsync(UnturnedItem item)
         {
@@ -34,11 +27,18 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await connection.ExecuteAsync(sql, item);
         }
 
-        public async Task<Stream> GetItemIconAsync(ushort itemId)
+        public async Task SetIconAsync(int itemId, byte[] iconData)
+        {
+            const string sql = "UPDATE dbo.UnturnedItems SET Icon = @iconData WHERE ItemId = @itemId;";
+
+            await connection.ExecuteAsync(sql, new { iconData, itemId });
+        }
+
+        public async Task<byte[]> GetItemIconAsync(int itemId)
         {
             const string sql = "SELECT Icon FROM dbo.UnturnedItems WHERE ItemId = @itemId;";
 
-            return new MemoryStream(await connection.QuerySingleAsync<byte[]>(sql, new { itemId = (int)itemId })); //Same thing here, if could dapper return a stream this would be 10/10
+            return (await connection.QueryAsync<byte[]>(sql, new { itemId })).FirstOrDefault();
         }
 
         public async Task<UnturnedItem> GetUnturnedItemAsync(int itemId)
@@ -73,19 +73,11 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             return await connection.QueryAsync<UnturnedItem>(sql);
         }
 
-        public async Task<IEnumerable<UnturnedItem>> GetUnturnedItemsIdsAsync()
-        {
-            const string sql = "SELECT ItemId FROM dbo.UnturnedItems;";
-
-            return await connection.QueryAsync<UnturnedItem>(sql); //I really wanna look into the possibility of streaming the entry via IAsyncEnumerable return instead of doing it like this
-        }
-
         public async Task<IEnumerable<UnturnedItem>> GetUnturnedItemsIdsNoIconAsync()
         {
             const string sql = "SELECT ItemId FROM dbo.UnturnedItems WHERE Icon IS NULL;";
 
             return await connection.QueryAsync<UnturnedItem>(sql);
-
         }
 
         public Task Initialize()

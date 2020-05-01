@@ -13,8 +13,8 @@ namespace Marketplace.Server.Services
     {
         private readonly ISettingsRepository settingsRepository;
         private readonly IMemoryCache memoryCache;
-        private readonly ILogger<SettingService> logger;
-        public SettingService(ISettingsRepository settingsRepository, IMemoryCache memoryCache, ILogger<SettingService> logger)
+        private readonly ILogger<ISettingService> logger;
+        public SettingService(ISettingsRepository settingsRepository, IMemoryCache memoryCache, ILogger<ISettingService> logger)
         {
             this.settingsRepository = settingsRepository;
             this.memoryCache = memoryCache;
