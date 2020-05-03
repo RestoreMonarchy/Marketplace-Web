@@ -43,7 +43,7 @@ namespace Marketplace.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> SetIconAsync([FromRoute] int itemId, [FromBody] UnturnedItem item)
         {
-            await unturnedItemsIconService.UpdateIconAsync(itemId, item.Icon);
+            await unturnedItemsRepository.SetIconAsync(itemId, item.Icon);
             return Ok();
         }
 
@@ -52,7 +52,7 @@ namespace Marketplace.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
         public async Task<IActionResult> GetIconAsync([FromRoute] int itemId)
         {
-            var icon = await unturnedItemsIconService.GetIconAsync(itemId);
+            var icon = await unturnedItemsRepository.GetItemIconAsync(itemId);
             if (icon == null)
                 return NotFound();
             return File(icon, "image/png");

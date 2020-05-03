@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
-namespace Marketplace.Server.Middlewares
+namespace Marketplace.Server.WebSockets
 {
     public class WebSocketsMiddleware
     {
@@ -17,7 +17,7 @@ namespace Marketplace.Server.Middlewares
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, ServersService serversService)
+        public async Task InvokeAsync(HttpContext context, ServerService serversService)
         {
             if (context.Request.Path == "/ws")
             {
@@ -26,7 +26,7 @@ namespace Marketplace.Server.Middlewares
                     Console.WriteLine("got web request here");
                     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     
-                    await serversService.ListenWebSocketAsync(context, webSocket);
+                    await serversService.ListenServerWebSocketAsync(context, webSocket);
                 }
                 else
                 {

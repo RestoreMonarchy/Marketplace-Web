@@ -28,16 +28,16 @@ namespace WebSocketClient
                 {
                     Console.WriteLine("Connected to web");
                 }
-                await Task.WhenAll(ReceiveAsync(client));
+                await ListenWebSocketAsync(client);
             } catch (Exception e)
             {
                 Console.WriteLine(e);
             }
         }
 
-        public async Task ReceiveAsync(ClientWebSocket client)
+        public async Task ListenWebSocketAsync(ClientWebSocket client)
         {
-            var buffer = new byte[4 * 1024];
+            var buffer = new byte[256];
             while (client.State == WebSocketState.Open)
             {
                 await client.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
@@ -49,6 +49,12 @@ namespace WebSocketClient
                 {
                     Console.WriteLine("sending server ID");
                     await SendAsync(client, "tellServerId 1");
+                }
+                if (msg.StartsWith("askPlayerBalance"))
+                {
+                    var splitMsg = msg.Split(' ');
+                    Console.WriteLine($"sending {splitMsg[1]} balance");
+                    await SendAsync(client, $"tellPlayerBalance {splitMsg[1]} 120");
                 }
             }
         }
