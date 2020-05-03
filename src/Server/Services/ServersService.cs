@@ -1,7 +1,11 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.WebSockets;
+using Marketplace.WebSockets;
+using Marketplace.WebSockets.Attributes;
+using Marketplace.WebSockets.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
@@ -12,50 +16,50 @@ namespace Marketplace.Server.Services
     public class ServerService
     {
         private readonly IServersRepository serversRepository;
-        private readonly WebSocketsUtility webSocketsService;
+        private readonly WebSocketsManager webSocketsManager;
         private readonly ILogger<ServerService> logger;
 
         private List<Shared.Server> connectedServers = new List<Shared.Server>();
 
-        public ServerService(IServersRepository serversRepository, WebSocketsUtility webSocketsService, ILogger<ServerService> logger)
+        public ServerService(IServersRepository serversRepository, ILogger<ServerService> logger)
         {
             this.serversRepository = serversRepository;
-            this.webSocketsService = webSocketsService;
+            this.webSocketsManager = new WebSocketsManager();
             this.logger = logger;
         }
 
-        public async Task ListenServerWebSocketAsync(HttpContext context, WebSocket webSocket)
+        public void Initialize()
         {
-            var server = await GetServerAsync(webSocket);
+            webSocketsManager.Initialize(GetType().Assembly, this);
+        }
+
+        [WebSocketCall("ServerId")]
+        public async Task ConnectServerAsync(WebSocketMessage msg)
+        {
+            var server = await serversRepository.GetServerAsync((int)(long)msg.Arguments[0]);
             if (server == null)
             {
-                logger.LogInformation("Server didnt respond or returned ID could not be found");
+                logger.LogInformation($"Server with {msg.Arguments[0]} ID not found!");
                 return;
             }
 
             // add to connected servers
-            server.WebSocket = webSocket;
+            server.WebSocket = msg.WebSocket;
             connectedServers.Add(server);
 
-            logger.LogInformation($"Server {server.ServerName} has " +
-                $"connected to web socket from IP {context.Connection.RemoteIpAddress}");
-            // start listening to server
-            await webSocketsService.ListenWebSocketAsync(context, webSocket);
-
-            // when stops listening (means client quit or crashed)
-            server.WebSocket = null;
-            connectedServers.Remove(server);
+            logger.LogInformation($"Server {server.ServerName} has connected to web");
         }
 
-        private async Task<Shared.Server> GetServerAsync(WebSocket webSocket)
+        public async Task ListenServerWebSocketAsync(HttpContext context, WebSocket webSocket)
         {
-            var msg = await webSocketsService.AskWebSocketAsync(webSocket, "ServerId");
-
-            if (msg != null && int.TryParse(msg, out int serverId))
+            try
             {
-                return await serversRepository.GetServerAsync(serverId);
+                await webSocketsManager.ListenWebSocketAsync(webSocket);
+            } catch (Exception e)
+            {
+                logger.LogError(e, $"Connection with the server {context.Connection.RemoteIpAddress} lost");
             }
-            return null;
+            connectedServers.RemoveAll(x => x.WebSocket == webSocket);
         }
 
         public async Task<decimal?> GetPlayerBalanceAsync(string steamId)
@@ -67,9 +71,9 @@ namespace Marketplace.Server.Services
                 return null;
             }
 
-            var msg = await webSocketsService.AskWebSocketAsync(server.WebSocket, "PlayerBalance", steamId);
-            if (msg != null && decimal.TryParse(msg, out var balance))
-                return balance;
+            var msg = await webSocketsManager.AskWebSocketAsync(server.WebSocket, "PlayerBalance", steamId);
+            if (msg != null)
+                return (decimal)(long)msg.Arguments[0];
             else
                 return null;
         }

@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Marketplace.WebSockets;
+using Marketplace.WebSockets.Attributes;
+using Marketplace.WebSockets.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
@@ -16,53 +19,32 @@ namespace WebSocketClient
             instance.StartAsync().Wait();
             Console.ReadKey();
         }
-        
+
+        public WebSocketsManager manager;
+        public ClientWebSocket client;
+
         public async Task StartAsync()
         {
-            ClientWebSocket client = null;
-            try
-            {
-                client = new ClientWebSocket();
-                await client.ConnectAsync(new Uri("ws://localhost:5000/ws"), CancellationToken.None);
-                if (client.State == WebSocketState.Open)
-                {
-                    Console.WriteLine("Connected to web");
-                }
-                await ListenWebSocketAsync(client);
-            } catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            manager = new WebSocketsManager();
+            manager.Initialize(GetType().Assembly, this);
+            client = new ClientWebSocket();
+            await client.ConnectAsync(new Uri("ws://localhost:5000/ws"), CancellationToken.None);
+            await manager.TellWebSocketAsync(client, "ServerId", null, 1);
+            await manager.ListenWebSocketAsync(client);
+
         }
 
-        public async Task ListenWebSocketAsync(ClientWebSocket client)
+        [WebSocketCall("PlayerBalance")]
+        public async Task TellPlayerBalanceAsync(WebSocketMessage question)
         {
-            var buffer = new byte[256];
-            while (client.State == WebSocketState.Open)
+            Console.WriteLine("TELL PLAYER BALANCE");
+            if ((string)question.Arguments[0] == "76561198285897058")
             {
-                await client.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                var msg = Encoding.ASCII.GetString(buffer);
-                if (msg.Length == 0)
-                    continue;
-                Console.WriteLine($"received msg from server: {msg}");
-                if (msg.Contains("askServerId"))
-                {
-                    Console.WriteLine("sending server ID");
-                    await SendAsync(client, "tellServerId 1");
-                }
-                if (msg.StartsWith("askPlayerBalance"))
-                {
-                    var splitMsg = msg.Split(' ');
-                    Console.WriteLine($"sending {splitMsg[1]} balance");
-                    await SendAsync(client, $"tellPlayerBalance {splitMsg[1]} 120");
-                }
+                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 125);
+            } else
+            {
+                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 20);
             }
-        }
-
-        public async Task SendAsync(ClientWebSocket client, string msg)
-        {
-            var buffer = Encoding.ASCII.GetBytes(msg);
-            await client.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Binary, false, CancellationToken.None);
         }
     }
 }

@@ -23,6 +23,11 @@ namespace Marketplace.Server.Extensions
             }
         }
 
+        public static void InitializeServerService(this IServiceScope scope)
+        {
+            scope.ServiceProvider.GetRequiredService<ServerService>().Initialize();            
+        }
+
         public static IEconomyRepository GetEconomyRepository(this IServiceProvider serviceProvider)
         {
             var provider = serviceProvider.GetSettingValue("EconomyProvider");
@@ -34,7 +39,7 @@ namespace Marketplace.Server.Extensions
 
         public static string GetSettingValue(this IServiceProvider serviceProvider, string settingId, bool isAdmin = true)
         {
-            return serviceProvider.GetService<ISettingService>().GetSettingAsync(settingId, isAdmin).GetAwaiter().GetResult().SettingValue;
+            return serviceProvider.GetRequiredService<ISettingService>().GetSettingAsync(settingId, isAdmin).GetAwaiter().GetResult().SettingValue;
         }
     }
 }

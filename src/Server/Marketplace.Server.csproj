@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Client\Marketplace.Client.csproj" />
     <ProjectReference Include="..\DatabaseProvider\Marketplace.DatabaseProvider.csproj" />
+    <ProjectReference Include="..\Marketplace.WebSockets\Marketplace.WebSockets.csproj" />
     <ProjectReference Include="..\Shared\Marketplace.Shared.csproj" />
   </ItemGroup>
 

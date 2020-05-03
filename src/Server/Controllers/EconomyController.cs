@@ -1,4 +1,5 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
+using Marketplace.Server.Services;
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,15 @@ namespace Marketplace.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UconomyController : ControllerBase
+    public class EconomyController : ControllerBase
     {
-        private readonly IEconomyRepository uconomyRepository;
-        private readonly ILogger<UconomyController> logger;
-        public UconomyController(IEconomyRepository uconomyRepository, ILogger<UconomyController> logger)
+        private readonly IEconomyRepository economyRepository;
+        private ServerService serverService;
+        private readonly ILogger<EconomyController> logger;
+        public EconomyController(IEconomyRepository economyRepository, ServerService serverService, ILogger<EconomyController> logger)
         {
-            this.uconomyRepository = uconomyRepository;
+            this.economyRepository = economyRepository;
+            this.serverService = serverService;
             this.logger = logger;
         }
 
@@ -26,7 +29,7 @@ namespace Marketplace.Server.Controllers
         {
             try
             {
-                return Ok(await uconomyRepository.GetBalanceAsync(User.Identity.Name));
+                return Ok(await serverService.GetPlayerBalanceAsync(User.Identity.Name));
             } catch (Exception e)
             {
                 // TODO: Use logger instead here too
@@ -41,7 +44,7 @@ namespace Marketplace.Server.Controllers
         {
             try
             {
-                return Ok(await uconomyRepository.GetTotalBalanceAsync());
+                return Ok(await economyRepository.GetTotalBalanceAsync());
             } catch (Exception e)
             {
                 LogUconomyConnectionError(e);

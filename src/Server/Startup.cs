@@ -14,6 +14,7 @@ using Marketplace.Server.Health;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Marketplace.Server.Extensions;
 using Marketplace.Server.WebSockets;
+using Marketplace.WebSockets;
 
 namespace Marketplace.Server
 {
@@ -47,11 +48,11 @@ namespace Marketplace.Server
             services.AddMemoryCache();
             services.AddHttpClient();
 
+            services.AddSingleton<WebSocketsManager>();
             services.AddSingleton<ServerService>();
             services.AddSingleton<ISettingService, SettingService>();
             services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
             services.AddTransient<ISteamService, SteamService>();
-            services.AddTransient<WebSocketsUtility>();
 
             services.AddHealthChecks()                
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
@@ -97,6 +98,7 @@ namespace Marketplace.Server
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 scope.InitializeRepositories();
+                scope.InitializeServerService();
             }
         }
     }
