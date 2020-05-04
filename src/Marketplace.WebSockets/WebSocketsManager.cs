@@ -90,15 +90,18 @@ namespace Marketplace.WebSockets
                 Signal = new SemaphoreSlim(0, 1)
             };
             questionMessages.Add(msg);
-            
-            await SendWebSocketAsync(webSocket, msg);
+            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3)); //Put in settins file
 
-            // Release signal if timeout
-            await Task.Run(() =>
+            try
             {
-                Task.Delay(3000);
+                await SendWebSocketAsync(webSocket, msg, tokenSource.Token);
+            }
+            catch (TaskCanceledException)
+            {
                 msg.Signal.Release();
-            });
+                throw new TimeoutException();
+            }
+
             await msg.Signal.WaitAsync();
             return msg.Response;
         }
@@ -116,10 +119,10 @@ namespace Marketplace.WebSockets
             await SendWebSocketAsync(webSocket, msg);
         }
 
-        private async Task SendWebSocketAsync(WebSocket webSocket, WebSocketMessage msg)
+        private async Task SendWebSocketAsync(WebSocket webSocket, WebSocketMessage msg, CancellationToken cancellationToken = default)
         {
             var buffer = Encoding.ASCII.GetBytes(msg.GetJson());
-            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Binary, true, CancellationToken.None);
+            await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Binary, true, cancellationToken);
         }
     }
 }
