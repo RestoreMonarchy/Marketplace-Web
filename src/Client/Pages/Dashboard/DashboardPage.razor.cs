@@ -23,7 +23,7 @@ namespace Marketplace.Client.Pages.Dashboard
         private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
         private List<UnturnedItem> UnturnedItems { get; set; }
-        private decimal TotalBalance { get; set; }
+        //private decimal TotalBalance { get; set; }
         private Dictionary<string, Setting> Settings { get; set; }
 
         private int unturnedItemsCount;
@@ -45,7 +45,7 @@ namespace Marketplace.Client.Pages.Dashboard
         protected override async Task OnInitializedAsync() 
         {
             UnturnedItems = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
-            TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/uconomy/total");
+            //TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/uconomy/total");
             Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
 
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();

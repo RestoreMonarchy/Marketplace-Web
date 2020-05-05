@@ -1,4 +1,5 @@
 ﻿using Marketplace.WebSockets.Attributes;
+using Marketplace.WebSockets.Logger;
 using Marketplace.WebSockets.Models;
 using System;
 using System.Collections.Generic;
@@ -11,26 +12,37 @@ using System.Threading.Tasks;
 
 namespace Marketplace.WebSockets
 {
-    public class WebSocketsManager
+    public class WebSocketsManager : IWebSocketsManager
     {
         public const int BufferSize = 1024 * 4;
+        public const int TimeoutMiliseconds = 3000;
         private uint id = 0;
+
+        private readonly IWebSocketsLogger logger;
 
         public delegate Task OnMessageReceived(WebSocketMessage msg);
         public event OnMessageReceived onMessageReceived;
 
         private List<WebSocketMessage> questionMessages = new List<WebSocketMessage>();
-
+        
+        private Assembly CallAssembly { get; set; }
         private MethodInfo[] MethodCalls { get; set; }
-        private object CallsInstance { get; set; }
+        private object[] CallInstances { get; set; }
 
-        public void Initialize(Assembly assembly, object instance)
+        public WebSocketsManager(IWebSocketsLogger logger = null)
         {
+            this.logger = logger;
+        }
+
+        public void Initialize(Assembly assembly, object[] instances)
+        {
+            CallAssembly = assembly;
             MethodCalls = assembly.GetTypes()
-                .SelectMany(t => t.GetMethods())
+                .SelectMany(t => t.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
                 .Where(m => m.GetCustomAttributes<WebSocketCallAttribute>(false).Count() > 0)
                 .ToArray();
-            CallsInstance = instance;
+
+            CallInstances = instances;
         }
 
         public async Task ListenWebSocketAsync(WebSocket webSocket)
@@ -49,7 +61,9 @@ namespace Marketplace.WebSockets
         {
             var msg = WebSocketMessage.FromJson(buffer);
             msg.WebSocket = webSocket;
-            Console.WriteLine($"received message: {msg.Method}");
+
+            if (logger != null)
+                await logger.LogDebug($"Received message: {msg.Method}");
 
             var waitingMessage = questionMessages.FirstOrDefault(x => x.Id == msg.QuestionId);
             if (waitingMessage != null)
@@ -60,23 +74,29 @@ namespace Marketplace.WebSockets
 
         public async Task ReceiveMessage(WebSocketMessage msg)
         {
-            //if (onMessageReceived != null)
-            //    await onMessageReceived.Invoke(msg);
+            if (onMessageReceived != null)
+                await onMessageReceived(msg);
+
             if (MethodCalls != null)
-            {        
+            {
                 var method = MethodCalls.SingleOrDefault(m => m.GetCustomAttribute<WebSocketCallAttribute>().Name == msg.Method);
                 if (method != null)
                 {
                     try
                     {
-                        await (Task)method.Invoke(CallsInstance, new object[] { msg });
-                    } catch (Exception e)
-                    {
-                        // TODO: implement WebSocketsLogger
-                        Console.WriteLine(e);
+                        var instance = CallInstances.FirstOrDefault(c => 
+                        {
+                            return c.GetType() == method.DeclaringType;
+                        });
+                        await (Task)method.Invoke(instance, new object[] { msg });
                     }
-                }   
-            }   
+                    catch (Exception e)
+                    {
+                        if (logger != null)
+                            await logger.LogError(e, $"An error occurated when trying to invoke {method.Name} WebSocketCall");
+                    }
+                }
+            }
         }
 
         public async Task<WebSocketMessage> AskWebSocketAsync(WebSocket webSocket, string method, params string[] args)
@@ -90,7 +110,7 @@ namespace Marketplace.WebSockets
                 Signal = new SemaphoreSlim(0, 1)
             };
             questionMessages.Add(msg);
-            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(3)); //Put in settins file
+            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeoutMiliseconds);
 
             try
             {
@@ -123,6 +143,8 @@ namespace Marketplace.WebSockets
         {
             var buffer = Encoding.ASCII.GetBytes(msg.GetJson());
             await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Binary, true, cancellationToken);
+            if (logger != null)
+                await logger.LogDebug($"Sent message {msg.Method}");
         }
     }
 }

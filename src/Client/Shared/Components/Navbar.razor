@@ -36,7 +36,7 @@
         <AuthorizeView>
             <Authorized>                
                 <span class="navbar-text">
-                    Balance: <b>@Balance</b>
+                    <BalanceComponent />
                 </span>
                 <form class="form-inline ml-lg-2" method="get" action="/signout">
                     <button class="btn btn-primary my-2 my-sm-0" type="submit">Sign Out</button>
@@ -53,9 +53,11 @@
 
 @code  {
     [Inject]
-    public AuthenticationStateProvider AuthProvider { get; set; }
+    private AuthenticationStateProvider AuthProvider { get; set; }
     [Inject]
-    public HttpClient HttpClient { get; set; }
+    private HttpClient HttpClient { get; set; }
+    [Inject]
+    private BalanceService BalanceService { get; set; }
 
     private AuthenticationState authState;
 
@@ -64,17 +66,5 @@
     protected override async Task OnInitializedAsync()
     {
         authState = await AuthProvider.GetAuthenticationStateAsync();
-        navManager.LocationChanged += async (a, b) => await UpdateBalance();
-        await UpdateBalance();
-    }
-
-
-    public async Task UpdateBalance()
-    {
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            Balance = await HttpClient.GetJsonAsync<decimal>("api/economy");
-            StateHasChanged();
-        }
     }
 }

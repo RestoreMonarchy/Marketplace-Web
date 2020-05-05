@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marketplace.DatabaseProvide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocketClient", "WebSocketClient\WebSocketClient.csproj", "{8076BF46-D6B2-4AB0-88DD-01E3089BE783}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketplace.WebSockets", "Marketplace.WebSockets\Marketplace.WebSockets.csproj", "{09847E33-EA29-4D71-B610-A66B88D85EC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marketplace.WebSockets", "Marketplace.WebSockets\Marketplace.WebSockets.csproj", "{09847E33-EA29-4D71-B610-A66B88D85EC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

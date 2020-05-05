@@ -43,20 +43,20 @@ namespace Marketplace.Server
             });
 
             services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
-            services.AddEconomyServices();
 
             services.AddMemoryCache();
             services.AddHttpClient();
 
-            services.AddSingleton<WebSocketsManager>();
-            services.AddSingleton<ServerService>();
+            services.AddSingleton<IWebSocketsManager, WebSocketsManager>();
+            services.AddWebSocketCallers();
+            services.AddWebSocketsData();
+
             services.AddSingleton<ISettingService, SettingService>();
             services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
             services.AddTransient<ISteamService, SteamService>();
 
             services.AddHealthChecks()                
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
-                .AddCheck<EconomyDatabaseHealthCheck>("Economy")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -98,7 +98,7 @@ namespace Marketplace.Server
             using (var scope = app.ApplicationServices.CreateScope())
             {
                 scope.InitializeRepositories();
-                scope.InitializeServerService();
+                scope.InitializeWebSocketCallers();
             }
         }
     }

@@ -14,6 +14,7 @@ namespace Marketplace.Client
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, SteamAuthenticationStateProvider>();
             services.AddScoped<OrderState>();
+            services.AddScoped<BalanceService>();
 
             services.AddSweetAlert2(options =>
             {

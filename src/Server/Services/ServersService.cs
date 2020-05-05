@@ -13,28 +13,25 @@ using System.Threading.Tasks;
 
 namespace Marketplace.Server.Services
 {
-    public class ServerService
+    public class ServerService : IServersService
     {
         private readonly IServersRepository serversRepository;
-        private readonly WebSocketsManager webSocketsManager;
         private readonly ILogger<ServerService> logger;
+        private readonly IWebSocketsManager webSocketsManager;
 
-        private List<Shared.Server> connectedServers = new List<Shared.Server>();
+        public IEnumerable<Shared.Server> ConnectedServers => connectedServers;
 
-        public ServerService(IServersRepository serversRepository, ILogger<ServerService> logger)
+        public List<Shared.Server> connectedServers = new List<Shared.Server>();
+
+        public ServerService(IServersRepository serversRepository, IWebSocketsManager webSocketsManager, ILogger<ServerService> logger)
         {
             this.serversRepository = serversRepository;
-            this.webSocketsManager = new WebSocketsManager();
+            this.webSocketsManager = webSocketsManager;
             this.logger = logger;
         }
 
-        public void Initialize()
-        {
-            webSocketsManager.Initialize(GetType().Assembly, this);
-        }
-
         [WebSocketCall("ServerId")]
-        public async Task ConnectServerAsync(WebSocketMessage msg)
+        private async Task ConnectServerAsync(WebSocketMessage msg)
         {
             var server = await serversRepository.GetServerAsync((int)(long)msg.Arguments[0]);
             if (server == null)
@@ -62,20 +59,21 @@ namespace Marketplace.Server.Services
             connectedServers.RemoveAll(x => x.WebSocket == webSocket);
         }
 
-        public async Task<decimal?> GetPlayerBalanceAsync(string steamId)
+        public Shared.Server GetConnectedServer(int? id = null)
         {
-            var server = connectedServers.FirstOrDefault();
-            if (server == null)
+            Shared.Server server;
+            if (!id.HasValue)
             {
-                logger.LogInformation("There isn't any server connected to website");
-                return null;
+                server = ConnectedServers.FirstOrDefault();
+                if (server == null)
+                    logger.LogWarning("There isn't any server connected to web!");
+            } else
+            {
+                server = ConnectedServers.FirstOrDefault(s => s.Id == id);
+                if (server == null)
+                    logger.LogWarning($"Failed to find server with ID {id}!");
             }
-
-            var msg = await webSocketsManager.AskWebSocketAsync(server.WebSocket, "PlayerBalance", steamId);
-            if (msg != null)
-                return (decimal)(long)msg.Arguments[0];
-            else
-                return null;
+            return server;
         }
     }
 }

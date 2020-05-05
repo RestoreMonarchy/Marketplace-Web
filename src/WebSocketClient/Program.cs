@@ -1,5 +1,6 @@
 ﻿using Marketplace.WebSockets;
 using Marketplace.WebSockets.Attributes;
+using Marketplace.WebSockets.Logger;
 using Marketplace.WebSockets.Models;
 using System;
 using System.Collections.Generic;
@@ -22,29 +23,66 @@ namespace WebSocketClient
 
         public WebSocketsManager manager;
         public ClientWebSocket client;
+        public IWebSocketsLogger logger;
 
         public async Task StartAsync()
         {
-            manager = new WebSocketsManager();
-            manager.Initialize(GetType().Assembly, this);
+            logger = new WebSocketsConsoleLogger(true);
+            manager = new WebSocketsManager(logger);
+            manager.Initialize(GetType().Assembly, new object[] { this });
             client = new ClientWebSocket();
             await client.ConnectAsync(new Uri("ws://localhost:5000/ws"), CancellationToken.None);
+
+            // Tell which server has connected
             await manager.TellWebSocketAsync(client, "ServerId", null, 1);
             await manager.ListenWebSocketAsync(client);
-
         }
 
-        [WebSocketCall("PlayerBalance")]
-        public async Task TellPlayerBalanceAsync(WebSocketMessage question)
+        public Dictionary<string, decimal> PlayerBalances { get; set; } = new Dictionary<string, decimal>() 
         {
-            Console.WriteLine("TELL PLAYER BALANCE");
-            if ((string)question.Arguments[0] == "76561198285897058")
+            //{ "76561198285897058", 100 }
+        };
+
+        [WebSocketCall("PlayerBalance")]
+        private async Task TellPlayerBalanceAsync(WebSocketMessage question)
+        {
+            var playerId = (string)question.Arguments[0];
+            if (PlayerBalances.TryGetValue(playerId, out decimal balance))
             {
-                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 125);
+                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, balance);
             } else
             {
+                PlayerBalances.Add(playerId, 30);
                 await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 20);
             }
+        }
+
+        [WebSocketCall("IncrementPlayerBalance")]
+        private async Task TellIncrementBalanceAsync(WebSocketMessage question)
+        {
+            var playerId = Convert.ToString(question.Arguments[0]);
+            var amount = Convert.ToDecimal(question.Arguments[1]);
+            decimal postBalance;
+            if (PlayerBalances.TryGetValue(playerId, out var balance))
+            {
+                postBalance = balance + amount;
+                if (postBalance >= 0)
+                {
+                    PlayerBalances[playerId] = postBalance;
+                    await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, true);
+                    return;
+                }                
+            } else
+            {
+                postBalance = 20 + amount;
+                if (postBalance >= 0)
+                {
+                    PlayerBalances.Add(playerId, postBalance);
+                    await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, true);
+                    return;
+                }                
+            }
+            await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, false);
         }
     }
 }

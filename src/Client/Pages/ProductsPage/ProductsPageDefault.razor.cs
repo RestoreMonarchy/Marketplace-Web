@@ -1,5 +1,6 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
 using Marketplace.Client.Events;
+using Marketplace.Client.Services;
 using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
@@ -16,6 +17,8 @@ namespace Marketplace.Client.Pages.ProductsPage
         private HttpClient HttpClient { get; set; }
         [Inject]
         private SweetAlertService Swal { get; set; }
+        [Inject]
+        private BalanceService BalanceService { get; set; }
 
         public ProductPreviewModal PreviewModal { get; set; }
         private IEnumerable<Product> Products { get; set; }
@@ -33,6 +36,9 @@ namespace Marketplace.Client.Pages.ProductsPage
 
             switch (response.StatusCode)
             {
+                case HttpStatusCode.OK:
+                    await Swal.FireAsync("OK", $"You successfully bought {args.Product.Title} for ${args.Product.Price}!", SweetAlertIcon.Success);
+                    break;
                 case HttpStatusCode.NotFound:
                     await Swal.FireAsync("Not Found", "The product you are trying to buy could not be found", SweetAlertIcon.Error);
                     break;
@@ -50,13 +56,8 @@ namespace Marketplace.Client.Pages.ProductsPage
                     break;
             }
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                await Swal.FireAsync("OK", $"You successfully bought {args.Product.Title} for ${args.Product.Price}!", SweetAlertIcon.Success);
-            }
-
-
             await PreviewModal.ToggleModalAsync();
+            await BalanceService.UpdateBalanceAsync();
         }
     }
 }

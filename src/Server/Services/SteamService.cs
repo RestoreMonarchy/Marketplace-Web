@@ -30,7 +30,7 @@ namespace Marketplace.Server.Services
             {
                 var setting = await settingService.GetSettingAsync("SteamDevKey", true);
                 var factory = new SteamWebInterfaceFactory(setting.SettingValue);
-                var steamUser = factory.CreateSteamWebInterface<ISteamUser>(httpClientFactory.CreateClient());
+                var steamUser = factory.CreateSteamWebInterface<SteamUser>(httpClientFactory.CreateClient());
 
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
                 var summaries = await steamUser.GetPlayerSummaryAsync(parsedId);

@@ -1,6 +1,7 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.Filters;
 using Marketplace.Server.Services;
+using Marketplace.Server.WebSockets.Data;
 using Marketplace.Shared;
 using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
@@ -17,13 +18,13 @@ namespace Marketplace.Server.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductsRepository productsRepository;
-        private readonly IEconomyRepository uconomyRepository;
+        private readonly IEconomyWebSocketsData economyWebSocketsData;
         private readonly ISteamService steamService;
 
-        public ProductsController(IProductsRepository productsRepository, IEconomyRepository uconomyRepository, ISteamService steamService)
+        public ProductsController(IProductsRepository productsRepository, IEconomyWebSocketsData economyWebSocketsData, ISteamService steamService)
         {
             this.productsRepository = productsRepository;
-            this.uconomyRepository = uconomyRepository;
+            this.economyWebSocketsData = economyWebSocketsData;
             this.steamService = steamService;
         }
 
@@ -58,13 +59,16 @@ namespace Marketplace.Server.Controllers
             if (!User.Identity.IsAuthenticated)
                 return Unauthorized();
 
-            decimal balance = await uconomyRepository.GetBalanceAsync(User.Identity.Name);
-            string playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
-            switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name, playerName, balance))
+            var balance = await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name);
+            if (!balance.HasValue)
+                return BadRequest();
+
+            var playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
+            switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name, playerName, balance.Value))
             {
                 case 0:
                     var price = await productsRepository.GetProductPriceAsync(productId);
-                    await uconomyRepository.IncrementBalanceAsync(User.Identity.Name, -price);
+                    await economyWebSocketsData.IncrementBalanceAsync(User.Identity.Name, -price);
                     return Ok();
                 case 1:
                     return NotFound();

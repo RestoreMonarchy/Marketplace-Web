@@ -1,40 +1,46 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.DatabaseProvider.Repositories.MySql;
 using Marketplace.Server.Services;
+using Marketplace.Server.WebSockets;
+using Marketplace.Server.WebSockets.Data;
+using Marketplace.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 
 namespace Marketplace.Server.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void AddEconomyServices(this IServiceCollection services) 
-        {
-            services.AddScoped(c => new MySqlConnection(c.GetSettingValue("UconomyConnectionString")));
-            services.AddTransient(c => c.GetEconomyRepository());
-        }
-
         public static void InitializeRepositories(this IServiceScope scope)
         {
+            // TODO: fix it
             foreach (var service in scope.ServiceProvider.GetServices<IRepository>())
             {
                 service.Initialize()?.GetAwaiter().GetResult();
             }
         }
 
-        public static void InitializeServerService(this IServiceScope scope)
+        public static void AddWebSocketCallers(this IServiceCollection source)
         {
-            scope.ServiceProvider.GetRequiredService<ServerService>().Initialize();            
+            source.AddSingleton<IServersService, ServerService>();
+            source.AddSingleton<IWebSocketCaller>(x => x.GetRequiredService<IServersService>());
+        }
+        
+        public static void AddWebSocketsData(this IServiceCollection source)
+        {
+            source.AddTransient<IEconomyWebSocketsData, EconomyWebSocketsData>();
         }
 
-        public static IEconomyRepository GetEconomyRepository(this IServiceProvider serviceProvider)
+        public static void InitializeWebSocketCallers(this IServiceScope scope)
         {
-            var provider = serviceProvider.GetSettingValue("EconomyProvider");
-            if (provider == "AviEconomy")
-                return new AviEconomyRepository(serviceProvider.GetService<MySqlConnection>());
-            else
-                return new UconomyEconomyRepository(serviceProvider.GetService<MySqlConnection>());
+            var instances = new List<object>();
+            foreach (var service in scope.ServiceProvider.GetServices<IWebSocketCaller>())
+            {
+                instances.Add(service);
+            }
+            scope.ServiceProvider.GetRequiredService<IWebSocketsManager>().Initialize(typeof(Program).Assembly, instances.ToArray());
         }
 
         public static string GetSettingValue(this IServiceProvider serviceProvider, string settingId, bool isAdmin = true)

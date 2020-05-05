@@ -17,7 +17,7 @@ namespace Marketplace.Server.WebSockets
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, ServerService serversService)
+        public async Task InvokeAsync(HttpContext context, IServersService serversService)
         {
             if (context.Request.Path == "/ws")
             {
