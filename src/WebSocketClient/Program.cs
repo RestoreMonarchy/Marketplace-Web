@@ -4,9 +4,7 @@ using Marketplace.WebSockets.Logger;
 using Marketplace.WebSockets.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +51,7 @@ namespace WebSocketClient
             } else
             {
                 PlayerBalances.Add(playerId, 30);
-                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 20);
+                await manager.TellWebSocketAsync(client, "PlayerBalance", question.Id, 30);
             }
         }
 

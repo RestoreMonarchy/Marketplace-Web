@@ -2,16 +2,16 @@
 {
     @if (BalanceService.Balance == null)
     {
-        <div data-toggle="tooltip" data-placement="bottom" title="@BalanceService.BalanceMessage">
+        <a href="javascript:void(0)" data-toggle="tooltip" data-placement="bottom" title="@BalanceService.BalanceMessage">
             <div class="spinner-border text-primary" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div>        
+        </a>
     }
     else
     {
         <b>Balance: </b>
-        <a class="font-weight-bold" @onclick="BalanceService.UpdateBalanceAsync">
+        <a class="font-weight-bold" href="javascript:void(0)" @onclick="BalanceService.UpdateBalanceAsync">
             @BalanceService.Balance
         </a>
     }

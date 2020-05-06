@@ -38,9 +38,11 @@ namespace Marketplace.WebSockets.Models
             return JsonConvert.DeserializeObject<WebSocketMessage>(json);
         }
 
-        public static WebSocketMessage FromJson(byte[] buffer)
+        public static WebSocketMessage FromJson(byte[] buffer, int count)
         {
-            return FromJson(Encoding.ASCII.GetString(buffer, 0, buffer.Length));
+            var text = Encoding.ASCII.GetString(buffer, 0, count);
+            Console.WriteLine(text);
+            return FromJson(text);
         }
     }
 }

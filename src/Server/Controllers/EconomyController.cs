@@ -1,7 +1,4 @@
-﻿using Marketplace.DatabaseProvider.Repositories;
-using Marketplace.Server.Services;
-using Marketplace.Server.WebSockets.Data;
-using Marketplace.Shared.Constants;
+﻿using Marketplace.Server.WebSockets.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -29,23 +26,15 @@ namespace Marketplace.Server.Controllers
         {
             try
             {
-                return Ok(await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name));
-            } catch (Exception e)
+                var playerBalance = await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name);
+                if (playerBalance == null)
+                    return NoContent();
+                else
+                    return Ok(playerBalance);
+            } catch (TimeoutException)
             {
-                if (e as TimeoutException != null)
-                {
-                    return StatusCode((int)HttpStatusCode.GatewayTimeout);
-                } else
-                {
-                    LogEconomyConnectionError(e);
-                    return Ok(0);
-                }
-            }            
-        }
-        
-        private void LogEconomyConnectionError(Exception e)
-        {
-            logger.LogError("Error occured while communicating with uconomy database: {ex}", e);
+                return StatusCode((int)HttpStatusCode.GatewayTimeout);
+            }
         }
     }
 }

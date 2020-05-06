@@ -10,7 +10,7 @@ namespace Marketplace.WebSockets.Logger
         private readonly bool IsDebug;
         const string prefix = "WebSocketsConsoleLogger >> ";
 
-        public WebSocketsConsoleLogger(bool isDebug)
+        public WebSocketsConsoleLogger(bool isDebug = false)
         {
             IsDebug = isDebug;
         }

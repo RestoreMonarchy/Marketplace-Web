@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Marketplace.Server.Extensions;
 using Marketplace.Server.WebSockets;
 using Marketplace.WebSockets;
+using Marketplace.WebSockets.Logger;
 
 namespace Marketplace.Server
 {
@@ -47,6 +48,7 @@ namespace Marketplace.Server
             services.AddMemoryCache();
             services.AddHttpClient();
 
+            services.AddTransient<IWebSocketsLogger, WebSocketsConsoleLogger>(c => new WebSocketsConsoleLogger(true));
             services.AddSingleton<IWebSocketsManager, WebSocketsManager>();
             services.AddWebSocketCallers();
             services.AddWebSocketsData();

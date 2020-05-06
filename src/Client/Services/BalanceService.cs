@@ -1,5 +1,5 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
-using Microsoft.AspNetCore.Components;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -22,14 +22,20 @@ namespace Marketplace.Client.Services
 
         public async Task UpdateBalanceAsync()
         {
+            Balance = null;
             var response = await httpClient.GetAsync("api/economy");
 
-            if (response.StatusCode == HttpStatusCode.GatewayTimeout)
+            switch (response.StatusCode)
             {
-                BalanceMessage = "Servers disconnected";
-            } else
-            {
-                Balance = decimal.Parse(await response.Content.ReadAsStringAsync());
+                case HttpStatusCode.OK:
+                    Balance = Convert.ToDecimal(await response.Content.ReadAsStringAsync());
+                    break;
+                case HttpStatusCode.GatewayTimeout:
+                    BalanceMessage = "Servers timeout";
+                    break;
+                case HttpStatusCode.NoContent:
+                    BalanceMessage = "Servers disconnected";
+                    break;
             }
         }
     }
