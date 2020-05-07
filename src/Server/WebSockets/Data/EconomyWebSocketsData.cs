@@ -42,9 +42,17 @@ namespace Marketplace.Server.WebSockets.Data
                 return null;
         }
 
-        public Task<bool> PayAsync(string senderId, string receiverId, decimal amount)
+        public async Task<bool?> PayAsync(string senderId, string receiverId, decimal amount)
         {
-            throw new System.NotImplementedException();
+            var server = serversService.GetConnectedServer();
+            if (server == null)
+                return null;
+
+            var msg = await webSocketsManager.AskWebSocketAsync(server.WebSocket, "Pay", senderId, receiverId, amount.ToString());
+            if (msg != null)
+                return (bool?)msg.Arguments[0];
+            else
+                return null;
         }
     }
 }

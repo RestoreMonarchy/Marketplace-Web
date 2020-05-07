@@ -69,17 +69,22 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await connection.ExecuteAsync("dbo.UpdateProduct", p, commandType: CommandType.StoredProcedure);            
         }
 
-        public async Task<int> BuyProductAsync(int productId, int serverId, string buyerId, string buyerName, decimal balance)
+        public async Task<int> BuyProductAsync(int productId, int serverId, string buyerId)
         {
             var p = new DynamicParameters();
             p.Add("@ProductId", productId);
             p.Add("@ServerId", serverId);
-            p.Add("@BuyerId", buyerId);            
-            p.Add("@Balance", balance);
-            p.Add("@PlayerName", buyerName);
+            p.Add("@BuyerId", buyerId);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
             await connection.ExecuteAsync("BuyProduct", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
+        }
+
+        public async Task<int> FinishBuyProductAsync(int productId, int serverId, string buyerId, string buyerName)
+        {
+            const string sql = "INSERT INTO dbo.ProductTransactions (ProductId, ServerId, PlayerId, PlayerName) " +
+                "VALUES (@productId, @serverId, @buyerId, @buyerName); SELECT SCOPE_IDENTITY();";
+            return await connection.ExecuteScalarAsync<int>(sql, new { productId, serverId, buyerId, buyerName });
         }
 
         public async Task<IEnumerable<ProductTransaction>> GetProductTransactionsAsync(int top)

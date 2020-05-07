@@ -30,15 +30,20 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             return p.Get<int>("@returnValue");
         }
 
-        public async Task<int> BuyMarketItemAsync(int id, string buyerId, decimal balance)
+        public async Task<int> BuyMarketItemAsync(int id, string buyerId)
         {
             var p = new DynamicParameters();
             p.Add("@Id", id);
             p.Add("@BuyerId", buyerId);
-            p.Add("@Balance", balance);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
             await connection.ExecuteAsync("dbo.BuyMarketItem", p, commandType: CommandType.StoredProcedure);
             return p.Get<int>("@returnValue");
+        }
+
+        public async Task FinishBuyMarketItemAsync(int id, string buyerId)
+        {
+            const string sql = "UPDATE dbo.MarketItems SET IsSold = 1, BuyerId = @buyerId, SoldDate = SYSDATETIME() WHERE Id = @id;";
+            await connection.ExecuteAsync(sql, new { id, buyerId });
         }
 
         public async Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price)
@@ -97,6 +102,28 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         public Task Initialize()
         {
             return Task.CompletedTask;
+        }
+
+        public async Task<IEnumerable<MarketItem>> GetSellerMarketItemsAsync(string playerId)
+        {
+            var p = new DynamicParameters();
+            p.Add("@PlayerId", playerId);
+            return await connection.QueryAsync<MarketItem, UnturnedItem, MarketItem>("dbo.GetSellerMarketItems", (m, u) =>
+            {
+                m.Item = u;
+                return m;
+            }, p, commandType: CommandType.StoredProcedure, splitOn: "ItemId");            
+        }
+
+        public async Task<IEnumerable<MarketItem>> GetBuyerMarketItemsAsync(string playerId)
+        {
+            var p = new DynamicParameters();
+            p.Add("@PlayerId", playerId);
+            return await connection.QueryAsync<MarketItem, UnturnedItem, MarketItem>("dbo.GetBuyerMarketItems", (m, u) => 
+            {
+                m.Item = u;
+                return m;
+            }, p, commandType: CommandType.StoredProcedure, splitOn: "ItemId");
         }
     }
 }

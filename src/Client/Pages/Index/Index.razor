@@ -2,7 +2,7 @@
 
 @if (LayoutSetting != null)
 {
-    if (LayoutSetting.SettingValue == "Rushed")
+    if (LayoutSetting == "Rushed")
     {
         <IndexRushed />
     } else
@@ -17,11 +17,11 @@
 
 @code { 
     [Inject]
-    public HttpClient HttpClient { get; set; }
-    private Setting LayoutSetting { get; set; }
+    private SettingsService SettingsService { get; set; }
 
+    public string LayoutSetting { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/indexlayout");
+        LayoutSetting = await SettingsService.GetSettingValueAsync("IndexLayout");
     }
 } 

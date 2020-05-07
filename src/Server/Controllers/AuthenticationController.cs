@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using Marketplace.Server.Services;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,22 +13,24 @@ namespace Marketplace.Server.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        [HttpGet]        
-        public UserInfo GetUser()
+        private readonly IUserService userService;
+
+        public AuthenticationController(IUserService userService)
+        {
+            this.userService = userService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUser()
         {
             if (User.Identity.IsAuthenticated)
             {
-                return new UserInfo()
-                {
-                    SteamId = User.Identity.Name,
-                    Role = User.FindFirst(ClaimTypes.Role).Value,                    
-                    IsAuthenticated = true,
-                    IsGlobalAdmin = Environment.GetEnvironmentVariable("ADMIN_STEAMID") == User.Identity.Name
-                };
+                var userInfo = await userService.GetUserInfoAsync(User.Identity.Name, User.FindFirst(ClaimTypes.Role).Value, true);
+                return Ok(userInfo);
             }
             else
             {
-                return new UserInfo() { IsAuthenticated = false };
+                return Ok(new UserInfo() { IsAuthenticated = false });
             }
         }
 

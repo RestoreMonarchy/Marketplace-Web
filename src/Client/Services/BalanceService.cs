@@ -20,6 +20,9 @@ namespace Marketplace.Client.Services
         public string BalanceMessage { get; private set; }
         public decimal? Balance { get; private set; }
 
+        public event Action OnChange;
+        private void NotifyStateChanged() => OnChange?.Invoke();
+
         public async Task UpdateBalanceAsync()
         {
             Balance = null;
@@ -33,10 +36,12 @@ namespace Marketplace.Client.Services
                 case HttpStatusCode.GatewayTimeout:
                     BalanceMessage = "Servers timeout";
                     break;
-                case HttpStatusCode.NoContent:
+                case HttpStatusCode.ServiceUnavailable:
                     BalanceMessage = "Servers disconnected";
                     break;
             }
+
+            NotifyStateChanged();
         }
     }
 }

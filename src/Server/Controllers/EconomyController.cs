@@ -1,5 +1,6 @@
 ﻿using Marketplace.Server.WebSockets.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,11 +14,9 @@ namespace Marketplace.Server.Controllers
     public class EconomyController : ControllerBase
     {
         private IEconomyWebSocketsData economyWebSocketsData;
-        private readonly ILogger<EconomyController> logger;
-        public EconomyController(IEconomyWebSocketsData economyWebSocketsData, ILogger<EconomyController> logger)
+        public EconomyController(IEconomyWebSocketsData economyWebSocketsData)
         {
             this.economyWebSocketsData = economyWebSocketsData;
-            this.logger = logger;
         }
 
         [Authorize]
@@ -28,7 +27,7 @@ namespace Marketplace.Server.Controllers
             {
                 var playerBalance = await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name);
                 if (playerBalance == null)
-                    return NoContent();
+                    return StatusCode(StatusCodes.Status503ServiceUnavailable);
                 else
                     return Ok(playerBalance);
             } catch (TimeoutException)

@@ -38,15 +38,13 @@ namespace Marketplace.Client.Pages.ProductsPage
             {
                 case HttpStatusCode.OK:
                     await Swal.FireAsync("OK", $"You successfully bought {args.Product.Title} for ${args.Product.Price}!", SweetAlertIcon.Success);
+                    await BalanceService.UpdateBalanceAsync();
                     break;
                 case HttpStatusCode.NotFound:
                     await Swal.FireAsync("Not Found", "The product you are trying to buy could not be found", SweetAlertIcon.Error);
                     break;
-                case HttpStatusCode.NoContent:
-                    await Swal.FireAsync("No Content", "The product you are trying to buy ios disabled", SweetAlertIcon.Error);
-                    break;
-                case HttpStatusCode.BadRequest:
-                    await Swal.FireAsync("Bad Request", "You cannot afford buying this product", SweetAlertIcon.Error);
+                case HttpStatusCode.Gone:
+                    await Swal.FireAsync("Gone", "The product you are trying to buy is disabled", SweetAlertIcon.Error);
                     break;
                 case HttpStatusCode.Conflict:   
                     await Swal.FireAsync("Conflict", "You have already bought maximum amount of this product", SweetAlertIcon.Error);
@@ -54,10 +52,15 @@ namespace Marketplace.Client.Pages.ProductsPage
                 case HttpStatusCode.Unauthorized:
                     await Swal.FireAsync("Unauthorized", "You have to sign in to be able to buy", SweetAlertIcon.Error);
                     break;
+                case HttpStatusCode.ServiceUnavailable:
+                    await Swal.FireAsync("Service Unavailable", "Failed to communicate with game server, try again later", SweetAlertIcon.Error);
+                    break;
+                case HttpStatusCode.InternalServerError:
+                    await Swal.FireAsync("Internal Server Error", "Something went wrong, try again later");
+                    break;
             }
 
-            await PreviewModal.ToggleModalAsync();
-            await BalanceService.UpdateBalanceAsync();
+            await PreviewModal.ToggleModalAsync();            
         }
     }
 }

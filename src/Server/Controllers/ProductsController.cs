@@ -7,8 +7,6 @@ using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Marketplace.Server.Controllers
@@ -19,9 +17,9 @@ namespace Marketplace.Server.Controllers
     {
         private readonly IProductsRepository productsRepository;
         private readonly IEconomyWebSocketsData economyWebSocketsData;
-        private readonly ISteamService steamService;
+        private readonly IUserService steamService;
 
-        public ProductsController(IProductsRepository productsRepository, IEconomyWebSocketsData economyWebSocketsData, ISteamService steamService)
+        public ProductsController(IProductsRepository productsRepository, IEconomyWebSocketsData economyWebSocketsData, IUserService steamService)
         {
             this.productsRepository = productsRepository;
             this.economyWebSocketsData = economyWebSocketsData;
@@ -61,31 +59,45 @@ namespace Marketplace.Server.Controllers
 
             var balance = await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name);
             if (!balance.HasValue)
-                return BadRequest();
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
-            var playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
-            switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name, playerName, balance.Value))
+            
+            switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name))
             {
                 case 0:
                     var price = await productsRepository.GetProductPriceAsync(productId);
-                    await economyWebSocketsData.IncrementBalanceAsync(User.Identity.Name, -price);
-                    return Ok();
+                    var result = await economyWebSocketsData.IncrementBalanceAsync(User.Identity.Name, -price);
+                    if (result == null)
+                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+                    if (result.Value)
+                    {
+                        var playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
+                        await productsRepository.FinishBuyProductAsync(productId, serverId, User.Identity.Name, playerName);
+                        return Ok();
+                    }
+                    else
+                        return BadRequest();
                 case 1:
                     return NotFound();
                 case 2:
-                    return NoContent();
+                    return StatusCode(StatusCodes.Status410Gone);
                 case 3:
-                    return StatusCode(StatusCodes.Status409Conflict);                    
-                case 4:
-                    return BadRequest();
+                    return StatusCode(StatusCodes.Status409Conflict);
             }
             return BadRequest();
         }
 
         [HttpGet("Transactions")]
-        public async Task<IActionResult> GetProductTransactionsAsync([FromQuery] int top = 5)
+        public async Task<IActionResult> GetProductTransactionsAsync([FromQuery] int top = 10)
         {
-            return Ok(await productsRepository.GetProductTransactionsAsync(top));
+            if (User.IsInRole(RoleConstants.AdminRoleId))
+            {
+                return Ok(await productsRepository.GetProductTransactionsAsync(top));
+            } else
+            {
+                return Ok(await productsRepository.GetProductTransactionsAsync(10));
+            }
         }
 
         [ApiKeyAuth]

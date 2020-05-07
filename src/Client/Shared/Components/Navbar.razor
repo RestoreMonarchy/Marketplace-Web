@@ -53,18 +53,19 @@
 
 @code  {
     [Inject]
-    private AuthenticationStateProvider AuthProvider { get; set; }
-    [Inject]
     private HttpClient HttpClient { get; set; }
     [Inject]
     private BalanceService BalanceService { get; set; }
 
-    private AuthenticationState authState;
-
     public decimal Balance { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        authState = await AuthProvider.GetAuthenticationStateAsync();
+        BalanceService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        BalanceService.OnChange -= StateHasChanged;
     }
 }

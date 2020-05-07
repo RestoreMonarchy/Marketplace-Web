@@ -3,11 +3,10 @@ using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Marketplace.DatabaseProvider.Extensions;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using Marketplace.Shared.Constants;
 using Marketplace.Server.Filters;
+using Marketplace.Server.WebSockets.Data;
 
 namespace Marketplace.Server.Controllers
 {
@@ -15,25 +14,25 @@ namespace Marketplace.Server.Controllers
     [Route("api/[controller]")]
     public class MarketItemsController : ControllerBase
     {
-        private readonly IMarketItemsRepository marketPlaceRepository;
-        private readonly IEconomyRepository economyRepository;
+        private readonly IMarketItemsRepository marketItemsRepository;
+        private readonly IEconomyWebSocketsData economyWebSocketsData;
 
-        public MarketItemsController(IMarketItemsRepository marketPlaceRepository, IEconomyRepository economyRepository)
+        public MarketItemsController(IMarketItemsRepository marketItemsRepository , IEconomyWebSocketsData economyWebSocketsData)
         {
-            this.marketPlaceRepository = marketPlaceRepository;
-            this.economyRepository = economyRepository;
+            this.marketItemsRepository = marketItemsRepository;
+            this.economyWebSocketsData = economyWebSocketsData;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetMarketItemsAsync()
         {
-            return Ok(await marketPlaceRepository.GetMarketItemsAsync());
+            return Ok(await marketItemsRepository.GetMarketItemsAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMarketItemAsync(int id)
         {
-            return Ok(await marketPlaceRepository.GetMarketItemAsync(id));
+            return Ok(await marketItemsRepository.GetMarketItemAsync(id));
         }
 
         [Authorize]
@@ -51,7 +50,7 @@ namespace Marketplace.Server.Controllers
                 return BadRequest();
             }
 
-            switch (await marketPlaceRepository.ChangePriceMarketItemAsync(id, User.Identity.Name, price))
+            switch (await marketItemsRepository.ChangePriceMarketItemAsync(id, User.Identity.Name, price))
             {
                 case 0:
                     return Ok();
@@ -68,7 +67,7 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> SellMarketItemAsync([FromBody] MarketItem marketItem)
         {
-            switch (await marketPlaceRepository.SellMarketItemAsync(marketItem))
+            switch (await marketItemsRepository.SellMarketItemAsync(marketItem))
             {
                 case 0:
                     return Ok();
@@ -83,23 +82,28 @@ namespace Marketplace.Server.Controllers
         [HttpPost("{id}/buy")]
         public async Task<IActionResult> BuyMarketItemAsync(int id)
         {
-            decimal balance = await economyRepository.GetBalanceAsync(User.Identity.Name);
-
-            switch (await marketPlaceRepository.BuyMarketItemAsync(id, User.Identity.Name, balance))
+            switch (await marketItemsRepository.BuyMarketItemAsync(id, User.Identity.Name))
             {
                 case 0:
-                    MarketItem item = await marketPlaceRepository.GetMarketItemAsync(id);
-                    await economyRepository.PayAsync(User.Identity.Name, item.SellerId, item.Price);
-                    return Ok();
-                case 1:                    
+                    var item = await marketItemsRepository.GetMarketItemAsync(id);
+                    var result = await economyWebSocketsData.PayAsync(User.Identity.Name, item.SellerId, item.Price);
+                    if (!result.HasValue)
+                        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+                    
+                    if (result.Value)
+                    {
+                        await marketItemsRepository.FinishBuyMarketItemAsync(id, User.Identity.Name);
+                        return Ok();
+                    }
+                    else
+                        return BadRequest();
+                case 1:
                     return NotFound();
                 case 2:
-                    return Unauthorized();
+                    return StatusCode(StatusCodes.Status403Forbidden);
                 case 3:
-                    return NoContent();
+                    return StatusCode(StatusCodes.Status410Gone);
                 case 4:
-                    return BadRequest();
-                case 5:
                     return StatusCode(StatusCodes.Status409Conflict);
             }
 
@@ -107,17 +111,24 @@ namespace Marketplace.Server.Controllers
         }
 
         [Authorize]
-        [HttpGet("trunk")]
-        public async Task<IActionResult> GetMyMarketItemsAsync()
+        [HttpGet("buyer")]
+        public async Task<IActionResult> GetBuyerMarketItemsAsync()
         {
-            return Ok(await marketPlaceRepository.GetPlayerMarketItemsAsync(User.Identity.Name));
+            return Ok(await marketItemsRepository.GetBuyerMarketItemsAsync(User.Identity.Name));
+        }
+
+        [Authorize]
+        [HttpGet("seller")]
+        public async Task<IActionResult> GetSellerMarketItemsAsync()
+        {
+            return Ok(await marketItemsRepository.GetSellerMarketItemsAsync(User.Identity.Name));
         }
 
         [ApiKeyAuth]
         [HttpGet("{id}/claim")]
         public async Task<IActionResult> ClaimMarketItemAsync(int id, [FromQuery] string playerId)
         {
-            MarketItem marketItem = await marketPlaceRepository.GetMarketItemAsync(id);
+            MarketItem marketItem = await marketItemsRepository.GetMarketItemAsync(id);
 
             if (marketItem == null)
             {
@@ -130,7 +141,7 @@ namespace Marketplace.Server.Controllers
             if (marketItem.IsClaimed)
                 return BadRequest();
 
-            await marketPlaceRepository.ClaimMarketItemAsync(id);
+            await marketItemsRepository.ClaimMarketItemAsync(id);
             return Ok(marketItem);
         }
     }

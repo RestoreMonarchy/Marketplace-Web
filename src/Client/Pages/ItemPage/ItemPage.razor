@@ -3,7 +3,7 @@
 
 @if (LayoutSetting != null)
 {
-    if (LayoutSetting.SettingValue == "Default")
+    if (LayoutSetting == "Default")
     {
         <ItemPageDefault ItemId="@ItemId" />
     }
@@ -23,12 +23,11 @@ else
     public string ItemId { get; set; }
 
     [Inject]
-    public HttpClient HttpClient { get; set; }
+    private SettingsService SettingsService { get; set; }
 
-    private Setting LayoutSetting { get; set; }
-
+    public string LayoutSetting { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/itempagelayout");
+        LayoutSetting = await SettingsService.GetSettingValueAsync("ItemPageLayout");
     }
 }

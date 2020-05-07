@@ -9,14 +9,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Marketplace.Client.Pages.TrunkPage
+namespace Marketplace.Client.Pages.Account
 {
-    public partial class TrunkPageRushed
+    public partial class AccountPage
     {
         [Inject]
         private HttpClient HttpClient { get; set; }
         [Inject]
         private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+        private UserInfo UserInfo { get; set; }
 
         public MarketItemModal Modal { get; set; }
         public IEnumerable<MarketItem> BuyerItems { get; set; }
@@ -24,8 +25,10 @@ namespace Marketplace.Client.Pages.TrunkPage
 
         protected override async Task OnInitializedAsync()
         {
-            BuyerItems = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/buyer");
-            SellerItems = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/seller");
+            UserInfo = (AuthenticationStateProvider as SteamAuthenticationStateProvider).UserInfo;
+            Console.WriteLine("should send below");
+            Console.WriteLine(UserInfo.SteamName);
+            Console.WriteLine(UserInfo.SteamAvatarUrl);
         }
     }
 }

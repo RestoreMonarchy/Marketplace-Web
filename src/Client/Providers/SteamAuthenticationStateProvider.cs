@@ -19,11 +19,12 @@ namespace Marketplace.Client.Providers
             this.httpClient = httpClient;
         }
 
-        public AuthenticationState State { get; set; }
+        public UserInfo UserInfo { get; set; }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var userInfo = await httpClient.GetJsonAsync<UserInfo>("api/authentication");
+            UserInfo = userInfo;
             ClaimsIdentity steamIdentity;
 
             if (userInfo.IsAuthenticated)
@@ -40,8 +41,8 @@ namespace Marketplace.Client.Providers
                 steamIdentity = new ClaimsIdentity();
             }
 
-            State = new AuthenticationState(new ClaimsPrincipal(steamIdentity));
-            return State;
+            
+            return new AuthenticationState(new ClaimsPrincipal(steamIdentity));
         }
 
         public void NotifyAuthenticationStateChanged()

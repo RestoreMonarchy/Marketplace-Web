@@ -118,11 +118,6 @@ namespace Marketplace.WebSockets
             }
             catch (TaskCanceledException)
             {
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("Should throw timeout exception");
-                Console.WriteLine();
-                Console.WriteLine();
                 msg.Signal.Release();
                 throw new TimeoutException();
             }

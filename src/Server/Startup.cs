@@ -55,7 +55,7 @@ namespace Marketplace.Server
 
             services.AddSingleton<ISettingService, SettingService>();
             services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
-            services.AddTransient<ISteamService, SteamService>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddHealthChecks()                
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")

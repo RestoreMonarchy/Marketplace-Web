@@ -3,7 +3,7 @@
 
 @if (LayoutSetting != null)
 {
-    if (LayoutSetting.SettingValue == "Rushed")
+    if (LayoutSetting == "Rushed")
     {
         <TrunkPageRushed />
     }
@@ -17,14 +17,13 @@ else
     <ProgressBar />
 }
 
-
 @code {
     [Inject]
-    public HttpClient HttpClient { get; set; }
-    private Setting LayoutSetting { get; set; }
+    private SettingsService SettingsService { get; set; }
 
+    public string LayoutSetting { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        LayoutSetting = await HttpClient.GetJsonAsync<Setting>("api/settings/trunklayout");
+        LayoutSetting = await SettingsService.GetSettingValueAsync("TrunkLayout");
     }
 } 

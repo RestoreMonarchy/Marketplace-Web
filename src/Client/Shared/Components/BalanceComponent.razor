@@ -1,4 +1,4 @@
-﻿@if ((AuthenticationState as SteamAuthenticationStateProvider).State.User.Identity.IsAuthenticated)
+﻿@if ((AuthenticationState as SteamAuthenticationStateProvider)?.UserInfo?.IsAuthenticated ?? false)
 {
     @if (BalanceService.Balance == null)
     {
@@ -21,11 +21,17 @@
     [Inject]
     private BalanceService BalanceService { get; set; }
     [Inject]
-    public AuthenticationStateProvider AuthenticationState { get; set; }
+    private AuthenticationStateProvider AuthenticationState { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if ((AuthenticationState as SteamAuthenticationStateProvider).State.User.Identity.IsAuthenticated)
+        BalanceService.OnChange += StateHasChanged;
+        if ((AuthenticationState as SteamAuthenticationStateProvider)?.UserInfo?.IsAuthenticated ?? false)
             await BalanceService.UpdateBalanceAsync();
+    }
+
+    public void Dispose()
+    {
+        BalanceService.OnChange -= StateHasChanged;
     }
 }

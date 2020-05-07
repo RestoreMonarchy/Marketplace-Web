@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -41,7 +39,6 @@ namespace Marketplace.WebSockets.Models
         public static WebSocketMessage FromJson(byte[] buffer, int count)
         {
             var text = Encoding.ASCII.GetString(buffer, 0, count);
-            Console.WriteLine(text);
             return FromJson(text);
         }
     }

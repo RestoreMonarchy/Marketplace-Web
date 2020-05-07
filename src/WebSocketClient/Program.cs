@@ -4,6 +4,7 @@ using Marketplace.WebSockets.Logger;
 using Marketplace.WebSockets.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,6 +82,31 @@ namespace WebSocketClient
                 }                
             }
             await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, false);
+        }
+
+        [WebSocketCall("Pay")]
+        private async Task PayAsync(WebSocketMessage question)
+        {
+            var payerId = Convert.ToString(question.Arguments[0]);
+            var receiverId = Convert.ToString(question.Arguments[1]);
+            var amount = Convert.ToDecimal(question.Arguments[2]);
+
+            InitializePlayerBalance(payerId);
+            InitializePlayerBalance(receiverId);
+
+            if (PlayerBalances[payerId] - amount >= 0)
+            {
+                await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, true);
+                PlayerBalances[payerId] -= amount;
+                PlayerBalances[receiverId] += amount;
+            }
+            await manager.TellWebSocketAsync(client, "IncrementPlayerBalance", question.Id, false);
+        }
+
+        private void InitializePlayerBalance(string playerId)
+        {
+            if (!PlayerBalances.ContainsKey(playerId))
+                PlayerBalances.Add(playerId, 30);
         }
     }
 }
