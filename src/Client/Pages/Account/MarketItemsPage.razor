@@ -20,7 +20,7 @@
                                 <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 25px;">
                             </div>
                             <div class="bd-highlight">
-                                <a href="javascript:void(0)" @onclick="() => Modal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
+                                <a href="javascript:void(0)" @onclick="() => BuyerModal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
                                     @item.ItemName
                                 </a>
                             </div>
@@ -60,7 +60,7 @@
                                 <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 25px;">
                             </div>
                             <div class="bd-highlight">
-                                <a href="javascript:void(0)" @onclick="() => Modal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
+                                <a href="javascript:void(0)" @onclick="() => SellerModal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
                                     @item.ItemName
                                 </a>
                             </div>
@@ -91,4 +91,35 @@
     </div>
 </div>
 
-<MarketItemModal @ref="Modal" />
+<MarketItemModal @ref="BuyerModal" ModalId="BuyerMarketItemModal">
+    <span class="font-weight-bold">Seller Info</span>
+    <ul class="list-unstyled">
+        <li><b>Name:</b> @BuyerModal.MarketItem.SellerName</li>
+        <li><b>SteamID:</b> @BuyerModal.MarketItem.SellerId</li>
+        <li>
+            <b>Steam Profile:</b>
+            <a target="_blank" href="@string.Concat("https://steamcommunity.com/profiles/", BuyerModal.MarketItem.SellerId)">
+                Link
+            </a>
+        </li>
+        <li><b>Sold Date: </b> @BuyerModal.MarketItem.SoldDate</li>
+    </ul>
+</MarketItemModal>
+
+<MarketItemModal @ref="SellerModal" ModalId="SellerMarketItemModal" OnMarketItemChangePrice="ConfirmChangeItemPriceAsync">
+    @if (SellerModal.MarketItem.IsSold)
+    {
+        <span class="font-weight-bold">Buyer Info</span>
+        <ul class="list-unstyled">
+            <li><b>Name:</b> @SellerModal.MarketItem.BuyerName</li>
+            <li><b>SteamID:</b> @SellerModal.MarketItem.BuyerId</li>
+            <li>
+                <b>Steam Profile:</b>
+                <a target="_blank" href="@string.Concat("https://steamcommunity.com/profiles/", SellerModal.MarketItem.SellerId)">
+                    Link
+                </a>
+            </li>
+            <li><b>Sold Date: </b> @SellerModal.MarketItem.SoldDate</li>
+        </ul>
+    }
+</MarketItemModal>

@@ -30,6 +30,7 @@ BEGIN
 	BEGIN
 		UPDATE dbo.MarketItems 
 		SET 
+			IsSold = 1,
 			BuyerId = @sellerId,
 			BuyerName = @PlayerName,
 			SoldDate = SYSDATETIME()

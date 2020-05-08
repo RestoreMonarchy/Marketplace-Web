@@ -49,7 +49,7 @@ namespace Marketplace.Server.Controllers
                 content = await reader.ReadToEndAsync();
             }
 
-            if (!decimal.TryParse(content, out decimal price))
+            if (!decimal.TryParse(content, out decimal price) || price < 0)
             {
                 return BadRequest();
             }
@@ -59,9 +59,11 @@ namespace Marketplace.Server.Controllers
                 case 0:
                     return Ok();
                 case 1:
-                    return BadRequest();
+                    return NotFound();
                 case 2:
-                    return Unauthorized();
+                    return StatusCode(StatusCodes.Status410Gone);
+                case 3:
+                    return StatusCode(StatusCodes.Status403Forbidden);
             }
 
             return BadRequest();
