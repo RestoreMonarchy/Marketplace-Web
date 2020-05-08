@@ -14,8 +14,9 @@ namespace Marketplace.DatabaseProvider.Repositories
 
         Task<int> SellMarketItemAsync(MarketItem marketItem);
         Task<int> BuyMarketItemAsync(int id, string buyerId);
-        Task FinishBuyMarketItemAsync(int id, string buyerId);
-        Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price);        
+        Task FinishBuyMarketItemAsync(int id, string buyerId, string buyerName);
+        Task<int> ChangePriceMarketItemAsync(int id, string playerId, decimal price);
+        Task<int> TakeDownMarketItemAsync(int id, string playerId, string playerName);
         Task ClaimMarketItemAsync(int id);
     }
 }

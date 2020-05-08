@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Marketplace.Server.Services;
 using Marketplace.Shared;
@@ -11,17 +10,17 @@ namespace Marketplace.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticationController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IUserService userService;
 
-        public AuthenticationController(IUserService userService)
+        public UserController(IUserService userService)
         {
             this.userService = userService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUser()
+        public async Task<IActionResult> GetCurrentUserAsync()
         {
             if (User.Identity.IsAuthenticated)
             {
@@ -32,6 +31,13 @@ namespace Marketplace.Server.Controllers
             {
                 return Ok(new UserInfo() { IsAuthenticated = false });
             }
+        }
+
+        [HttpGet("{playerId}")]
+        public async Task<IActionResult> GetPlayerUserAsync(string playerId)
+        {
+            var userInfo = await userService.GetUserInfoAsync(playerId, "", false);
+            return Ok(userInfo);
         }
 
         [HttpPost("~/signin")]

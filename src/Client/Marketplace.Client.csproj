@@ -19,9 +19,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Marketplace.Shared.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pages\Account\Components\" />
-    <Folder Include="Shared\Components\Tabs\" />
-  </ItemGroup>
 
 </Project>

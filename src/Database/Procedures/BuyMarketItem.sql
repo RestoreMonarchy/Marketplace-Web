@@ -1,4 +1,6 @@
-﻿CREATE PROCEDURE BuyMarketItem @Id INT, @BuyerId VARCHAR(255)
+﻿CREATE PROCEDURE BuyMarketItem 
+	@Id INT, 
+	@BuyerId VARCHAR(255)
 AS
 BEGIN
 
@@ -25,10 +27,6 @@ BEGIN
 		RETURN 3;
 	ELSE IF (SELECT COUNT(*) FROM dbo.MarketItems WHERE BuyerId = @BuyerId AND IsClaimed = 0) > @maxActiveShoppings
 		RETURN 4;
-	--ELSE
-	--	UPDATE dbo.MarketItems 
-	--	SET IsSold = 1, BuyerId = @BuyerId, SoldDate = SYSDATETIME()
-	--	WHERE Id = @Id;
 
 	RETURN 0;
 

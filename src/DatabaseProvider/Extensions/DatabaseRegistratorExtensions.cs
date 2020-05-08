@@ -1,8 +1,6 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
-using Marketplace.DatabaseProvider.Repositories.MySql;
 using Marketplace.DatabaseProvider.Repositories.Sql;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
 using System.Data.SqlClient;
 
 namespace Marketplace.DatabaseProvider.Extensions

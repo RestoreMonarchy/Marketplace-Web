@@ -1,11 +1,9 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
-using Marketplace.DatabaseProvider.Repositories.MySql;
 using Marketplace.Server.Services;
 using Marketplace.Server.WebSockets;
 using Marketplace.Server.WebSockets.Data;
 using Marketplace.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 
@@ -16,10 +14,7 @@ namespace Marketplace.Server.Extensions
         public static void InitializeRepositories(this IServiceScope scope)
         {
             // TODO: fix it
-            foreach (var service in scope.ServiceProvider.GetServices<IRepository>())
-            {
-                service.Initialize()?.GetAwaiter().GetResult();
-            }
+            scope.ServiceProvider.GetRequiredService<ISettingsRepository>().Initialize()?.GetAwaiter().GetResult();
         }
 
         public static void AddWebSocketCallers(this IServiceCollection source)

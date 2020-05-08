@@ -171,5 +171,10 @@ namespace Marketplace.Client.Models
         {
             originData.Remove(item);
         }
+
+        public void AddToOrigin(TData item)
+        {
+            originData.Add(item);
+        }
     }
 }

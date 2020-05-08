@@ -49,6 +49,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await AddSettingAsync(new Setting("ItemPageLayout", "Default", "Change a layout of item page"));
             await AddSettingAsync(new Setting("TrunkLayout", "Default", "Change a layout of trunk page"));
             await AddSettingAsync(new Setting("ProductsLayout", "Default", "Change a layout of products page"));
+            await AddSettingAsync(new Setting("MarketItemsTakeDownEnabled", "true", "Should players be able to take down market items"));
         }
 
         private async Task AddSettingAsync(Setting setting)

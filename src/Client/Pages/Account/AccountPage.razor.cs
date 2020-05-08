@@ -3,9 +3,7 @@ using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -26,9 +24,6 @@ namespace Marketplace.Client.Pages.Account
         protected override async Task OnInitializedAsync()
         {
             UserInfo = (AuthenticationStateProvider as SteamAuthenticationStateProvider).UserInfo;
-            Console.WriteLine("should send below");
-            Console.WriteLine(UserInfo.SteamName);
-            Console.WriteLine(UserInfo.SteamAvatarUrl);
         }
     }
 }

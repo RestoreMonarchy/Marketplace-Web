@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Marketplace.Server.Filters;
 using Marketplace.Server.WebSockets.Data;
+using Marketplace.Server.Services;
 
 namespace Marketplace.Server.Controllers
 {
@@ -16,11 +17,14 @@ namespace Marketplace.Server.Controllers
     {
         private readonly IMarketItemsRepository marketItemsRepository;
         private readonly IEconomyWebSocketsData economyWebSocketsData;
+        private readonly IUserService userService;
 
-        public MarketItemsController(IMarketItemsRepository marketItemsRepository , IEconomyWebSocketsData economyWebSocketsData)
+        public MarketItemsController(IMarketItemsRepository marketItemsRepository , IEconomyWebSocketsData economyWebSocketsData, 
+            IUserService userService)
         {
             this.marketItemsRepository = marketItemsRepository;
             this.economyWebSocketsData = economyWebSocketsData;
+            this.userService = userService;
         }
 
         [HttpGet]
@@ -63,6 +67,33 @@ namespace Marketplace.Server.Controllers
             return BadRequest();
         }
 
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> TakeDownMarketItemAsync(int id)
+        {
+            System.Console.WriteLine();
+            System.Console.WriteLine();
+            System.Console.WriteLine("ID IS: " + id);
+            System.Console.WriteLine();
+            System.Console.WriteLine();
+            var playerName = await userService.GetPlayerNameAsync(User.Identity.Name);
+            var result = await marketItemsRepository.TakeDownMarketItemAsync(id, User.Identity.Name, playerName);
+            switch (result)
+            {
+                case 0:
+                    return Ok();
+                case 1:
+                    return StatusCode(StatusCodes.Status405MethodNotAllowed);
+                case 2:
+                    return NotFound();
+                case 3:
+                    return StatusCode(StatusCodes.Status410Gone);
+                case 4:
+                    return StatusCode(StatusCodes.Status403Forbidden);
+            }
+            return BadRequest();
+        }
+
         [ApiKeyAuth]
         [HttpPost]
         public async Task<IActionResult> SellMarketItemAsync([FromBody] MarketItem marketItem)
@@ -92,7 +123,8 @@ namespace Marketplace.Server.Controllers
                     
                     if (result.Value)
                     {
-                        await marketItemsRepository.FinishBuyMarketItemAsync(id, User.Identity.Name);
+                        var playerName = await userService.GetPlayerNameAsync(User.Identity.Name);
+                        await marketItemsRepository.FinishBuyMarketItemAsync(id, User.Identity.Name, playerName);
                         return Ok();
                     }
                     else

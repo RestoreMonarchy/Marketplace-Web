@@ -10,21 +10,25 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p><b>@MarketItem.ItemName</b></p>
-                    @if (MarketItem.Item.ItemType == EItemType.FUEL)
-                    {
-                        <p><b>Fuel:</b> @BitConverterExtras.GetUshort(MarketItem.Metadata, 0)</p>
-                    } else if (MarketItem.Item.ItemType == EItemType.MAGAZINE)
-                    {
-                        <p><b>Magazine:</b> @MarketItem.Amount/@MarketItem.Item.Amount</p>
-                    } else if (MarketItem.Item.ItemType == EItemType.GUN)
-                    {
-                        <GunSummary GunId="MarketItem.ItemId" Metadata="MarketItem.Metadata" />
-                    }
-
-                    <h3>Listing Info</h3>
+                    <p class="font-weight-bold">@MarketItem.ItemName</p>
                     <ul class="list-unstyled">
-                        <li><b>Seller:</b> @MarketItem.SellerId</li>
+                        @if (MarketItem.Item.ItemType == EItemType.FUEL)
+                        {
+                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(MarketItem.Metadata, 0)</li>
+                        }
+                        else if (MarketItem.Item.ItemType == EItemType.MAGAZINE)
+                        {
+                            <li><b>Magazine:</b> @MarketItem.Amount/@MarketItem.Item.Amount</li>
+                        }
+                        else if (MarketItem.Item.ItemType == EItemType.GUN)
+                        {
+                            <GunSummary GunId="MarketItem.ItemId" Metadata="MarketItem.Metadata" />
+                        }
+                    </ul>
+
+                    <p class="font-weight-bold">Listing Info</p>
+                    <ul class="list-unstyled">
+                        <li><b>Seller:</b> @MarketItem.SellerName</li>
                         <li><b>Price:</b> @MarketItem.Price.ToString("C")</li>
                         <li><b>Quality:</b> @MarketItem.Quality</li>
                     </ul>
@@ -46,7 +50,7 @@
 
 @code {
     [Inject]
-    public IJSRuntime JsRuntime { get; set; }
+    private IJSRuntime JsRuntime { get; set; }
 
     [Parameter]
     public EventCallback<MarketItem> OnMarketItemBuy { get; set; }
@@ -56,6 +60,7 @@
     public async Task PreviewMarketItemAsync(MarketItem marketItem)
     {
         MarketItem = marketItem;
+        StateHasChanged();
         await JsRuntime.ToggleModalAsync(nameof(MarketItemModal));
     }
 

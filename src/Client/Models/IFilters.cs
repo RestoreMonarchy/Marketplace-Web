@@ -14,6 +14,7 @@ namespace Marketplace.Client.Models
         int DataCount { get; }
         bool UseSearch { get; }
         void RemoveFromOrigin(TData item);
+        void AddToOrigin(TData item);
 
         IEnumerable<IToggleFilter<TData>> ToggleFilters { get; }
         IEnumerable<IOrderFilter<TData>> OrderFilters { get; }

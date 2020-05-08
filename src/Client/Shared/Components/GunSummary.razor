@@ -1,10 +1,8 @@
-﻿<ul class="list-unstyled">
-    <li><b>Sight:</b> @(Sight != null ? Sight.ItemName : "none")</li>
-    <li><b>Tactical:</b> @(Tactical != null ? Tactical.ItemName : "none")</li>
-    <li><b>Grip:</b> @(Grip != null ? Grip.ItemName : "none")</li>
-    <li><b>Barrel:</b> @(Barrel != null ? Barrel.ItemName : "none")</li>
-    <li><b>Magazine:</b> @Ammo/@(Magazine != null ? Magazine.Amount : 0)</li>
-</ul>
+﻿<li><b>Sight:</b> @(Sight != null ? Sight.ItemName : "none")</li>
+<li><b>Tactical:</b> @(Tactical != null ? Tactical.ItemName : "none")</li>
+<li><b>Grip:</b> @(Grip != null ? Grip.ItemName : "none")</li>
+<li><b>Barrel:</b> @(Barrel != null ? Barrel.ItemName : "none")</li>
+<li><b>Magazine:</b> @Ammo/@(Magazine != null ? Magazine.Amount : 0)</li>
 
 
 @code {

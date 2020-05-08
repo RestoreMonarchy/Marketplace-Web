@@ -16,6 +16,7 @@ namespace Marketplace.Client
             services.AddScoped<OrderState>();
             services.AddScoped<BalanceService>();
             services.AddScoped<SettingsService>();
+            services.AddScoped<PlayersService>();
 
             services.AddSweetAlert2(options =>
             {
