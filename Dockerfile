@@ -15,8 +15,7 @@ RUN curl -s https://api.github.com/repos/RestoreMonarchy/Marketplace-Web/release
  | wget -qi -
 
 RUN unzip Marketplace-Web.zip
-RUN ls
-COPY /app /app
+COPY ./ /
 WORKDIR /app/
 
 CMD ["dotnet", "Marketplace.Server.dll"]
