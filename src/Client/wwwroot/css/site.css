@@ -8,6 +8,22 @@ body {
     margin-bottom: 40px; /* Margin bottom by footer height */
 }
 
+.dot-complete {
+    height: 15px;
+    width: 15px;
+    background-color: limegreen;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-incomplete {
+    height: 15px;
+    width: 15px;
+    background-color: orangered;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+
 .footer {
     bottom: 0;
     width: 100%;

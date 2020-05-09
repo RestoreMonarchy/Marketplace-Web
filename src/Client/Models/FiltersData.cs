@@ -8,10 +8,10 @@ namespace Marketplace.Client.Models
 {
     public class FiltersData<TData> : IFilters<TData>
     {
-        private readonly ICollection<TData> originData;
+        private readonly List<TData> originData;
         public int PagesDefault { get; set; }
         public bool UseSearch { get; }
-        public FiltersData(ICollection<TData> data, int pagesDefault = 0, bool useSearch = true, params IFilter[] filters)
+        public FiltersData(IEnumerable<TData> data, int pagesDefault = 0, bool useSearch = true, params IFilter[] filters)
         {
             originData = data.ToList();
             PagesDefault = pagesDefault;

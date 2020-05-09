@@ -8,7 +8,7 @@
 </nav>
 <div class="row">
     <div class="col-lg-6">
-        <h2>Your Buyings</h2>
+        <h3>Purchases</h3>
         @if (BuyerData != null)
         {
             <DataList TData="MarketItem" Filters="BuyerData">
@@ -48,23 +48,23 @@
         }
     </div>
     <div class="col-lg-6">
-        <h2>Your Sellings</h2>
+        <h3>Offers</h3>
         @if (SellerData != null)
         {
             <DataList TData="MarketItem" Filters="SellerData">
                 <ul class="list-group">
                     @foreach (var item in SellerData.FilteredData)
                     {
-                        <li class="list-group-item d-flex bd-highlight">
-                            <div class="pr-2 bd-highlight">
+                        <li class="list-group-item d-flex">
+                            <div class="pr-2">
                                 <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 25px;">
                             </div>
-                            <div class="bd-highlight">
+                            <div>
                                 <a href="javascript:void(0)" @onclick="() => SellerModal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
                                     @item.ItemName
                                 </a>
                             </div>
-                            <div class="ml-auto pl-2 bd-highlight">
+                            <div class="ml-auto pl-2">
                                 @if (!item.IsSold)
                                 {
                                 

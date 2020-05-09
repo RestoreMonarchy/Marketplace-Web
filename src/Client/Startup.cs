@@ -13,7 +13,7 @@ namespace Marketplace.Client
         {
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, SteamAuthenticationStateProvider>();
-            services.AddScoped<OrderState>();
+            services.AddScoped<MarketItemsService>();
             services.AddScoped<BalanceService>();
             services.AddScoped<SettingsService>();
             services.AddScoped<PlayersService>();

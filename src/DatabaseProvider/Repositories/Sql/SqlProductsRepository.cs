@@ -87,16 +87,26 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             return await connection.ExecuteScalarAsync<int>(sql, new { productId, serverId, buyerId, buyerName });
         }
 
-        public async Task<IEnumerable<ProductTransaction>> GetProductTransactionsAsync(int top)
+        public async Task<IEnumerable<ProductTransaction>> GetLatestProductTransactionsAsync(int top)
         {
-            const string sql = "SELECT TOP(@top) t.*, p.Id, p.Title, p.Description, p.Price, p.MaxPurchases, p.Enabled, s.* " +
-                "FROM dbo.ProductTransactions t LEFT JOIN dbo.Products p ON t.ProductId = p.Id LEFT JOIN dbo.Servers s ON t.ServerId = s.Id;";
-            return await connection.QueryAsync<ProductTransaction, Product, Server, ProductTransaction>(sql, (t, p, s) => 
-            {
-                t.Product = p;
-                t.Server = s;
-                return t;
-            }, new { top });
+            return await connection.QueryAsync<ProductTransaction, Product, Server, ProductTransaction>(
+                "dbo.GetLatestProductTransactions", (t, p, s) => 
+                {
+                    t.Product = p;
+                    t.Server = s;
+                    return t;
+                }, new { Top = top }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<ProductTransaction>> GetPlayerProductTransactionsAsync(string playerId)
+        {
+            return await connection.QueryAsync<ProductTransaction, Product, Server, ProductTransaction>(
+                "dbo.GetPlayerProductTransactions", (t, p, s) => 
+                {
+                    t.Product = p;
+                    t.Server = s;
+                    return t;
+                }, new { PlayerId = playerId }, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<IEnumerable<ServerTransaction>> GetServerTransactionsAsync(int serverId)

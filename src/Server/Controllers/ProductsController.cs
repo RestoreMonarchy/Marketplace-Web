@@ -51,17 +51,10 @@ namespace Marketplace.Server.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPost("{productId}/buy")]
         public async Task<IActionResult> PostBuyProductAsync(int productId, [FromQuery] int serverId)
-        {
-            if (!User.Identity.IsAuthenticated)
-                return Unauthorized();
-
-            var balance = await economyWebSocketsData.GetPlayerBalanceAsync(User.Identity.Name);
-            if (!balance.HasValue)
-                return StatusCode(StatusCodes.Status503ServiceUnavailable);
-
-            
+        {            
             switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name))
             {
                 case 0:
@@ -88,16 +81,23 @@ namespace Marketplace.Server.Controllers
             return BadRequest();
         }
 
-        [HttpGet("Transactions")]
+        [HttpGet("transactions/latest")]
         public async Task<IActionResult> GetProductTransactionsAsync([FromQuery] int top = 10)
         {
             if (User.IsInRole(RoleConstants.AdminRoleId))
             {
-                return Ok(await productsRepository.GetProductTransactionsAsync(top));
+                return Ok(await productsRepository.GetLatestProductTransactionsAsync(top));
             } else
             {
-                return Ok(await productsRepository.GetProductTransactionsAsync(10));
+                return Ok(await productsRepository.GetLatestProductTransactionsAsync(10));
             }
+        }
+
+        [Authorize]
+        [HttpGet("transactions")]
+        public async Task<IActionResult> GetPlayerProductTransactionsAsync()
+        {
+            return Ok(await productsRepository.GetPlayerProductTransactionsAsync(User.Identity.Name));
         }
 
         [ApiKeyAuth]

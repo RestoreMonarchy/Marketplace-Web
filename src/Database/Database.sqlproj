@@ -80,6 +80,8 @@
     <Build Include="Procedures\GetSellerMarketItems.sql" />
     <Build Include="Procedures\GetBuyerMarketItems.sql" />
     <Build Include="Procedures\TakeDownMarketItem.sql" />
+    <Build Include="Procedures\GetPlayerProductTransactions.sql" />
+    <Build Include="Procedures\GetLatestProductTransactions.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Database.publish.xml" />

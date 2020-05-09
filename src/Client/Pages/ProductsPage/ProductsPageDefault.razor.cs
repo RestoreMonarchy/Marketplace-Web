@@ -27,7 +27,7 @@ namespace Marketplace.Client.Pages.ProductsPage
         protected override async Task OnInitializedAsync()
         {
             Products = await HttpClient.GetJsonAsync<IEnumerable<Product>>("api/products");
-            Transactions = await HttpClient.GetJsonAsync<IEnumerable<ProductTransaction>>("api/products/Transactions");
+            Transactions = await HttpClient.GetJsonAsync<IEnumerable<ProductTransaction>>("api/products/transactions/latest");
         }
 
         public async Task BuyProductAsync(BuyProductEventArgs args)

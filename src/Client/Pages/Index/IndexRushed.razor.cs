@@ -1,6 +1,7 @@
 ﻿using Marketplace.Client.Models;
 using Marketplace.Client.Models.Filters.Orders;
 using Marketplace.Client.Services;
+using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
@@ -15,7 +16,9 @@ namespace Marketplace.Client.Pages.Index
         [Inject]
         private HttpClient HttpClient { get; set; }
         [Inject]
-        private OrderState OrderState { get; set; }
+        private MarketItemsService MarketItemsService { get; set; }
+
+        private MarketItemModal Modal { get; set; }
 
         private List<MarketItem> MarketItems { get; set; }
         private FiltersData<MarketItem> FiltersData { get; set; }
