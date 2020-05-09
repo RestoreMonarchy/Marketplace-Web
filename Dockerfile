@@ -4,7 +4,7 @@ EXPOSE 443
 
 RUN  apt-get update \
  && apt-get install -y wget \
- &&     apt-get install -y unzip \
+ && apt-get install -y unzip \
  && rm -rf /var/lib/apt/lists/*
 
 
@@ -15,8 +15,8 @@ RUN curl -s https://api.github.com/repos/RestoreMonarchy/Marketplace-Web/release
  | wget -qi -
 
 RUN unzip Marketplace-Web.zip
-
-COPY ./app /app
+RUN ls
+COPY /app /app
 WORKDIR /app/
 
 CMD ["dotnet", "Marketplace.Server.dll"]
