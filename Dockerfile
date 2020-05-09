@@ -8,8 +8,7 @@ RUN curl -s https://api.github.com/repos/restoremonarchy/marketplace-web/release
 | tr -d \" \
 | wget -qi -
 
-RUN mkdir app
-RUN unzip Marketplace-Web.zip -d app
+RUN unzip Marketplace-Web.zip
 
 COPY ./app /app
 WORKDIR /app/
