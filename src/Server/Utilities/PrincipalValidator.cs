@@ -21,7 +21,8 @@ namespace Marketplace.Server.Utilities
             claims.Add(new Claim(ClaimTypes.Name, steamId));
 
             var settingService = context.HttpContext.RequestServices.GetRequiredService<ISettingService>();
-            var admins = (await settingService.GetSettingAsync("Admins")).SettingValue.Split(',');
+            var setting = await settingService.GetSettingAsync("Admins");
+            var admins = string.IsNullOrEmpty(setting.SettingValue) ? new string[] { } : setting.SettingValue.Split(',');
             
             if (Environment.GetEnvironmentVariable("ADMIN_STEAMID") == steamId || admins.Contains(steamId))
                 claims.Add(new Claim(ClaimTypes.Role, RoleConstants.AdminRoleId));
