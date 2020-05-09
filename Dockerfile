@@ -6,11 +6,11 @@ RUN  apt-get update \
  && apt-get install -y wget \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -s https://api.github.com/repos/restoremonarchy/marketplace-web/releases \
- && grep "browser_download_url.*deb" \
- && cut -d : -f 2,3 \
- && tr -d \" \
- && wget -qi -
+RUN curl -s https://api.github.com/repos/RestoreMonarchy/Marketplace-Web/releases/26343629 \
+ | grep "browser_download_url.*deb" \
+ | cut -d : -f 2,3 \
+ | tr -d \" \
+ | wget -qi -
 
 RUN unzip Marketplace-Web.zip
 
