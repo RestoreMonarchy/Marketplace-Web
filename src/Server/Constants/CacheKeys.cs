@@ -1,10 +1,4 @@
-﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Marketplace.Server.Constants
+﻿namespace Marketplace.Server.Constants
 {
     public static class CacheKeys
     {

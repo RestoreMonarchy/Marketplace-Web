@@ -1,6 +1,7 @@
 ﻿using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Services
@@ -18,13 +19,13 @@ namespace Marketplace.Client.Services
         public async Task<UserInfo> GetCurrentUserAsync()
         {
             if (CurrentUserInfo == null)
-                CurrentUserInfo = await httpClient.GetJsonAsync<UserInfo>("api/user");
+                CurrentUserInfo = await httpClient.GetFromJsonAsync<UserInfo>("api/user");
             return CurrentUserInfo;
         }
 
         public async Task<UserInfo> GetPlayerUserAsync(string steamId)
         {
-            return await httpClient.GetJsonAsync<UserInfo>("api/user/" + steamId);
+            return await httpClient.GetFromJsonAsync<UserInfo>("api/user/" + steamId);
         }
     }
 }

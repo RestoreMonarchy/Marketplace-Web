@@ -4,16 +4,19 @@ using Marketplace.Client.Models.Filters.Toggles;
 using Marketplace.Client.Services;
 using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Account
 {
+    [Authorize]
     public partial class MarketItemsPage
     {
         [Inject]
@@ -33,8 +36,8 @@ namespace Marketplace.Client.Pages.Account
 
         protected override async Task OnInitializedAsync()
         {
-            BuyerItems = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/buyer");
-            SellerItems = await HttpClient.GetJsonAsync<IEnumerable<MarketItem>>("api/marketitems/seller");
+            BuyerItems = await HttpClient.GetFromJsonAsync<IEnumerable<MarketItem>>("api/marketitems/buyer");
+            SellerItems = await HttpClient.GetFromJsonAsync<IEnumerable<MarketItem>>("api/marketitems/seller");
             BuyerData = new FiltersData<MarketItem>(BuyerItems.ToList(), 10, true, new ShowOnlyClaimedFilter());
             SellerData = new FiltersData<MarketItem>(SellerItems.ToList(), 10, true, new ShowOnlyNotSoldFilter());
         }

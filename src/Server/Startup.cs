@@ -73,11 +73,11 @@ namespace Marketplace.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBlazorDebugging();
+                app.UseWebAssemblyDebugging();
             }
 
             app.UseStaticFiles();
-            app.UseClientSideBlazorFiles<Client.Startup>();
+            app.UseBlazorFrameworkFiles();
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
@@ -87,8 +87,9 @@ namespace Marketplace.Server
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
-                endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
 
                 endpoints.MapHealthChecks("/health", new HealthCheckOptions
                 {

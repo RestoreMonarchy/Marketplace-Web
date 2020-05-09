@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
@@ -23,9 +24,9 @@ namespace Marketplace.Client.Pages.Dashboard
 
         protected override async Task OnInitializedAsync()
         {
-            Products = await HttpClient.GetJsonAsync<List<Product>>("api/products");
-            Servers = await HttpClient.GetJsonAsync<List<Server>>("api/servers");
-            Commands = await HttpClient.GetJsonAsync<List<Command>>("api/commands");
+            Products = await HttpClient.GetFromJsonAsync<List<Product>>("api/products");
+            Servers = await HttpClient.GetFromJsonAsync<List<Server>>("api/servers");
+            Commands = await HttpClient.GetFromJsonAsync<List<Command>>("api/commands");
         }
 
         public async Task CreateProductAsync()
@@ -40,13 +41,14 @@ namespace Marketplace.Client.Pages.Dashboard
 
         public async Task OnProductCreatedAsync(Product product)
         {
-            product.Id = await HttpClient.PostJsonAsync<int>("api/products", product);
+            var response = await HttpClient.PostAsJsonAsync("api/products", product);
+            product.Id = await response.Content.ReadFromJsonAsync<int>();
             Products.Add(product);
         }
 
         public async Task OnProductUpdatedAsync(Product product)
         {
-            await HttpClient.PutJsonAsync("api/products", product);
+            await HttpClient.PutAsJsonAsync("api/products", product);
         }
     }
 }

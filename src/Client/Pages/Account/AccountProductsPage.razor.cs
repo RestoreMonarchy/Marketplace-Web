@@ -2,15 +2,18 @@
 using Marketplace.Client.Models.Filters.Toggles;
 using Marketplace.Client.Shared.Components.Modals;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Account
 {
+    [Authorize]
     public partial class AccountProductsPage
     {
         [Inject]
@@ -22,7 +25,7 @@ namespace Marketplace.Client.Pages.Account
 
         protected override async Task OnInitializedAsync()
         {
-            Transactions = await HttpClient.GetJsonAsync<IEnumerable<ProductTransaction>>("api/products/transactions");
+            Transactions = await HttpClient.GetFromJsonAsync<IEnumerable<ProductTransaction>>("api/products/transactions");
             FiltersData = new FiltersData<ProductTransaction>(Transactions.ToList(), 15, true, new ShowOnlyCompleteTransactionFilter());
         }
 

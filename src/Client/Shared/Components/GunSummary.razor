@@ -40,14 +40,14 @@
         Ammo = Metadata[10];
 
         if (sightId != 0)
-            Sight = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{sightId}");
+            Sight = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{sightId}");
         if (tacticalId != 0)
-            Tactical = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{tacticalId}");
+            Tactical = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{tacticalId}");
         if (gripId != 0)
-            Grip = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{gripId}");
+            Grip = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{gripId}");
         if (barrelId != 0)
-            Barrel = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{barrelId}");
+            Barrel = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{barrelId}");
         if (magazineId != 0)
-            Magazine = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{magazineId}");
+            Magazine = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{magazineId}");
     }
 }

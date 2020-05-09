@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
@@ -44,9 +45,8 @@ namespace Marketplace.Client.Pages.Dashboard
 
         protected override async Task OnInitializedAsync() 
         {
-            UnturnedItems = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
-            //TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/uconomy/total");
-            Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
+            UnturnedItems = await HttpClient.GetFromJsonAsync<List<UnturnedItem>>("api/unturneditems");
+            Settings = (await HttpClient.GetFromJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
 
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             isGlobalAdmin = bool.Parse(authState.User.FindFirst("IsGlobalAdmin").Value);
@@ -71,7 +71,7 @@ namespace Marketplace.Client.Pages.Dashboard
 
         public async Task UpdateSettingAsync(string settingId)
         {
-            await HttpClient.PutJsonAsync($"api/settings/{settingId}", Settings[settingId]);
+            await HttpClient.PutAsJsonAsync($"api/settings/{settingId}", Settings[settingId]);
             await Swal.FireAsync(new SweetAlertOptions($"Successfully updated {settingId} to {Settings[settingId].SettingValue}!") 
             { 
                 Position = SweetAlertPosition.TopEnd,

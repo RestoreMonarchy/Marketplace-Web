@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
@@ -21,7 +22,7 @@ namespace Marketplace.Client.Pages.Dashboard
 
         protected override async Task OnInitializedAsync()
         {
-            Servers = await HttpClient.GetJsonAsync<List<Server>>("api/servers");
+            Servers = await HttpClient.GetFromJsonAsync<List<Server>>("api/servers");
         }
 
         public async Task CreateServerAsync()
@@ -36,13 +37,14 @@ namespace Marketplace.Client.Pages.Dashboard
 
         public async Task OnServerCreated(Server command)
         {
-            command.Id = await HttpClient.PostJsonAsync<int>("api/servers", command);
+            var response = await HttpClient.PutAsJsonAsync("api/servers", command);
+            command.Id = await response.Content.ReadFromJsonAsync<int>();
             Servers.Add(command);
         }
 
         public async Task OnServerUpdated(Server command)
         {
-            await HttpClient.PutJsonAsync("api/servers", command);
+            await HttpClient.PutAsJsonAsync("api/servers", command);
         }
     }
 }

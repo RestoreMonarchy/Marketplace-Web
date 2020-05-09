@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.ProductsPage
@@ -26,8 +27,8 @@ namespace Marketplace.Client.Pages.ProductsPage
 
         protected override async Task OnInitializedAsync()
         {
-            Products = await HttpClient.GetJsonAsync<IEnumerable<Product>>("api/products");
-            Transactions = await HttpClient.GetJsonAsync<IEnumerable<ProductTransaction>>("api/products/transactions/latest");
+            Products = await HttpClient.GetFromJsonAsync<IEnumerable<Product>>("api/products");
+            Transactions = await HttpClient.GetFromJsonAsync<IEnumerable<ProductTransaction>>("api/products/transactions/latest");
         }
 
         public async Task BuyProductAsync(BuyProductEventArgs args)

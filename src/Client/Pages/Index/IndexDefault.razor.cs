@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Index
@@ -16,13 +17,13 @@ namespace Marketplace.Client.Pages.Index
         [Inject]
         private HttpClient HttpClient { get; set; }
 
-        private ICollection<UnturnedItem> Items { get; set; }
+        private List<UnturnedItem> Items { get; set; }
 
         public FiltersData<UnturnedItem> Data { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
-            Items = await HttpClient.GetJsonAsync<ICollection<UnturnedItem>>("api/unturneditems");
+            Items = await HttpClient.GetFromJsonAsync<List<UnturnedItem>>("api/unturneditems");
             Data = new FiltersData<UnturnedItem>(Items, 20, true, new ShowOnlyOffersFilter(), new QuantityOrderFilter(), new ItemIdOrderFilter());
         }
     }

@@ -5,6 +5,7 @@ using Marketplace.Shared;
 using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.ItemPage
@@ -25,7 +26,7 @@ namespace Marketplace.Client.Pages.ItemPage
 
         protected override async Task OnInitializedAsync()
         {
-            UnturnedItem = await HttpClient.GetJsonAsync<UnturnedItem>($"api/unturneditems/{ItemId}");
+            UnturnedItem = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{ItemId}");
             UnturnedItem.MarketItems.ToList().ForEach(x => x.Item = UnturnedItem);
             FiltersData = new FiltersData<MarketItem>(UnturnedItem.MarketItems, 10, false);
         }

@@ -1,9 +1,11 @@
 ﻿using Marketplace.Client.Services;
 using Marketplace.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 
 namespace Marketplace.Client.Pages.Account
 {
+    [Authorize]
     public partial class AccountPage
     {
         [Inject]
