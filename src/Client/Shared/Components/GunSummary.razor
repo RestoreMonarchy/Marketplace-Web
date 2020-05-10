@@ -23,8 +23,13 @@
 
     public byte Ammo { get; set; }
 
+    private byte[] currentMetadata;
+
     protected override async Task OnParametersSetAsync()
     {
+        if (currentMetadata == Metadata)
+            return;
+
         Sight = null;
         Tactical = null;
         Grip = null;
@@ -49,5 +54,7 @@
             Barrel = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{barrelId}");
         if (magazineId != 0)
             Magazine = await HttpClient.GetFromJsonAsync<UnturnedItem>($"api/unturneditems/{magazineId}");
+
+        currentMetadata = Metadata;
     }
 }

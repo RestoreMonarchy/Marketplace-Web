@@ -1,4 +1,5 @@
 ﻿using Marketplace.Server.WebSockets;
+using Marketplace.Shared;
 using Marketplace.WebSockets.Models;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace Marketplace.Server.Services
         IEnumerable<Shared.Server> ConnectedServers { get; }
         Task ListenServerWebSocketAsync(HttpContext context, WebSocket webSocket);
         Shared.Server GetConnectedServer(int? id = null);
+        void ToggleConnectedServers(IEnumerable<Shared.Server> servers);
     }
 }

@@ -17,6 +17,6 @@ namespace Marketplace.Shared
         public bool Enabled { get; set; }
 
         public virtual WebSocket WebSocket { get; set; }
-        public virtual bool IsOnline => WebSocket?.CloseStatus.HasValue ?? false;
+        public virtual bool IsConnected { get; set; }
     }
 }

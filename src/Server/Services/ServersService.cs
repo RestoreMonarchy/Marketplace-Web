@@ -1,5 +1,6 @@
 ﻿using Marketplace.DatabaseProvider.Repositories;
 using Marketplace.Server.WebSockets;
+using Marketplace.Shared;
 using Marketplace.WebSockets;
 using Marketplace.WebSockets.Attributes;
 using Marketplace.WebSockets.Models;
@@ -74,6 +75,17 @@ namespace Marketplace.Server.Services
                     logger.LogWarning($"Failed to find server with ID {id}!");
             }
             return server;
+        }
+
+        public void ToggleConnectedServers(IEnumerable<Shared.Server> servers)
+        {
+            foreach (var server in servers)
+            {
+                if (ConnectedServers.Any(x => x.Id == server.Id))
+                    server.IsConnected = true;
+                else
+                    server.IsConnected = false;
+            }
         }
     }
 }

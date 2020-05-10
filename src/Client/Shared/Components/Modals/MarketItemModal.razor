@@ -93,6 +93,7 @@
 
     public async Task ChangeMarketItemPriceAsync()
     {
+        await JsRuntime.ToggleModalAsync(ModalId);
         await OnMarketItemChangePrice.InvokeAsync(MarketItem);
     }
 }
