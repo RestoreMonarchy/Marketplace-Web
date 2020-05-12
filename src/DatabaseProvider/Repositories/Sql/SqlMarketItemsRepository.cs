@@ -52,7 +52,7 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
         {
             var p = new DynamicParameters();
             p.Add("@Id", id);
-            p.Add("@ChangerId", playerId);
+            p.Add("@PlayerId", playerId);
             p.Add("@Price", price);
             p.Add("@returnValue", dbType: DbType.Int32, direction: ParameterDirection.ReturnValue);
             await connection.ExecuteAsync("dbo.ChangePriceMarketItem", p, commandType: CommandType.StoredProcedure);

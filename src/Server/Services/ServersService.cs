@@ -34,10 +34,11 @@ namespace Marketplace.Server.Services
         [WebSocketCall("ServerId")]
         private async Task ConnectServerAsync(WebSocketMessage msg)
         {
-            var server = await serversRepository.GetServerAsync((int)(long)msg.Arguments[0]);
+            var serverId = Convert.ToInt32(msg.Arguments[0]);
+            var server = await serversRepository.GetServerAsync(serverId);
             if (server == null)
             {
-                logger.LogInformation($"Server with {msg.Arguments[0]} ID not found!");
+                logger.LogInformation($"Server with {serverId} ID not found!");
                 return;
             }
 

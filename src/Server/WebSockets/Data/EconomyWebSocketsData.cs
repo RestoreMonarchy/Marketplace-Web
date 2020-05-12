@@ -36,8 +36,8 @@ namespace Marketplace.Server.WebSockets.Data
                 return null;
 
             var msg = await webSocketsManager.AskWebSocketAsync(server.WebSocket, "IncrementPlayerBalance", steamId, amount.ToString());
-            if (msg != null)
-                return (bool?)msg.Arguments[0];
+            if (msg != null && bool.TryParse(msg.Arguments[0], out bool result))
+                return result;
             else
                 return null;
         }
@@ -49,8 +49,8 @@ namespace Marketplace.Server.WebSockets.Data
                 return null;
 
             var msg = await webSocketsManager.AskWebSocketAsync(server.WebSocket, "Pay", senderId, receiverId, amount.ToString());
-            if (msg != null)
-                return (bool?)msg.Arguments[0];
+            if (msg != null && bool.TryParse(msg.Arguments[0], out bool result))
+                return result;
             else
                 return null;
         }

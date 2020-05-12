@@ -10,7 +10,7 @@ namespace Marketplace.WebSockets.Models
         public uint Id { get; set; }
         public string Method { get; set; }
         public bool IsQuestion { get; set; }
-        public object[] Arguments { get; set; }
+        public string[] Arguments { get; set; }
         public uint? QuestionId { get; set; }
 
         [JsonIgnore]

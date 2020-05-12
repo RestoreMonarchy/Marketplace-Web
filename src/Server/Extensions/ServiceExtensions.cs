@@ -13,7 +13,6 @@ namespace Marketplace.Server.Extensions
     {
         public static void InitializeRepositories(this IServiceScope scope)
         {
-            // TODO: fix it
             scope.ServiceProvider.GetRequiredService<ISettingsRepository>().Initialize()?.GetAwaiter().GetResult();
         }
 

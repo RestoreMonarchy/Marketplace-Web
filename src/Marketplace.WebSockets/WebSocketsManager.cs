@@ -48,11 +48,11 @@ namespace Marketplace.WebSockets
         public async Task ListenWebSocketAsync(WebSocket webSocket)
         {
             var buffer = new byte[BufferSize];
-            WebSocketReceiveResult result;
+            WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             do
             {
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
                 await ProcessMessageAsync(webSocket, buffer, result.Count);
+                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);                
             } while (!result.CloseStatus.HasValue);
             await webSocket.CloseAsync(WebSocketCloseStatus.Empty, "", CancellationToken.None);
         }
@@ -110,7 +110,7 @@ namespace Marketplace.WebSockets
                 Signal = new SemaphoreSlim(0, 1)
             };
             questionMessages.Add(msg);
-            CancellationTokenSource tokenSource = new CancellationTokenSource(TimeoutMiliseconds);
+            var tokenSource = new CancellationTokenSource(TimeoutMiliseconds);
 
             try
             {
@@ -132,7 +132,7 @@ namespace Marketplace.WebSockets
             {
                 Id = id++,
                 Method = method,
-                Arguments = args,
+                Arguments = args.Select(x => x.ToString()).ToArray(),
                 IsQuestion = false,
                 QuestionId = questionId
             };
@@ -141,11 +141,6 @@ namespace Marketplace.WebSockets
 
         private async Task SendWebSocketAsync(WebSocket webSocket, WebSocketMessage msg, CancellationToken cancellationToken = default)
         {
-            Console.WriteLine();
-            Console.WriteLine();
-            Console.WriteLine(msg.GetJson());
-            Console.WriteLine();
-            Console.WriteLine();
             var buffer = Encoding.ASCII.GetBytes(msg.GetJson());
             await webSocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, cancellationToken);
             if (logger != null)
