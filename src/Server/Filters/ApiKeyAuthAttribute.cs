@@ -33,7 +33,7 @@ namespace Marketplace.Server.Filters
             var settingService = context.RequestServices.GetRequiredService<ISettingService>();
             var apiKey = await settingService.GetSettingAsync("APIKey", true);
 
-            if (apiKey.SettingValue.Equals(potentialApiKey))
+            if (apiKey?.SettingValue.Equals(potentialApiKey) ?? false)
                 return true;
             else
                 return false;

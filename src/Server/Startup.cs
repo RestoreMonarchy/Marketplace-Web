@@ -16,6 +16,7 @@ using Marketplace.Server.Extensions;
 using Marketplace.Server.WebSockets;
 using Marketplace.WebSockets;
 using Marketplace.WebSockets.Logger;
+using System.Net;
 
 namespace Marketplace.Server
 {
@@ -61,6 +62,7 @@ namespace Marketplace.Server
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();

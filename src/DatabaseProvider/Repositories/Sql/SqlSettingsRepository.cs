@@ -24,10 +24,10 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             await connection.ExecuteAsync(sql, setting);
         }
 
-        public async Task<Setting> GetSettingAsync(string settingId, bool isAdmin = false)
+        public async Task<Setting> GetSettingAsync(string settingId)
         {
-            const string sql = "SELECT * FROM dbo.Settings WHERE SettingId = @settingId AND IsAdmin = @isAdmin;";
-            return (await connection.QueryAsync<Setting>(sql, new { settingId, isAdmin })).FirstOrDefault();
+            const string sql = "SELECT * FROM dbo.Settings WHERE SettingId = @settingId;";
+            return (await connection.QueryAsync<Setting>(sql, new { settingId})).FirstOrDefault();
         }
 
         public async Task<IEnumerable<Setting>> GetSettingsAsync()

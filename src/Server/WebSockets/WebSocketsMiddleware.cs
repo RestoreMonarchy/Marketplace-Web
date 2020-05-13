@@ -14,7 +14,6 @@ namespace Marketplace.Server.WebSockets
             _next = next;
         }
 
-        [ApiKeyAuth]
         public async Task InvokeAsync(HttpContext context, IServersService serversService)
         {
             if (context.Request.Path == "/ws")
@@ -27,13 +26,13 @@ namespace Marketplace.Server.WebSockets
                         return;
                     }
 
-                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();                    
+                    var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     await serversService.ListenServerWebSocketAsync(context, webSocket);
                 }
                 else
                 {
                     context.Response.StatusCode = 400;
-                }
+                }         
             }
             else
             {

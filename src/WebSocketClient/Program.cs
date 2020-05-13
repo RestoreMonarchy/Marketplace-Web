@@ -26,12 +26,14 @@ namespace WebSocketClient
 
         public async Task StartAsync()
         {
+            // this makes it work with localhost tls only
+            System.Net.ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             logger = new WebSocketsConsoleLogger(true);
             manager = new WebSocketsManager(logger);
             manager.Initialize(GetType().Assembly, new object[] { this });
             client = new ClientWebSocket();
             client.Options.SetRequestHeader("x-api-key", "a2cecc2f12eb41fe948de0ef43788240");
-            await client.ConnectAsync(new Uri("ws://localhost:5000/ws"), CancellationToken.None);
+            await client.ConnectAsync(new Uri("wss://localhost:5001/ws"), CancellationToken.None);
 
             // Tell which server has connected
             await manager.TellWebSocketAsync(client, "ServerId", null, 1);

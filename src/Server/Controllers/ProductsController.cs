@@ -54,10 +54,12 @@ namespace Marketplace.Server.Controllers
             return Ok();
         }
 
-        [Authorize]
         [HttpPost("{productId}/buy")]
         public async Task<IActionResult> PostBuyProductAsync(int productId, [FromQuery] int serverId)
-        {            
+        {
+            if (!User?.Identity?.IsAuthenticated ?? false)
+                return StatusCode(StatusCodes.Status401Unauthorized);
+
             switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name))
             {
                 case 0:
@@ -70,7 +72,7 @@ namespace Marketplace.Server.Controllers
                     {
                         var playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
                         var transactionId = await productsRepository.FinishBuyProductAsync(productId, serverId, User.Identity.Name, playerName);
-                        await productsWebSocketsData.ProductTransactionAsync(transactionId, serverId);
+                         await productsWebSocketsData.ProductTransactionAsync(transactionId, serverId);
                         return Ok();
                     }
                     else

@@ -13,12 +13,10 @@ namespace Marketplace.Server.Services
     {
         private readonly ISettingsRepository settingsRepository;
         private readonly IMemoryCache memoryCache;
-        private readonly ILogger<ISettingService> logger;
-        public SettingService(ISettingsRepository settingsRepository, IMemoryCache memoryCache, ILogger<ISettingService> logger)
+        public SettingService(ISettingsRepository settingsRepository, IMemoryCache memoryCache)
         {
             this.settingsRepository = settingsRepository;
             this.memoryCache = memoryCache;
-            this.logger = logger;
         }
 
         public async Task UpdateSettingAsync(string settingId, string settingValue)
@@ -32,18 +30,22 @@ namespace Marketplace.Server.Services
         {
             return await memoryCache.GetOrCreateAsync(CacheKeys.SettingsId, async (entry) =>
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
                 return await settingsRepository.GetSettingsAsync();
             });
         }
 
         public async ValueTask<Setting> GetSettingAsync(string settingId, bool isAdmin = false)
         {
-            return await memoryCache.GetOrCreateAsync(CacheKeys.SettingId(settingId), async (entry) => 
+            var setting = await memoryCache.GetOrCreateAsync(CacheKeys.SettingId(settingId), async (entry) =>
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-                return await settingsRepository.GetSettingAsync(settingId, isAdmin);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+                return await settingsRepository.GetSettingAsync(settingId);
             });
+            if (!setting.IsAdmin || isAdmin)
+                return setting;
+            else
+                return null;
         }
     }
 }
