@@ -25,6 +25,7 @@ namespace Marketplace.Server.Extensions
         public static void AddWebSocketsData(this IServiceCollection source)
         {
             source.AddTransient<IEconomyWebSocketsData, EconomyWebSocketsData>();
+            source.AddTransient<IProductsWebSocketsData, ProductsWebSocketsData>();
         }
 
         public static void InitializeWebSocketCallers(this IServiceScope scope)

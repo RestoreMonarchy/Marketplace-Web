@@ -18,12 +18,15 @@ namespace Marketplace.Server.Controllers
         private readonly IProductsRepository productsRepository;
         private readonly IEconomyWebSocketsData economyWebSocketsData;
         private readonly IUserService steamService;
+        private readonly IProductsWebSocketsData productsWebSocketsData;
 
-        public ProductsController(IProductsRepository productsRepository, IEconomyWebSocketsData economyWebSocketsData, IUserService steamService)
+        public ProductsController(IProductsRepository productsRepository, IEconomyWebSocketsData economyWebSocketsData, IUserService steamService, 
+            IProductsWebSocketsData productsWebSocketsData)
         {
             this.productsRepository = productsRepository;
             this.economyWebSocketsData = economyWebSocketsData;
             this.steamService = steamService;
+            this.productsWebSocketsData = productsWebSocketsData;
         }
 
         [HttpGet]
@@ -66,7 +69,8 @@ namespace Marketplace.Server.Controllers
                     if (result.Value)
                     {
                         var playerName = await steamService.GetPlayerNameAsync(User.Identity.Name);
-                        await productsRepository.FinishBuyProductAsync(productId, serverId, User.Identity.Name, playerName);
+                        var transactionId = await productsRepository.FinishBuyProductAsync(productId, serverId, User.Identity.Name, playerName);
+                        await productsWebSocketsData.ProductTransactionAsync(transactionId, serverId);
                         return Ok();
                     }
                     else
@@ -108,6 +112,16 @@ namespace Marketplace.Server.Controllers
                 return BadRequest();
 
             return Ok(await productsRepository.GetServerTransactionsAsync(serverId));
+        }
+
+        [ApiKeyAuth]
+        [HttpGet("Server/{transactionId}")]
+        public async Task<IActionResult> GetServerTransactionAsync([FromRoute] int transactionId)
+        {
+            if (transactionId == 0)
+                return BadRequest();
+
+            return Ok(await productsRepository.GetServerTransactionAsync(transactionId));
         }
     }
 }

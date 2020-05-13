@@ -15,5 +15,6 @@ namespace Marketplace.DatabaseProvider.Repositories
         Task<IEnumerable<ProductTransaction>> GetLatestProductTransactionsAsync(int top);
         Task<IEnumerable<ProductTransaction>> GetPlayerProductTransactionsAsync(string playerId);
         Task<IEnumerable<ServerTransaction>> GetServerTransactionsAsync(int serverId);
+        Task<ServerTransaction> GetServerTransactionAsync(int id);
     }
 }

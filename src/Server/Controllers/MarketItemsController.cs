@@ -73,11 +73,6 @@ namespace Marketplace.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> TakeDownMarketItemAsync(int id)
         {
-            System.Console.WriteLine();
-            System.Console.WriteLine();
-            System.Console.WriteLine("ID IS: " + id);
-            System.Console.WriteLine();
-            System.Console.WriteLine();
             var playerName = await userService.GetPlayerNameAsync(User.Identity.Name);
             var result = await marketItemsRepository.TakeDownMarketItemAsync(id, User.Identity.Name, playerName);
             switch (result)

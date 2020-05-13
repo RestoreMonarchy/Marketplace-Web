@@ -124,8 +124,25 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
                   }
                   tran.Commands.Add(c);
                   return null;
-              }, new { serverId }, commandType: CommandType.StoredProcedure);
+              }, new { ServerId = serverId }, commandType: CommandType.StoredProcedure);
             return transactions;
+        }
+
+        public async Task<ServerTransaction> GetServerTransactionAsync(int id)
+        {
+            ServerTransaction transaction = null;
+            await connection.QueryAsync<ServerTransaction, ServerTransaction.Command, ServerTransaction>("dbo.GetServerProductTransaction",
+              (t, c) =>
+              {
+                  if (transaction == null)
+                  {
+                      transaction = t;
+                      transaction.Commands = new List<ServerTransaction.Command>();
+                  }
+                  transaction.Commands.Add(c);                  
+                  return null;
+              }, new { Id = id }, commandType: CommandType.StoredProcedure);
+            return transaction;
         }
 
         public Task Initialize()
