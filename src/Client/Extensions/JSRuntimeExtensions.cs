@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace Marketplace.Client.Extensions
 {
     public static class JSRuntimeExtensions
-    {
-        public static void ToggleModal(this IJSRuntime jsRuntime, string modalId)
+    {        
+        public static async Task ToggleModalAsync(this IJSRuntime jsRuntime, string modalId)
         {
-            jsRuntime.InvokeVoidAsync("ToggleModal", modalId);
+            await jsRuntime.InvokeVoidAsync("ToggleModal", modalId);
         }
     }
 }

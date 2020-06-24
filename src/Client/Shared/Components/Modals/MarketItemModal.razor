@@ -1,0 +1,99 @@
+﻿<div class="modal fade" id="@ModalId" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @if (MarketItem != null)
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title">@MarketItem.ItemName #@MarketItem.Id</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-unstyled">
+                        <li><b>Quality:</b> @MarketItem.Quality</li>
+                        @if (MarketItem.Item.ItemType == EItemType.FUEL)
+                        {
+                            <li><b>Fuel:</b> @BitConverterExtras.GetUshort(MarketItem.Metadata, 0)</li>
+                        }
+                        else if (MarketItem.Item.ItemType == EItemType.MAGAZINE)
+                        {
+                            <li><b>Magazine:</b> @MarketItem.Amount/@MarketItem.Item.Amount</li>
+                        }
+                        else if (MarketItem.Item.ItemType == EItemType.GUN)
+                        {
+                            <GunSummary GunId="MarketItem.ItemId" Metadata="MarketItem.Metadata" />
+                        }
+                    </ul>
+
+                    @if (ChildContent != null)
+                    {
+                        @ChildContent
+                    }
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <div>
+                        <span class="font-weight-bold">Price:</span> @MarketItem.Price.ToString("C")
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        @if (OnMarketItemBuy.HasDelegate)
+                        {
+                            <button class="btn btn-primary" @onclick="BuyMarketItemAsync">Buy</button>
+                        }
+                        @if (OnMarketItemChangePrice.HasDelegate)
+                        {
+                            @if (MarketItem.IsSold)
+                            {
+                                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Item Already Sold">
+                                    <button class="btn btn-info" style="pointer-events: none;" type="button" disabled>
+                                        Change Price
+                                    </button>
+                                </span>
+                            }
+                            else
+                            {
+                                <button class="btn btn-info" @onclick="ChangeMarketItemPriceAsync">Change Price</button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private IJSRuntime JsRuntime { get; set; }
+
+    [Parameter]
+    public EventCallback<MarketItem> OnMarketItemBuy { get; set; }
+    [Parameter]
+    public EventCallback<MarketItem> OnMarketItemChangePrice { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public string ModalId { get; set; } = nameof(MarketItemModal);
+
+    public MarketItem MarketItem { get; set; }
+
+    public async Task PreviewMarketItemAsync(MarketItem marketItem)
+    {
+        MarketItem = marketItem;
+        StateHasChanged();
+        await JsRuntime.ToggleModalAsync(ModalId);
+    }
+
+    public async Task BuyMarketItemAsync()
+    {
+        await OnMarketItemBuy.InvokeAsync(MarketItem);
+        await JsRuntime.ToggleModalAsync(ModalId);
+    }
+
+    public async Task ChangeMarketItemPriceAsync()
+    {
+        await JsRuntime.ToggleModalAsync(ModalId);
+        await OnMarketItemChangePrice.InvokeAsync(MarketItem);
+    }
+}

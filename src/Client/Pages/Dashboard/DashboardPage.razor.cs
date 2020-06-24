@@ -1,50 +1,70 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
+using Marketplace.Client.Services;
 using Marketplace.Shared;
+using Marketplace.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Marketplace.Client.Pages.Dashboard
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = RoleConstants.AdminRoleId)]
     public partial class DashboardPage
     {
         [Inject]
-        public HttpClient HttpClient { get; set; }
+        private HttpClient HttpClient { get; set; }
         [Inject]
-        public SweetAlertService Swal { get; set; }
-        private List<UnturnedItem> UnturnedItems { get; set; }
-        private decimal TotalBalance { get; set; }
-        private Dictionary<string, Setting> Settings { get; set; }
+        private SweetAlertService Swal { get; set; }
+        [Inject]
+        private PlayersService PlayersService { get; set; }
 
+        private IEnumerable<UnturnedItem> UnturnedItems { get; set; }
+        private IEnumerable<Server> Servers { get; set; }
+        private Dictionary<string, Setting> Settings { get; set; }
+        
         private int unturnedItemsCount;
         private int marketItemsCount;
+        private int connectedServersCount;
 
         private Setting indexLayout;
         private Setting itemPageLayout;
-        private Setting trunkLayout;
+        private Setting productsLayout;
+
+        private Setting steamDevKey;      
+        private Setting apiKey;
+        private Setting admins;
 
         protected override async Task OnInitializedAsync() 
-        {
-            UnturnedItems = await HttpClient.GetJsonAsync<List<UnturnedItem>>("api/unturneditems");
-            TotalBalance = await HttpClient.GetJsonAsync<decimal>("api/marketitems/balance/total");
-            Settings = (await HttpClient.GetJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
-            
+        {            
+            Settings = (await HttpClient.GetFromJsonAsync<List<Setting>>("api/settings")).ToDictionary(x => x.SettingId);
+            UnturnedItems = await HttpClient.GetFromJsonAsync<IEnumerable<UnturnedItem>>("api/unturneditems");
+            Servers = await HttpClient.GetFromJsonAsync<IEnumerable<Server>>("api/servers");
+
+            if (PlayersService.CurrentUserInfo?.IsGlobalAdmin ?? false)
+            {
+                steamDevKey = Settings["SteamDevKey"];
+                apiKey = Settings["APIKey"];
+                admins = Settings["Admins"];
+            }
+
             indexLayout = Settings["IndexLayout"];
             itemPageLayout = Settings["ItemPageLayout"];
-            trunkLayout = Settings["TrunkLayout"];
+            productsLayout = Settings["ProductsLayout"];
 
-            unturnedItemsCount = UnturnedItems.Count;
-            marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);            
+            unturnedItemsCount = UnturnedItems.Count();
+            marketItemsCount = UnturnedItems.Sum(x => x.MarketItemsCount);
+            connectedServersCount = Servers.Count(x => x.IsConnected);
         }
 
         public async Task UpdateSettingAsync(string settingId)
         {
-            await HttpClient.PutJsonAsync($"api/settings/{settingId}", Settings[settingId]);
+            await HttpClient.PutAsJsonAsync($"api/settings/{settingId}", Settings[settingId]);
             await Swal.FireAsync(new SweetAlertOptions($"Successfully updated {settingId} to {Settings[settingId].SettingValue}!") 
             { 
                 Position = SweetAlertPosition.TopEnd,
@@ -52,6 +72,11 @@ namespace Marketplace.Client.Pages.Dashboard
                 ShowConfirmButton = false,
                 Timer = 1000
             });
-        }        
+        }
+        
+        public void GenerateApiKey()
+        {
+            apiKey.SettingValue = Guid.NewGuid().ToString("N");
+        }
     }
 }

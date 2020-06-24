@@ -5,13 +5,17 @@
             @foreach (var market in FiltersData.FilteredData)
             {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <img src="/api/unturneditems/@market.ItemId/icon" style="width: 60px; height: 35px;">
+                    <div class="pr-2 align-self-center">
+                        <img src="/api/unturneditems/@market.ItemId/icon" style="max-height: 35px;">
+                    </div>
+                    <div class="align-self-center">
                         <span class="font-weight-bold">@market.ItemName</span>
                     </div>
-                    <div>
-                        <span class="font-weight-bold">$@market.Price</span>
-                        <button type="button" class="btn btn-primary" @onclick="async () => await OrderState.ShowInfoModalAsync(market)">
+                    <div class="ml-auto align-self-center">
+                        <span class="font-weight-bold">@market.Price.ToString("C")</span>
+                    </div>
+                    <div class="ml-2">
+                        <button type="button" class="btn btn-primary" @onclick="() => Modal.PreviewMarketItemAsync(market)">
                             More Info
                         </button>
                     </div>
@@ -20,7 +24,7 @@
         </ul>
     </DataList>
 
-    <PreviewModal UnturnedItem="OrderState.InfoItem?.Item ?? null" MarketItem="OrderState.InfoItem" OnClickBuy="(m) => OrderState.BuyMarketItemAsync(m, FiltersData.RemoveFromOrigin)" />
+    <MarketItemModal @ref="Modal" OnMarketItemBuy="(m) => MarketItemsService.BuyMarketItemAsync(m, FiltersData.RemoveFromOrigin)" />
 }
 else
 {

@@ -1,80 +1,68 @@
-using Marketplace.DatabaseProvider;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Marketplace.DatabaseProvider.Extensions;
-using Marketplace.DatabaseProvider.Repositories;
-using MySql.Data.MySqlClient;
 using Marketplace.Server.Services;
+using Marketplace.Server.Utilities;
+using Marketplace.Server.Health;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Marketplace.Server.Extensions;
+using Marketplace.Server.WebSockets;
+using Marketplace.WebSockets;
+using Marketplace.WebSockets.Logger;
+using System.Net;
 
 namespace Marketplace.Server
 {
     public class Startup
     {
-        private readonly IConfiguration configuration;
-
-        public Startup(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<SettingsService>();
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/signin";
                     options.LogoutPath = "/signout";
                     options.AccessDeniedPath = "/";
-                    options.Events.OnValidatePrincipal = (arg) =>
-                    {
-                        string steamId = arg.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
-                        List<Claim> claims = new List<Claim>();
-                        claims.Add(new Claim(ClaimTypes.Name, steamId));
-                        if (configuration.GetSection("Admins").Get<string[]>().Any(x=> x == steamId))
-                            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-                        else
-                            claims.Add(new Claim(ClaimTypes.Role, "Guest"));
-
-                        arg.ReplacePrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims, "DefaultAuth")));
-                        return Task.CompletedTask;
-                    };
+                    options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
                 }).AddSteam();
 
             services.AddLogging();
             services.AddAuthorizationCore();
             services.AddControllers();
-            //services.AddMvc();
+            services.AddMvc();
+
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
 
-            var provider = configuration.GetValue<string>("DatabaseProvider");
-            switch (provider)
-            {
-                case "MySql":
-                    services.AddMarketplaceMySql(configuration.GetConnectionString("MySql"));
-                    break;
-                case "MsSql":
-                    services.AddMarketplaceSql(configuration.GetConnectionString("MsSql"));
-                    break;
-            }
-            services.AddUconomyMySql(configuration.GetConnectionString("ServersDatabase"));
-            services.AddMemoryCache();
+            services.AddMarketplaceSql(Environment.GetEnvironmentVariable("MSSQL_CONNECTION_STRING"));
 
+            services.AddMemoryCache();
+            services.AddHttpClient();
+
+            services.AddTransient<IWebSocketsLogger, WebSocketsConsoleLogger>(c => new WebSocketsConsoleLogger(true));
+            services.AddSingleton<IWebSocketsManager, WebSocketsManager>();
+            services.AddWebSocketCallers();
+            services.AddWebSocketsData();
+
+            services.AddSingleton<ISettingService, SettingService>();
+            services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
+            services.AddTransient<IUserService, UserService>();
+
+            services.AddHealthChecks()                
+                .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
+                .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"Marketplace Web {Assembly.GetExecutingAssembly().GetName().Version} is getting loaded..."); //TODO: Use logger instead.
             Console.ResetColor();
@@ -87,25 +75,35 @@ namespace Marketplace.Server
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBlazorDebugging();
+                app.UseWebAssemblyDebugging();
             }
 
             app.UseStaticFiles();
-            app.UseClientSideBlazorFiles<Client.Startup>();
+            app.UseBlazorFrameworkFiles();
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
 
+            app.UseWebSockets();
+            app.UseMiddleware<WebSocketsMiddleware>();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapDefaultControllerRoute();
-                endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+                endpoints.MapRazorPages();
+                endpoints.MapControllers();
+                endpoints.MapFallbackToFile("index.html");
+
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    Predicate = (check) => true,
+                    ResponseWriter = HealthCheckHelpers.WriteResponses
+                });
             });
+
             using (var scope = app.ApplicationServices.CreateScope())
             {
-                Task.Run(scope.ServiceProvider.GetService<IUnturnedItemsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<IMarketItemsRepository>().Initialize).Wait();
-                Task.Run(scope.ServiceProvider.GetService<ISettingsRepository>().Initialize).Wait();
+                scope.InitializeRepositories();
+                scope.InitializeWebSocketCallers();
             }
         }
     }

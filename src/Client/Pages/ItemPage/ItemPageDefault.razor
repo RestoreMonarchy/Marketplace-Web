@@ -1,4 +1,4 @@
-﻿@if (Data != null)
+﻿@if (FiltersData != null)
 {
     <div class="row justify-content-center">
         <div class="col-lg-5 text-center">
@@ -7,26 +7,34 @@
             <p>@UnturnedItem.ItemDescription</p>
         </div>
         <div class="col-lg-7">
-            <DataList TData="MarketItem" Filters="Data">
+            <DataList TData="MarketItem" Filters="FiltersData">
                 <ul class="list-group">
-                    @foreach (var market in Data.FilteredData)
+                    @foreach (var marketItem in FiltersData.FilteredData)
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            @UnturnedItem.ItemName <b>$@market.Price</b>
-                            <button type="button" class="btn btn-primary" @onclick="async () => await OrderState.ShowInfoModalAsync(market)">
-                                More Info
-                            </button>
+                        <li class="list-group-item d-flex">
+                            <div class="align-self-center">
+                                @UnturnedItem.ItemName
+                            </div>
+                            <div class="ml-auto align-self-center font-weight-bold">
+                                @marketItem.Price.ToString("C")
+                            </div>
+                            <div class="ml-2">
+                                <button type="button" class="btn btn-primary btn-sm" @onclick="() => Modal.PreviewMarketItemAsync(marketItem)">
+                                    More Info
+                                </button>
+                            </div>
                         </li>
                     }
                 </ul>
-                @if (Data.DataCount == 0)
+                @if (FiltersData.DataCount == 0)
                 {
                     <h3 class="text-center">No listings</h3>
                 }
             </DataList>
         </div>
     </div>
-    <PreviewModal UnturnedItem="OrderState.InfoItem?.Item ?? null" MarketItem="OrderState.InfoItem" OnClickBuy="(m) => OrderState.BuyMarketItemAsync(m, Data.RemoveFromOrigin)" />
+
+    <MarketItemModal @ref="Modal" OnMarketItemBuy="(m) => MarketItemsService.BuyMarketItemAsync(m, FiltersData.RemoveFromOrigin)" />
 }
 else
 {

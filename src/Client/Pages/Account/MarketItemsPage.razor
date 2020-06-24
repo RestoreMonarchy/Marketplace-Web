@@ -1,0 +1,125 @@
+﻿@page "/account/marketitems"
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/account">Account</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Market Items</li>
+  </ol>
+</nav>
+<div class="row">
+    <div class="col-lg-6">
+        <h3>Purchases</h3>
+        @if (BuyerData != null)
+        {
+            <DataList TData="MarketItem" Filters="BuyerData">
+                <ul class="list-group">
+                    @foreach (var item in BuyerData.FilteredData)
+                    {
+                        <li class="list-group-item d-flex bd-highlight">
+                            <div class="pr-2 bd-highlight">
+                                <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 25px;">
+                            </div>
+                            <div class="bd-highlight">
+                                <a href="javascript:void(0)" @onclick="() => BuyerModal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
+                                    @item.ItemName
+                                </a>
+                            </div>
+                            <div class="ml-auto pl-2 bd-highlight">
+                                @if (!item.IsClaimed)
+                                {
+                                    <button class="btn btn-warning btn-sm text-uppercase" @onclick="() => ShowClaimAsync(item)">
+                                        claim
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-warning btn-sm text-uppercase" disabled>
+                                        claimed
+                                    </button>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </DataList>
+        } else
+        {
+            <ProgressBar />
+        }
+    </div>
+    <div class="col-lg-6">
+        <h3>Offers</h3>
+        @if (SellerData != null)
+        {
+            <DataList TData="MarketItem" Filters="SellerData">
+                <ul class="list-group">
+                    @foreach (var item in SellerData.FilteredData)
+                    {
+                        <li class="list-group-item d-flex">
+                            <div class="pr-2">
+                                <img src="/api/unturneditems/@item.ItemId/icon" style="max-height: 25px;">
+                            </div>
+                            <div>
+                                <a href="javascript:void(0)" @onclick="() => SellerModal.PreviewMarketItemAsync(item)" data-toggle="tooltip" data-placement="top" title="Show more info">
+                                    @item.ItemName
+                                </a>
+                            </div>
+                            <div class="ml-auto pl-2">
+                                @if (!item.IsSold)
+                                {
+                                
+                                    <button class="btn btn-danger btn-sm text-uppercase" @onclick="() => ConfirmRemoveItemAsync(item)">
+                                        remove
+                                    </button>
+                                
+                                } else
+                                {
+                                    <button class="btn btn-danger btn-sm text-uppercase" disabled>
+                                        Sold
+                                    </button>
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </DataList>
+        }
+        else
+        {
+            <ProgressBar />
+        }
+    </div>
+</div>
+
+<MarketItemModal @ref="BuyerModal" ModalId="BuyerMarketItemModal">
+    <span class="font-weight-bold">Seller Info</span>
+    <ul class="list-unstyled">
+        <li><b>Name:</b> @BuyerModal.MarketItem.SellerName</li>
+        <li><b>SteamID:</b> @BuyerModal.MarketItem.SellerId</li>
+        <li>
+            <b>Steam Profile:</b>
+            <a target="_blank" href="@string.Concat("https://steamcommunity.com/profiles/", BuyerModal.MarketItem.SellerId)">
+                Link
+            </a>
+        </li>
+        <li><b>Sold Date: </b> @BuyerModal.MarketItem.SoldDate</li>
+    </ul>
+</MarketItemModal>
+
+<MarketItemModal @ref="SellerModal" ModalId="SellerMarketItemModal" OnMarketItemChangePrice="ConfirmChangeItemPriceAsync">
+    @if (SellerModal.MarketItem.IsSold)
+    {
+        <span class="font-weight-bold">Buyer Info</span>
+        <ul class="list-unstyled">
+            <li><b>Name:</b> @SellerModal.MarketItem.BuyerName</li>
+            <li><b>SteamID:</b> @SellerModal.MarketItem.BuyerId</li>
+            <li>
+                <b>Steam Profile:</b>
+                <a target="_blank" href="@string.Concat("https://steamcommunity.com/profiles/", SellerModal.MarketItem.SellerId)">
+                    Link
+                </a>
+            </li>
+            <li><b>Sold Date: </b> @SellerModal.MarketItem.SoldDate</li>
+        </ul>
+    }
+</MarketItemModal>

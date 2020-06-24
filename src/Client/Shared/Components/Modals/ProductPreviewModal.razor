@@ -1,0 +1,92 @@
+﻿
+<div class="modal fade" id="@nameof(ProductPreviewModal)" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @if (PreviewProduct != null)
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title">@PreviewProduct.Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        @PreviewProduct.Description
+                        <br />
+                        <b>Price: </b> $@PreviewProduct.Price
+                    </div>                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="ShowSelectServerAsync">Select Server</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="SelectServerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            @if (PreviewProduct != null)
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose server for @PreviewProduct.Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Example select</label>
+                        <select class="form-control" @bind="@SelectServerId">
+                            @foreach (var server in PreviewProduct.Servers)
+                            {
+                                <option value="@server.Id">@server.ServerName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="BuyProductAsync">Buy for $@PreviewProduct.Price</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public EventCallback<BuyProductEventArgs> OnProductBuyClicked { get; set; }
+
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    private Product PreviewProduct { get; set; }
+    private int SelectServerId { get; set; }
+
+    public async Task PreviewProductAsync(Product product)
+    {
+        PreviewProduct = product;
+        await ToggleModalAsync();
+    }
+
+    public async Task ToggleModalAsync()
+    {
+        await JsRuntime.ToggleModalAsync(nameof(ProductPreviewModal));
+    }
+
+    public async Task ShowSelectServerAsync()
+    {
+        await JsRuntime.ToggleModalAsync(nameof(ProductPreviewModal));
+        SelectServerId = PreviewProduct.Servers.First().Id;
+        await JsRuntime.ToggleModalAsync("SelectServerModal");
+    }
+
+    public async Task BuyProductAsync()
+    {
+        await OnProductBuyClicked.InvokeAsync(new BuyProductEventArgs(PreviewProduct, PreviewProduct.Servers.First(x => x.Id == SelectServerId)));
+        await JsRuntime.ToggleModalAsync("SelectServerModal");
+    }
+}

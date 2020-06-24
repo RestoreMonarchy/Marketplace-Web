@@ -2,29 +2,45 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/">Marketplace</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarText">
+    <div class="collapse navbar-collapse" id="navbar">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
                 <a class="nav-link" href="/">Home</a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link" href="/trunk">Trunk</a>
+                <a class="nav-link" href="/products">Products</a>
             </li>
-            <AuthorizeView Roles="Admin">
+            <AuthorizeView>
                 <Authorized>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/account">Account</a>
                     </li>
                 </Authorized>
-            </AuthorizeView>            
+            </AuthorizeView>
+            <AuthorizeView Roles=@RoleConstants.AdminRoleId>
+                <Authorized>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <a class="nav-link" href="javascript:void(0)" data-toggle="dropdown">Dashboard</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/dashboard">Main</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/dashboard/servers">Servers</a>
+                                <a class="dropdown-item" href="/dashboard/commands">Commands</a>
+                                <a class="dropdown-item" href="/dashboard/products">Products</a>
+                            </div>
+                        </div>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
         </ul>
         <AuthorizeView>
             <Authorized>                
                 <span class="navbar-text">
-                    Balance: <b>@Balance</b>
+                    <BalanceComponent />
                 </span>
                 <form class="form-inline ml-lg-2" method="get" action="/signout">
                     <button class="btn btn-primary my-2 my-sm-0" type="submit">Sign Out</button>
@@ -41,28 +57,19 @@
 
 @code  {
     [Inject]
-    public AuthenticationStateProvider AuthProvider { get; set; }
+    private HttpClient HttpClient { get; set; }
     [Inject]
-    public HttpClient HttpClient { get; set; }
-
-    private AuthenticationState authState;
+    private BalanceService BalanceService { get; set; }
 
     public decimal Balance { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        authState = await AuthProvider.GetAuthenticationStateAsync();
-        navManager.LocationChanged += async (a, b) => await UpdateBalance();
-        await UpdateBalance();
+        BalanceService.OnChange += StateHasChanged;
     }
 
-
-    public async Task UpdateBalance()
+    public void Dispose()
     {
-        if (authState.User.Identity.IsAuthenticated)
-        {
-            Balance = await HttpClient.GetJsonAsync<decimal>("api/marketitems/balance");
-            StateHasChanged();
-        }
+        BalanceService.OnChange -= StateHasChanged;
     }
 }

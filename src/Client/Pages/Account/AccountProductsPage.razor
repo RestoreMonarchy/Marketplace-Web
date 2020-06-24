@@ -1,0 +1,37 @@
+﻿@page "/account/transactions"
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/account">Account</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Product Transactions</li>
+  </ol>
+</nav>
+@if (FiltersData != null)
+{
+    <DataList TData="ProductTransaction" Filters="FiltersData">
+        <ul class="list-group">
+            @foreach (var transaction in FiltersData.FilteredData)
+            {
+                <li class="list-group-item d-flex">
+                    <div class="@GetDotClass(transaction) align-self-center" />
+                    <div class="ml-3 font-weight-bold align-self-center">
+                        @transaction.ProductName
+                    </div>
+                    <div class="ml-1 align-self-center">
+                        <span class="text-muted">@transaction.CreateDate</span>
+                    </div>
+                    <div class="ml-auto">
+                        <button class="btn btn-primary btn-sm" @onclick="() => Modal.PreviewProductTransactionAsync(transaction)">
+                            More Info
+                        </button>
+                    </div>
+                </li>
+            }
+        </ul>
+    </DataList>
+} else
+{
+    <ProgressBar />
+}
+
+<ProductTransactionModal @ref="Modal" />

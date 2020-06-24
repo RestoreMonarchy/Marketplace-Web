@@ -67,5 +67,24 @@
     <Build Include="Procedures\BuyMarketItem.sql" />
     <Build Include="Procedures\SellMarketItem.sql" />
     <Build Include="Procedures\ChangePriceMarketItem.sql" />
+    <Build Include="Tables\Servers.sql" />
+    <Build Include="Tables\Products.sql" />
+    <Build Include="Tables\ProductServers.sql" />
+    <Build Include="Tables\ProductTransactions.sql" />
+    <Build Include="Procedures\CreateProduct.sql" />
+    <Build Include="Tables\Commands.sql" />
+    <Build Include="Tables\ProductCommands.sql" />
+    <Build Include="Procedures\UpdateProduct.sql" />
+    <Build Include="Procedures\BuyProduct.sql" />
+    <Build Include="Procedures\GetServerProductTransactions.sql" />
+    <Build Include="Procedures\GetSellerMarketItems.sql" />
+    <Build Include="Procedures\GetBuyerMarketItems.sql" />
+    <Build Include="Procedures\TakeDownMarketItem.sql" />
+    <Build Include="Procedures\GetPlayerProductTransactions.sql" />
+    <Build Include="Procedures\GetLatestProductTransactions.sql" />
+    <Build Include="Procedures\GetServerProductTransaction.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Database.publish.xml" />
   </ItemGroup>
 </Project>

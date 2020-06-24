@@ -18,16 +18,49 @@
     </div>
     <div class="col-4">
         <div class="card text-white bg-primary mb-3 text-center" style="max-width: 18rem;">
-            <div class="card-header">Total Uconomy Balance</div>
+            <div class="card-header">Servers Connected</div>
             <div class="card-body">
-                <h5 class="card-title">$@TotalBalance</h5>
+                <h5 class="card-title">@connectedServersCount</h5>
             </div>
         </div>
     </div>
 </div>
 
+
 @if (Settings != null)
 {
+    if (PlayersService.CurrentUserInfo?.IsGlobalAdmin ?? false)
+    {
+        <div>
+            <h2>General Settings</h2>
+            <p><small>These settings may only be accessed and changed by global website admin</small></p>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("APIKey"))" Model="apiKey">
+                <div class="form-group">
+                    <label>API Key</label>
+                    <InputText class="form-control" @bind-Value="apiKey.SettingValue" readonly />
+                    <small class="form-text text-muted">@apiKey.Help</small>
+                    <button class="btn btn-secondary" @onclick="GenerateApiKey">Generate New</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("SteamDevKey"))" Model="steamDevKey">
+                <div class="form-group">
+                    <label>Steam Dev Key</label>
+                    <InputText class="form-control" @bind-Value="steamDevKey.SettingValue" />
+                    <small class="form-text text-muted">@steamDevKey.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("Admins"))" Model="admins">
+                <div class="form-group">
+                    <label>Admins</label>
+                    <InputText class="form-control" @bind-Value="admins.SettingValue" />
+                    <small class="form-text text-muted">@admins.Help</small>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </EditForm>
+        </div>
+    }
+
     <div class="row">
         <div class="col">
             <h2>Layout Settings</h2>
@@ -47,14 +80,14 @@
                 </InputSelect>
                 <button type="submit" class="btn btn-primary mb-2">Save</button>
             </EditForm>
-            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("TrunkLayout"))" Model="trunkLayout" class="form-inline">
-                <label class="my-1 mr-2">Trunk Layout Layout</label>
-                <InputSelect @bind-Value="trunkLayout.SettingValue" class="custom-select my-1 mr-sm-2">
+            <EditForm OnValidSubmit="@(async () => await UpdateSettingAsync("ProductsLayout"))" Model="productsLayout" class="form-inline">
+                <label class="my-1 mr-2">Products Layout</label>
+                <InputSelect @bind-Value="productsLayout.SettingValue" class="custom-select my-1 mr-sm-2">
                     <option value="Default">Default</option>
-                    <option value="Rushed">Rushed</option>
                 </InputSelect>
                 <button type="submit" class="btn btn-primary mb-2">Save</button>
             </EditForm>
         </div>
+
     </div>
 }

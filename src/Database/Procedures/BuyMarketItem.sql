@@ -1,8 +1,10 @@
-﻿CREATE PROCEDURE BuyMarketItem @Id INT, @BuyerId VARCHAR(255), @Balance DECIMAL(9,2) 
+﻿CREATE PROCEDURE BuyMarketItem 
+	@Id INT, 
+	@BuyerId VARCHAR(255)
 AS
 BEGIN
 
-	DECLARE @sellerId INT, @isSold BIT, @price DECIMAL(9,2);
+	DECLARE @sellerId VARCHAR(255), @isSold BIT;
 	DECLARE @maxActiveShoppings INT = 2147483647;
 
 	SELECT 
@@ -13,8 +15,7 @@ BEGIN
 
 	SELECT 
 		@sellerId = SellerId,
-		@isSold = IsSold,
-		@price = Price
+		@isSold = IsSold
 	FROM dbo.MarketItems 
 	WHERE @Id = Id;
 
@@ -24,14 +25,8 @@ BEGIN
 		RETURN 2;
 	ELSE IF @isSold = 1 
 		RETURN 3;
-	ELSE IF @price > @Balance
-		RETURN 4;
 	ELSE IF (SELECT COUNT(*) FROM dbo.MarketItems WHERE BuyerId = @BuyerId AND IsClaimed = 0) > @maxActiveShoppings
-		RETURN 5;
-	ELSE
-		UPDATE dbo.MarketItems 
-		SET IsSold = 1, BuyerId = @BuyerId, SoldDate = SYSDATETIME()
-		WHERE Id = @Id;
+		RETURN 4;
 
 	RETURN 0;
 
