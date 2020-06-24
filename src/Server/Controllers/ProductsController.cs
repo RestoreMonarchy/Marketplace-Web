@@ -57,7 +57,7 @@ namespace Marketplace.Server.Controllers
         [HttpPost("{productId}/buy")]
         public async Task<IActionResult> PostBuyProductAsync(int productId, [FromQuery] int serverId)
         {
-            if (!User?.Identity?.IsAuthenticated ?? false)
+            if (!User?.Identity?.IsAuthenticated ?? true)
                 return StatusCode(StatusCodes.Status401Unauthorized);
 
             switch (await productsRepository.BuyProductAsync(productId, serverId, User.Identity.Name))

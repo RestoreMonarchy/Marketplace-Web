@@ -110,10 +110,12 @@ namespace Marketplace.Server.Controllers
             return BadRequest();
         }
 
-        [Authorize]
         [HttpPost("{id}/buy")]
         public async Task<IActionResult> BuyMarketItemAsync(int id)
         {
+            if (!User?.Identity?.IsAuthenticated ?? true)
+                return StatusCode(StatusCodes.Status401Unauthorized);
+
             switch (await marketItemsRepository.BuyMarketItemAsync(id, User.Identity.Name))
             {
                 case 0:
