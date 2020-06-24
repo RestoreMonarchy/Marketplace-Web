@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore src/Marketplace.Server.csproj
+      run: dotnet restore src/Server/Marketplace.Server.csproj
     - name: Build
       run: dotnet build src/Server/Marketplace.Server.csproj --configuration Release --no-restore
     - name: Test
