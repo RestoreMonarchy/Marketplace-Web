@@ -42,11 +42,11 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostServerAsync([FromBody] Shared.Server server)
         {
-            int serverId = await serversRepository.CreateServerAsync(server);
-            if (serverId == 0)
+            server = await serversRepository.CreateServerAsync(server);
+            if (server == null)
                 return BadRequest();
             else
-                return Ok(serverId);
+                return Ok(server);
         }
 
         [Authorize(Roles = RoleConstants.AdminRoleId)]

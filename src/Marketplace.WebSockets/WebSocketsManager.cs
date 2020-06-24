@@ -25,7 +25,7 @@ namespace Marketplace.WebSockets
 
         private List<WebSocketMessage> questionMessages = new List<WebSocketMessage>();
         
-        private Assembly CallAssembly { get; set; }
+        public Assembly CallAssembly { get; private set; }
         private MethodInfo[] MethodCalls { get; set; }
         private object[] CallInstances { get; set; }
 

@@ -30,10 +30,11 @@ namespace Marketplace.DatabaseProvider.Repositories.Sql
             return (await connection.QueryAsync<Server>(sql, new { serverId })).FirstOrDefault();
         }
 
-        public async Task<int> CreateServerAsync(Server server)
+        public async Task<Server> CreateServerAsync(Server server)
         {
-            const string sql = "INSERT INTO dbo.Servers (ServerName, ServerIP, ServerPort, Enabled) VALUES (@ServerName, @ServerIP, @ServerPort, @Enabled); SELECT SCOPE_IDENTITY();";
-            return await connection.ExecuteAsync(sql, server);
+            const string sql = "INSERT INTO dbo.Servers (ServerName, ServerIP, ServerPort, Enabled) VALUES (@ServerName, @ServerIP, @ServerPort, @Enabled); " +
+                "SELECT * FROM dbo.Servers WHERE Id = SCOPE_IDENTITY();";
+            return await connection.QuerySingleOrDefaultAsync<Server>(sql, server);
         }
 
         public async Task UpdateServerAsync(Server server)

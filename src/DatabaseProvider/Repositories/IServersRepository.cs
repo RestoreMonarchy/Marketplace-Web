@@ -8,7 +8,7 @@ namespace Marketplace.DatabaseProvider.Repositories
     {
         Task<IEnumerable<Server>> GetServersAsync();
         Task<Server> GetServerAsync(int serverId);
-        Task<int> CreateServerAsync(Server server);
+        Task<Server> CreateServerAsync(Server server);
         Task UpdateServerAsync(Server server);
     }
 }

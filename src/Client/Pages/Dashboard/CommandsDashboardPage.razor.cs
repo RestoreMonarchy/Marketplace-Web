@@ -38,7 +38,7 @@ namespace Marketplace.Client.Pages.Dashboard
         public async Task OnCommandCreated(Command command)
         {
             var response = await HttpClient.PostAsJsonAsync("api/commands", command);
-            command.Id = await response.Content.ReadFromJsonAsync<int>();
+            command = await response.Content.ReadFromJsonAsync<Command>();
             Commands.Add(command);
         }
 

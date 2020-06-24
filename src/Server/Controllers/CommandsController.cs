@@ -32,11 +32,11 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostCommandAsync([FromBody] Command command)
         {
-            int commandId = await commandsRepository.AddCommandAsync(command);
-            if (commandId == 0)
+            command = await commandsRepository.AddCommandAsync(command);
+            if (command == null)
                 return BadRequest();
             else
-                return Ok(commandId);
+                return Ok(command);
         }
 
         [Authorize(Roles = RoleConstants.AdminRoleId)]

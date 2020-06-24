@@ -39,7 +39,7 @@ namespace Marketplace.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> PostProductAsync([FromBody] Product product)
         {
-            int productId = await productsRepository.CreateProductAsync(product);
+            var productId = await productsRepository.CreateProductAsync(product);
             if (productId == 0)
                 return BadRequest();
             else

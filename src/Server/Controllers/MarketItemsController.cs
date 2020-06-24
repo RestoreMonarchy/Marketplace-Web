@@ -39,10 +39,14 @@ namespace Marketplace.Server.Controllers
             return Ok(await marketItemsRepository.GetMarketItemAsync(id));
         }
 
-        [Authorize]
         [HttpPatch("{id}")]
         public async Task<IActionResult> ChangePriceMarketItemAsync(int id) 
         {
+            if (!User?.Identity?.IsAuthenticated ?? false)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized);
+            }
+
             string content;
             using (var reader = new StreamReader(Request.Body))
             {

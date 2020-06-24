@@ -30,16 +30,16 @@ namespace Marketplace.Client.Pages.Dashboard
             await FormModal.CreateServerAsync();
         }
 
-        public async Task UpdateServerAsync(Server command)
+        public async Task UpdateServerAsync(Server server)
         {
-            await FormModal.UpdateServerAsync(command);
+            await FormModal.UpdateServerAsync(server);
         }
 
-        public async Task OnServerCreated(Server command)
+        public async Task OnServerCreated(Server server)
         {
-            var response = await HttpClient.PutAsJsonAsync("api/servers", command);
-            command.Id = await response.Content.ReadFromJsonAsync<int>();
-            Servers.Add(command);
+            var response = await HttpClient.PostAsJsonAsync("api/servers", server);
+            server = await response.Content.ReadFromJsonAsync<Server>();
+            Servers.Add(server);
         }
 
         public async Task OnServerUpdated(Server command)
