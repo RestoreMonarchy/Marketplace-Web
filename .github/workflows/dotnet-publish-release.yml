@@ -20,13 +20,12 @@ jobs:
     - name: Build
       run: |
         tag=$(git describe --tags --abbrev=0)
-        release_name="Marketplace-$tag-${{ matrix.target }}"
-        dotnet publish src/Server/Marketplace.Server.csproj --framework netcoreapp3.1 --runtime "${{ matrix.target }}" -c Release -o "$release_name"
-        zip -r "${release_name}.zip" "$release_name"
-        rm -r "$release_name"
+        dotnet publish src/Server/Marketplace.Server.csproj --framework netcoreapp3.1 --runtime "${{ matrix.target }}" -c Release -o "app"
+        zip -r "Marketplace-Web.zip" "app"
+        rm -r "app"
     - name: Publish
       uses: softprops/action-gh-release@v1
       with:
-        files: "Marketplace*"
+        files: "Marketplace-Web.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
