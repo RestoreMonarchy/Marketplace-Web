@@ -17,6 +17,7 @@ using Marketplace.Server.WebSockets;
 using Marketplace.WebSockets;
 using Marketplace.WebSockets.Logger;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace Marketplace.Server
 {
@@ -27,10 +28,12 @@ namespace Marketplace.Server
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
                 .AddCookie(options =>
                 {
+                    options.Cookie.SameSite = SameSiteMode.Unspecified;
                     options.LoginPath = "/signin";
                     options.LogoutPath = "/signout";
                     options.AccessDeniedPath = "/";
                     options.Events.OnValidatePrincipal = PrincipalValidator.ValidateAsync;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(12);
                 }).AddSteam();
 
             services.AddLogging();
@@ -48,6 +51,7 @@ namespace Marketplace.Server
 
             services.AddMemoryCache();
             services.AddHttpClient();
+            services.AddSameSiteCookiePolicy();
 
             services.AddTransient<IWebSocketsLogger, WebSocketsConsoleLogger>(c => new WebSocketsConsoleLogger(true));
             services.AddSingleton<IWebSocketsManager, WebSocketsManager>();
@@ -58,7 +62,7 @@ namespace Marketplace.Server
             services.AddSingleton<IUnturnedItemsIconService, UnturnedItemsIconService>();
             services.AddTransient<IUserService, UserService>();
 
-            services.AddHealthChecks()                
+            services.AddHealthChecks()
                 .AddCheck<MainDatabaseHealthCheck>("MainDatabase")
                 .AddCheck<SteamWebApiHealthCheck>("SteamWebAPI");
 
